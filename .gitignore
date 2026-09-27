@@ -18,3 +18,4 @@ sites/*/tmp/
 sites/*/tmp/
 api/runs/*/stage/files/
 api/runs/*/stage/packages/
+api/runs/
