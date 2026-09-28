@@ -53,10 +53,24 @@ def basename(name: str) -> str:
     return (name or "").strip().rsplit("/", 1)[-1]
 
 
+# IS data names whose temporal index is alphanumeric (e.g. DP4.00001.001 ``01D`` daily / ``01M`` monthly):
+# neon-mcp's parser only accepts three digits for HOR/VER/TMI and would take ``000`` as the table name.
+ALNUM_TMI_RE = re.compile(
+    r"^NEON\.(?P<domain>D\d{2})\.(?P<site>[A-Z]{4})\.(?P<product>DP\d\.\d{5}\.\d{3})\.(?P<hor>\d{3})\.(?P<ver>\d{3})\."
+    r"(?P<tmi>[0-9A-Z]{3})\.(?P<table>[^.]+)\.(?P<month>\d{4}-\d{2})\.(?P<package>basic|expanded)\."
+    r"(?P<ts>\d{8}T\d{6}Z)\.(?P<ext>\w+)$")
+
+
 def classify(name: str, product_hint: str | None = None) -> Classified:
     """Kind and name parts of one NEON file name (see the module docstring)."""
     from neon_mcp.neon.filenames import parse_neon_filename
 
+    m = ALNUM_TMI_RE.match(basename(name))
+    if m and not m["tmi"].isdigit():
+        code = product_hint if (product_hint and m["product"].startswith("DP0.")) else m["product"]
+        return Classified(kind="data", table=m["table"], hor=m["hor"], ver=m["ver"], tmi=m["tmi"],
+                          domain=m["domain"], site=m["site"], product_code=code, month=m["month"],
+                          package=m["package"], timestamp=m["ts"], ext=m["ext"].lower())
     p = parse_neon_filename(name)
     if p.kind == "other":
         m = LAB_FILE_RE.match(basename(name))

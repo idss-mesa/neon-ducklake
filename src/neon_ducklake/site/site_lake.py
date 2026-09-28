@@ -267,16 +267,44 @@ def table_columns(con: duckdb.DuckDBPyConnection, table: str, alias: str = ALIAS
     return {r[0]: r[1] for r in rows}
 
 
-def ensure_table(con: duckdb.DuckDBPyConnection, table: str, columns: dict[str, str], alias: str = ALIAS) -> None:
-    """CREATE TABLE IF NOT EXISTS, then ADD any missing columns (schema grows, never shrinks)."""
+def _canonical_type(con: duckdb.DuckDBPyConnection, t: str) -> str:
+    return str(con.execute(f"SELECT typeof(CAST(NULL AS {t}))").fetchone()[0])
+
+
+def column_types(con: duckdb.DuckDBPyConnection, table: str, alias: str = ALIAS) -> dict[str, str]:
+    rows = con.execute("SELECT column_name, data_type FROM duckdb_columns() WHERE database_name=? AND table_name=? "
+                       "ORDER BY column_index", [alias, table]).fetchall()
+    return {c: str(t) for c, t in rows}
+
+
+def ensure_table(con: duckdb.DuckDBPyConnection, table: str, columns: dict[str, str], alias: str = ALIAS,
+                 *, reconcile: bool = True) -> None:
+    """CREATE TABLE IF NOT EXISTS, ADD any missing columns (schema grows, never shrinks) and, when
+    ``reconcile``, rebuild the table if an existing column's type differs from the declared one.
+
+    Reconciliation matters for module tables created by an older release (e.g. ``schema_drift`` list
+    columns inferred as INTEGER[] from empty lists and now declared VARCHAR[]): without it an
+    ``INSERT BY NAME`` fails with a conversion error. Only callers passing a *declared* schema reconcile.
+    """
     if not table_exists(con, table, alias):
         cols = ", ".join(f"{ident(c)} {t}" for c, t in columns.items())
         con.execute(f"CREATE TABLE {alias}.{ident(table)} ({cols})")
         return
-    have = table_columns(con, table, alias)
+    have = column_types(con, table, alias)
     for c, t in columns.items():
         if c not in have:
             con.execute(f"ALTER TABLE {alias}.{ident(table)} ADD COLUMN {ident(c)} {t}")
+    if not reconcile:
+        return
+    mismatched = {c: t for c, t in columns.items()
+                  if c in have and _canonical_type(con, have[c]) != _canonical_type(con, t)}
+    if mismatched:
+        log.warning("%s.%s: reconciling column types %s", alias, table,
+                    {c: f"{have[c]} -> {t}" for c, t in mismatched.items()})
+        cur = column_types(con, table, alias)
+        sel = ", ".join(f"TRY_CAST({ident(c)} AS {mismatched[c]}) AS {ident(c)}" if c in mismatched else ident(c)
+                        for c in cur)
+        con.execute(f"CREATE OR REPLACE TABLE {alias}.{ident(table)} AS SELECT {sel} FROM {alias}.{ident(table)}")
 
 
 def relation_columns(con: duckdb.DuckDBPyConnection, source: str) -> dict[str, str]:
@@ -293,7 +321,7 @@ def upsert(con: duckdb.DuckDBPyConnection, table: str, source: str, keys: Sequen
     Call inside :func:`commit` (the MERGE is part of that snapshot). Returns {'changed', 'source'}.
     """
     src_cols = relation_columns(con, source)
-    ensure_table(con, table, columns or src_cols, alias)
+    ensure_table(con, table, columns or src_cols, alias, reconcile=columns is not None)
     tgt_cols = table_columns(con, table, alias)
     for c, t in src_cols.items():
         if c not in tgt_cols:
@@ -324,7 +352,8 @@ def replace_where(con: duckdb.DuckDBPyConnection, table: str, source: str, where
     :func:`commit`. Returns the number of inserted rows.
     """
     src_cols = relation_columns(con, source)
-    ensure_table(con, table, src_cols, alias)
+    declared = STACK_SCHEMAS.get(table) or (FILES_COLUMNS if table == "files" else None)
+    ensure_table(con, table, declared or src_cols, alias, reconcile=declared is not None)
     have = table_columns(con, table, alias)
     for c, t in src_cols.items():
         if c not in have:

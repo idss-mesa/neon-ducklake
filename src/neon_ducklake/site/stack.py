@@ -1039,6 +1039,37 @@ def stack_product(ctx: Ctx, product: str, files: list[SrcFile]) -> None:
     other = [f.name for k, fs in by_kind.items() if k not in SUPPORT_KINDS and k not in ("data", "lab") for f in fs]
     if other:
         log.info("stack %s: %d file(s) of other kinds not stacked", product, len(other))
+    if not any(e.get("product") == product for e in ctx.errors):
+        expected = {lake_table_name(product, t) for t in tables} | {lake_table_name(product, f"lab_{t}") for t in labs}
+        prune_stale_tables(ctx, product, expected)
+
+
+def prune_stale_tables(ctx: Ctx, product: str, expected: set[str]) -> list[str]:
+    """Drop data/lab lake tables this product recorded earlier but no longer produces.
+
+    Happens when a file-name classification changes (e.g. DP4.00001.001 tables once collapsed into
+    ``__000``) or NEON renames/retires a table. Only runs after an error-free product build; removes the
+    table and its table_catalog, file_stats, cast_errors, schema_drift and file_taxa rows in one snapshot.
+    """
+    con = ctx.con
+    if not site_lake.table_exists(con, "table_catalog"):
+        return []
+    rows = con.execute("SELECT tableName, neonTable FROM lake.table_catalog WHERE productCode = ? AND kind IN "
+                       "('data', 'lab')", [product]).fetchall()
+    stale = [(t, n) for t, n in rows if t not in expected]
+    if not stale:
+        return []
+    with site_lake.commit(con, f"stack {ctx.site} {product} prune", {"dropped": [t for t, _ in stale]}):
+        for table, neon_table in stale:
+            con.execute(f"DROP TABLE IF EXISTS lake.{ident(table)}")
+            con.execute("DELETE FROM lake.table_catalog WHERE productCode = ? AND tableName = ?", [product, table])
+            for derived, col in (("file_stats", "lakeTable"), ("cast_errors", "tableName"), ("schema_drift", "lakeTable")):
+                if site_lake.table_exists(con, derived):
+                    con.execute(f"DELETE FROM lake.{derived} WHERE productCode = ? AND {col} = ?", [product, table])
+            if neon_table and site_lake.table_exists(con, "file_taxa"):
+                con.execute("DELETE FROM lake.file_taxa WHERE productCode = ? AND tableName = ?", [product, neon_table])
+    log.warning("stack %s %s: dropped %d stale table(s): %s", ctx.site, product, len(stale), [t for t, _ in stale])
+    return [t for t, _ in stale]
 
 
 def _totals(results: list[dict[str, Any]], errors: list[dict[str, Any]]) -> dict[str, Any]:

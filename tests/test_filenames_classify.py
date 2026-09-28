@@ -75,3 +75,15 @@ def test_flatten_uses_the_shared_classifier() -> None:
     lab = flatten.parse_file_name("NEON.NEON_HQ.mct_taxonTableLabSummary.20251206T221502Z.csv")
     assert (lab.kind, lab.lab, lab.table) == ("lab", "NEON_HQ", "mct_taxonTableLabSummary")
     assert flatten.LAB_FILE_RE is filenames.LAB_FILE_RE
+
+
+def test_alphanumeric_temporal_index_keeps_the_table_name() -> None:
+    """DP4.00001.001 uses TMI codes like 01D/01M; the table must not collapse to '000'."""
+    from neon_ducklake.filenames import classify
+
+    for tmi, table in (("01D", "wss_daily_wind"), ("01M", "wss_monthly_temp")):
+        c = classify(f"NEON.D14.SRER.DP4.00001.001.000.040.{tmi}.{table}.2025-06.basic.20260108T180323Z.csv")
+        assert (c.kind, c.table, c.hor, c.ver, c.tmi, c.month, c.package) == (
+            "data", table, "000", "040", tmi, "2025-06", "basic")
+    c = classify("NEON.D14.SRER.DP1.00002.001.000.010.030.SAAT_30min.2024-06.basic.20240706T162340Z.csv")
+    assert (c.table, c.tmi) == ("SAAT_30min", "030")
