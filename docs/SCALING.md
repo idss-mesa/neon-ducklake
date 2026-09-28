@@ -50,3 +50,33 @@ Status: design, 2026-09-27. Measured from the catalog lake (snapshot 1) and the 
 
 - **Sample mode:** `--sample N` keeps only the N most recent months per product (released and PROVISIONAL), for probing.
 - **Status:** `neon-ducklake status` prints a per-site stage table with totals, and writes `logs/status.json`.
+
+## Measured (2026-09-27/28)
+
+Sources: the 9-site probe (sample mode, local stages) and the first live orchestrated run (SRER `--sample 2`, all 11 stages).
+
+| Stage | Measured | Notes |
+|---|---|---|
+| list | 17–24 s per site (57–61 products) | one POST /data/query per product |
+| download | 32–59 files/s for small files after the fixes (was 5.7) | 3 clients, adaptive up to 24 streams; large files are bandwidth-bound |
+| stack | 4–85 s per sample; 0 unit errors on 10 sites | types come from the pubFormat of each column; lab tables stacked; stale tables pruned |
+| terms | 3–90 s per site (plant-rich sites are slowest; cached across sites) | taxa: exact → NCBI synonym → infraspecific → genus → family |
+| upload | ~0.8 s p95 per file; CyVerse resets connections at ~10 concurrent puts | AIMD with a learned ceiling now settles at ~9 instead of sawtoothing 5↔10 |
+| AVU apply | 60 calls/s (the configured ceiling) with p95 70–140 ms; 38k AVUs over 3.2k objects in 85 s | ceiling could go higher; kept at 60 as ICAT etiquette |
+| record | ~1,100 rows/s (38k rows in 35 s, 1 snapshot) | ≈15 min per full site under the MESA lock |
+| verify | 68 s for a sample; all checks pass | months outside the listed windows are out of scope in sample mode |
+
+**Projection for all 81 sites (basic package, full AVU profile).**
+
+The orchestrator overlaps these across sites. Upload and AVU apply use separate resource classes, and downloads of the next site run concurrently.
+
+- **Upload:** ≈3.2M objects ÷ ~10 files/s ≈ 90 h. This is the long pole.
+- **AVU apply:** ≈3.2M objects ÷ 60/s ≈ 15 h.
+- **Record:** ≈65M rows ÷ 1,100/s ≈ 16 h.
+
+Expect roughly 4–5 days of unattended running for every site. A single terrestrial site is ~4–7 h; an aquatic site is ~2–3 h.
+
+**Ways to shorten it (not implemented):**
+- Close idle mesa-mcp stdio sessions during uploads, since they count against the CyVerse connection limit.
+- Bulk-put month collections as tar bundles extracted server-side (iRODS bulk put / `msiTarFileExtract`), cutting per-file overhead by roughly 10–15×.
+- Speed up mesa-ducklake `LakeStore.write_changes` upstream (Arrow/CSV insert instead of `executemany`).
