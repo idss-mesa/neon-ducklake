@@ -261,7 +261,8 @@ class SiteVerifier:
             return
         inv = {(r["productCode"], r["month"]): r for r in d.inventory if self.pm_ok(r["productCode"], r["month"])}
         lake = {(r["productCode"], r["month"]): r for r in d.site_months if self.pm_ok(r["productCode"], r["month"])}
-        missing = sorted(set(inv) - set(lake))
+        external = sorted(k for k in set(inv) - set(lake) if inv[k].get("isExternal"))
+        missing = sorted(k for k in set(inv) - set(lake) if not inv[k].get("isExternal"))
         extra = sorted(set(lake) - set(inv))
         diffs = []
         for k in sorted(set(inv) & set(lake)):
@@ -274,7 +275,8 @@ class SiteVerifier:
                               "lake": [b.get("fileCount"), b.get("totalBytes")], "release": [a.get("release"),
                                                                                              b.get("release")]})
         status = "pass" if not (missing or extra or diffs) else "warn"
-        self.add("listing", status, f"inventory {len(inv)} site-months, lake {len(lake)}; missing {len(missing)}, "
+        self.add("listing", status, f"inventory {len(inv)} site-months ({len(external)} external, link-only), "
+                                    f"lake {len(lake)}; missing {len(missing)}, "
                                     f"extra {len(extra)}, count/byte diffs {len(diffs)}",
                  missing=["/".join(k) for k in _sample(missing)], extra=["/".join(k) for k in _sample(extra)],
                  diffs=_sample(diffs), n_missing=len(missing), n_extra=len(extra), n_diffs=len(diffs),

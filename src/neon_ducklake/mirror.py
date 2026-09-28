@@ -98,12 +98,18 @@ def _has(exc: BaseException, names: Iterable[str]) -> bool:
     return any(n in s for n in names)
 
 
-def remote_replicas(session: Any, coll: str) -> dict[str, list[Replica]]:
-    """name -> replicas of every data object directly in ``coll`` (one GenQuery, grouped by id)."""
+def remote_replicas(session: Any, coll: str, name: str | None = None) -> dict[str, list[Replica]]:
+    """name -> replicas of every data object directly in ``coll`` (one GenQuery, grouped by id).
+
+    With ``name`` the query is restricted to that one object (used to verify a single put without
+    re-reading a large collection per file).
+    """
     from irods.models import Collection, DataObject
 
     q = session.query(DataObject.id, DataObject.name, DataObject.size, DataObject.checksum,
                       DataObject.replica_number, DataObject.replica_status).filter(Collection.name == coll)
+    if name is not None:
+        q = q.filter(DataObject.name == name)
     by_id: dict[Any, tuple[str, dict[int, Replica]]] = {}
     for row in q:
         ent = by_id.setdefault(row[DataObject.id], (row[DataObject.name], {}))
@@ -250,7 +256,7 @@ class Mirror:
     # ---------------------------------------------------------- one file
     def verify(self, session: Any, irods_path: str, size: int, md5: str) -> str:
         coll, name = posixpath.split(irods_path)
-        reps = remote_replicas(session, coll).get(name, [])
+        reps = remote_replicas(session, coll, name).get(name, [])
         good = [r for r in reps if r.status == "1" and r.size == size]
         if not good:
             raise VerifyError(f"no good replica with size {size} for {irods_path} (replicas: "

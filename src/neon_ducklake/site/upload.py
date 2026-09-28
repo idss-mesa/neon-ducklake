@@ -157,7 +157,7 @@ def main(site: str, products: list[str] | None = None, months: list[str] | None 
             fails += _failures(res2)
         elif catalog:
             log.warning("upload %s: %d failure(s); catalog file NOT uploaded", site, fails)
-    env.write_json(site_lake.site_paths(site).reports_dir / "upload_summary.json",
+    env.write_json(env.LOG_DIR / f"upload_summary_{site}.json",
                    {"site": site, "items": len(first) + len(catalog), "raw": n_raw, "result": res1,
                     "catalogResult": res2, "failures": fails, "at": env.utcnow().isoformat()})
     return 0 if not fails else 2

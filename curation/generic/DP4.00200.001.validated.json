@@ -1,0 +1,554 @@
+{
+ "productCode": "DP4.00200.001",
+ "site": "SRER",
+ "validatedAt": "2026-09-28T01:46:20.123554+00:00",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/SRER/curation/proposals/DP4.00200.001.rep1.json",
+   "trace": "sites/SRER/curation/traces/DP4.00200.001.rep1.jsonl",
+   "card_sha256": "0ea2b23483bad4cf15910b6c623c3fbcb723b7b1438db300e08521be6c8cbabc",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 50.3,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6626,
+    "cache_creation_input_tokens": 30820,
+    "cache_read_input_tokens": 88766,
+    "thinking_tokens": 1077
+   },
+   "total_cost_usd": 0.3969
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/SRER/curation/proposals/DP4.00200.001.rep2.json",
+   "trace": "sites/SRER/curation/traces/DP4.00200.001.rep2.jsonl",
+   "card_sha256": "0ea2b23483bad4cf15910b6c623c3fbcb723b7b1438db300e08521be6c8cbabc",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 54.0,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6243,
+    "cache_creation_input_tokens": 28021,
+    "cache_read_input_tokens": 115807,
+    "thinking_tokens": 731
+   },
+   "total_cost_usd": 0.3722
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "f51fc2becc21a4df",
+   "productCode": "DP4.00200.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.carbon_dioxide",
+   "value": "carbon dioxide",
+   "unit": "CHEBI:16526",
+   "curie": "CHEBI:16526",
+   "label": "carbon dioxide",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "fluxCo2Turb",
+   "rationale": "CO2 is the chemical entity whose exchange flux is quantified.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.carbon_dioxide",
+     "modelValue": "carbon dioxide",
+     "modelLabel": "carbon dioxide",
+     "column": "fluxCo2Turb"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.carbon_dioxide",
+     "modelValue": "carbon dioxide",
+     "modelLabel": "carbon dioxide",
+     "column": "fluxCo2Nsae"
+    }
+   ]
+  },
+  {
+   "proposalId": "0a77d597130e1644",
+   "productCode": "DP4.00200.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_water_vapour",
+   "value": "atmospheric water vapour",
+   "unit": "ENVO:01000268",
+   "curie": "ENVO:01000268",
+   "label": "atmospheric water vapour",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "fluxH2oTurb",
+   "rationale": "H2O vapor flux (latent heat) and concentration are measured in the atmosphere.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_water_vapour",
+     "modelValue": "atmospheric water vapour",
+     "modelLabel": "atmospheric water vapour",
+     "column": "fluxH2oTurb"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_water_vapour",
+     "modelValue": "atmospheric water vapour",
+     "modelLabel": "atmospheric water vapour",
+     "column": "fluxH2oNsae"
+    }
+   ]
+  },
+  {
+   "proposalId": "6f524ce1d10e4211",
+   "productCode": "DP4.00200.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.air",
+   "value": "air",
+   "unit": "ENVO:00002005",
+   "curie": "ENVO:00002005",
+   "label": "air",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Air above and within the canopy is sampled by sonic anemometer and gas analyzers.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "001c7b2b1bbda2d3",
+   "productCode": "DP4.00200.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_wind_direction",
+   "value": "atmospheric wind direction",
+   "unit": "ENVO:01001361",
+   "curie": "ENVO:01001361",
+   "label": "atmospheric wind direction",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "footAngZaxsErth",
+   "rationale": "Wind direction is reported as a footprint statistic.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_direction",
+     "modelValue": "atmospheric wind direction",
+     "modelLabel": "atmospheric wind direction",
+     "column": "footAngZaxsErth"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_direction",
+     "modelValue": "atmospheric wind direction",
+     "modelLabel": "atmospheric wind direction",
+     "column": "footAngZaxsErth"
+    }
+   ]
+  },
+  {
+   "proposalId": "f640f347d9ecaca8",
+   "productCode": "DP4.00200.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_wind_speed",
+   "value": "atmospheric wind speed",
+   "unit": "ENVO:01001362",
+   "curie": "ENVO:01001362",
+   "label": "atmospheric wind speed",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "footVeloYaxsHorSd",
+   "rationale": "3-D wind speed statistics and friction velocity come from the sonic anemometer.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_speed",
+     "modelValue": "atmospheric wind speed",
+     "modelLabel": "atmospheric wind speed",
+     "column": "footVeloYaxsHorSd"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_speed",
+     "modelValue": "atmospheric wind speed",
+     "modelLabel": "atmospheric wind speed",
+     "column": "footVeloFric"
+    }
+   ]
+  },
+  {
+   "proposalId": "7af6c30c73035f81",
+   "productCode": "DP4.00200.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.evapotranspiration",
+   "value": "evapotranspiration",
+   "unit": "ENVO:02500033",
+   "curie": "ENVO:02500033",
+   "label": "evapotranspiration",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "fluxH2oNsae",
+   "rationale": "Net H2O flux quantifies ecosystem evapotranspiration.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.evapotranspiration",
+     "modelValue": "evapotranspiration",
+     "modelLabel": "evapotranspiration",
+     "column": "fluxH2oNsae"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.evapotranspiration",
+     "modelValue": "evapotranspiration",
+     "modelLabel": "evapotranspiration",
+     "column": "fluxH2oNsae"
+    }
+   ]
+  },
+  {
+   "proposalId": "02037decc5f45aa3",
+   "productCode": "DP4.00200.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.photosynthesis",
+   "value": "photosynthesis",
+   "unit": "GO:0015979",
+   "curie": "GO:0015979",
+   "label": "photosynthesis",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "fluxCo2Nsae",
+   "rationale": "Net ecosystem CO2 exchange reflects photosynthetic uptake; the abstract names partitioning into photosynthesis.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.photosynthesis",
+     "modelValue": "photosynthesis",
+     "modelLabel": "photosynthesis",
+     "column": "fluxCo2Nsae"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.photosynthesis",
+     "modelValue": "photosynthesis",
+     "modelLabel": "photosynthesis",
+     "column": "fluxCo2Nsae"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "d7468cbeaaba5427",
+   "productCode": "DP4.00200.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.flux",
+   "value": "flux",
+   "unit": "PATO:0001030",
+   "curie": "PATO:0001030",
+   "label": "flux",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "fluxCo2Nsae",
+   "rationale": "Core product: turbulent, storage and net surface-atmosphere exchange fluxes of CO2, H2O and heat.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.flux",
+     "modelValue": "flux",
+     "modelLabel": "flux",
+     "column": "fluxCo2Nsae"
+    }
+   ]
+  },
+  {
+   "proposalId": "81e60512c1c0bd5c",
+   "productCode": "DP4.00200.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.concentration_of_carbon_dioxide_in_an_atmosphere",
+   "value": "concentration of carbon dioxide in an atmosphere",
+   "unit": "ENVO:01001865",
+   "curie": "ENVO:01001865",
+   "label": "concentration of carbon dioxide in an atmosphere",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Gas analyzers record CO2 molar fraction along the tower profile and at the tower top.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_carbon_dioxide_in_an_atmosphere",
+     "modelValue": "concentration of carbon dioxide in an atmosphere",
+     "modelLabel": "concentration of carbon dioxide in an atmosphere",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "08a6985a39a8502d",
+   "productCode": "DP4.00200.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "timeBgn",
+   "rationale": "Half-hourly aggregated flux measurements form a time series.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "timeBgn"
+    }
+   ]
+  },
+  {
+   "proposalId": "548b9382d3d16f9b",
+   "productCode": "DP4.00200.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chebi.13ccarbon_dioxide",
+   "value": "((13)C)carbon dioxide",
+   "unit": "CHEBI:139538",
+   "curie": "CHEBI:139538",
+   "label": "((13)C)carbon dioxide",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Bundle includes carbon-13 CO2 stable isotope measurements for flux partitioning.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.13ccarbon_dioxide",
+     "modelValue": "((13)C)carbon dioxide",
+     "modelLabel": "((13)C)carbon dioxide",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ab12f1b707af388a",
+   "productCode": "DP4.00200.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.temperature",
+   "value": "air temperature",
+   "unit": "PATO:0000146",
+   "curie": "PATO:0000146",
+   "label": "temperature",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "fluxTempNsae",
+   "rationale": "Temperature flux (sensible heat) and the air temperature profile are measured.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.temperature",
+     "modelValue": "air temperature",
+     "modelLabel": "temperature",
+     "column": "fluxTempNsae"
+    }
+   ]
+  },
+  {
+   "proposalId": "8a2ee9ea8f41ec4f",
+   "productCode": "DP4.00200.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "30-minute averaged sensor measurements recorded by tower instruments.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}
