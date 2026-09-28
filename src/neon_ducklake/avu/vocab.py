@@ -40,7 +40,7 @@ NEON_PUBLISHER = "National Ecological Observatory Network (NEON)"
 LICENSE = ("CC-BY-4.0", "https://creativecommons.org/licenses/by/4.0/")
 API_BASE = "https://data.neonscience.org/api/v0"
 SOURCES = ("https://data.neonscience.org/data-api/", API_BASE, "https://data.neonscience.org/data-api/graphql/")
-DERIVED_FROM = f"/iplant/home/tswetnam/neon-downloads/ducklake/neon_spatial.ducklake@{env.PRECEDENT_VERSION}"
+DERIVED_FROM = f"{env.PRECEDENT_IRODS}@{env.PRECEDENT_VERSION}" if env.PRECEDENT_IRODS else None
 PIPELINE = ("neon-ducklake: catalog fetch (neon-mcp NeonClient in-process) -> seal -> build (DuckDB "
             "ducklake, one snapshot per build) -> mirror -> tag catalog (journaled bulk AVU writer + MESA history)")
 CODE_DIRS = {
@@ -296,7 +296,7 @@ def _root_avus(run_id: str | None, manifest: dict[str, Any], facts: dict[str, An
         ("mesa.ducklake.catalog", f"ducklake/{env.CATALOG_LAKE}", "relative path"),
         ("mesa.local_root", env.ROOT.as_posix(), "sparky-1 path"),
         ("provenance.pipeline", PIPELINE),
-        ("provenance.derivedFrom", DERIVED_FROM, "iRODS path"),
+        *([("provenance.derivedFrom", DERIVED_FROM, "iRODS path")] if DERIVED_FROM else []),
     ]
     for name, sha in sorted(env.repo_versions().items()):
         avus.append(("provenance.tool", f"{name} {sha}"))

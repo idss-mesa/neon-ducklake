@@ -13,7 +13,7 @@ from neon_ducklake.tuning import ConnectionBudget
 
 from .test_avu_fakes import SYS_MAX_CONNECT_COUNT_EXCEEDED, FakeDataObjects, FakeIrods, FakeSession
 
-R = "/iplant/home/tswetnam/neon-ducklake"
+R = "/iplant/home/testuser/neon-ducklake"
 
 
 @pytest.fixture(autouse=True)

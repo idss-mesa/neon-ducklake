@@ -408,7 +408,7 @@ wheels = [
 [[package]]
 name = "mesa-ducklake"
 version = "0.1.0"
-source = { editable = "/home/tswetnam/.mesa/repos/mesa-ducklake" }
+source = { git = "https://github.com/idss-mesa/mesa-ducklake?rev=7bc143fefb093f0a2ace748a7036598147533ca0#7bc143fefb093f0a2ace748a7036598147533ca0" }
 dependencies = [
     { name = "duckdb" },
     { name = "platformdirs" },
@@ -418,28 +418,10 @@ dependencies = [
     { name = "pytz" },
 ]
 
-[package.metadata]
-requires-dist = [
-    { name = "duckdb", specifier = ">=1.1" },
-    { name = "litellm", marker = "extra == 'llm-e2e'", specifier = ">=1.50" },
-    { name = "mcp", marker = "extra == 'llm-e2e'", specifier = ">=2.0,<3" },
-    { name = "mypy", marker = "extra == 'dev'" },
-    { name = "platformdirs", specifier = ">=4.0" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
-    { name = "pydantic", specifier = ">=2.6" },
-    { name = "pytest", marker = "extra == 'dev'" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'" },
-    { name = "pytest-postgresql", marker = "extra == 'dev'" },
-    { name = "python-irodsclient", specifier = ">=2.0" },
-    { name = "pytz" },
-    { name = "ruff", marker = "extra == 'dev'" },
-]
-provides-extras = ["dev", "llm-e2e"]
-
 [[package]]
 name = "mesa-mcp"
 version = "0.1.0"
-source = { editable = "/home/tswetnam/.mesa/repos/mesa-mcp" }
+source = { git = "https://github.com/idss-mesa/mesa-mcp?rev=8fbaedf850301146b38b997774ab7aed1d0cb179#8fbaedf850301146b38b997774ab7aed1d0cb179" }
 dependencies = [
     { name = "cachetools" },
     { name = "httpx" },
@@ -458,30 +440,6 @@ dependencies = [
 ducklake = [
     { name = "mesa-ducklake" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "cachetools" },
-    { name = "httpx", specifier = ">=0.28" },
-    { name = "mcp", specifier = ">=2.0,<3" },
-    { name = "mesa-ducklake", marker = "extra == 'ducklake'" },
-    { name = "mypy", marker = "extra == 'dev'" },
-    { name = "pydantic", specifier = ">=2.6" },
-    { name = "pyjwt", extras = ["crypto"], specifier = ">=2.10" },
-    { name = "pytest", marker = "extra == 'dev'" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'" },
-    { name = "pytest-mock", marker = "extra == 'dev'" },
-    { name = "python-irodsclient", specifier = ">=2.0" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "ruff", marker = "extra == 'dev'" },
-    { name = "starlette", specifier = ">=0.40" },
-    { name = "structlog" },
-    { name = "types-pyyaml", marker = "extra == 'dev'" },
-    { name = "types-requests", marker = "extra == 'dev'" },
-    { name = "uvicorn", specifier = ">=0.30" },
-]
-provides-extras = ["ducklake", "dev"]
 
 [[package]]
 name = "neon-ducklake"
@@ -508,9 +466,9 @@ dev = [
 requires-dist = [
     { name = "duckdb", specifier = "==1.5.5" },
     { name = "h5py", specifier = ">=3.10" },
-    { name = "mesa-ducklake", editable = "/home/tswetnam/.mesa/repos/mesa-ducklake" },
-    { name = "mesa-mcp", extras = ["ducklake"], editable = "/home/tswetnam/.mesa/repos/mesa-mcp" },
-    { name = "neon-mcp", editable = "/home/tswetnam/github/idss-mesa/neon-mcp" },
+    { name = "mesa-ducklake", git = "https://github.com/idss-mesa/mesa-ducklake?rev=7bc143fefb093f0a2ace748a7036598147533ca0" },
+    { name = "mesa-mcp", extras = ["ducklake"], git = "https://github.com/idss-mesa/mesa-mcp?rev=8fbaedf850301146b38b997774ab7aed1d0cb179" },
+    { name = "neon-mcp", git = "https://github.com/idss-mesa/neon-mcp?rev=a5949d2525e0909decb1c0dda41112b76570bc82" },
     { name = "numpy", specifier = ">=1.26" },
     { name = "pyarrow", specifier = ">=17" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
@@ -521,7 +479,8 @@ provides-extras = ["dev"]
 
 [[package]]
 name = "neon-mcp"
-source = { editable = "/home/tswetnam/github/idss-mesa/neon-mcp" }
+version = "0.1.0"
+source = { git = "https://github.com/idss-mesa/neon-mcp?rev=a5949d2525e0909decb1c0dda41112b76570bc82#a5949d2525e0909decb1c0dda41112b76570bc82" }
 dependencies = [
     { name = "anyio" },
     { name = "httpx" },
@@ -532,30 +491,6 @@ dependencies = [
     { name = "structlog" },
     { name = "uvicorn" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "anyio", specifier = ">=4" },
-    { name = "httpx", specifier = ">=0.28,<1" },
-    { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6" },
-    { name = "jsonschema", marker = "extra == 'dev'", specifier = ">=4" },
-    { name = "mcp", specifier = ">=2.0,<3" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10" },
-    { name = "pydantic", specifier = ">=2.7" },
-    { name = "pypdf", marker = "extra == 'pdf'", specifier = ">=4" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5" },
-    { name = "pyyaml", specifier = ">=6" },
-    { name = "pyyaml", marker = "extra == 'docs'" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
-    { name = "starlette", specifier = ">=0.40" },
-    { name = "structlog", specifier = ">=24" },
-    { name = "types-pyyaml", marker = "extra == 'dev'" },
-    { name = "uvicorn", specifier = ">=0.30" },
-    { name = "zensical", marker = "extra == 'docs'", specifier = ">=0.0.60" },
-]
-provides-extras = ["dev", "docs", "pdf"]
 
 [[package]]
 name = "numpy"

@@ -1,6 +1,26 @@
 """Shared runtime: paths, NEON clients (one per role, sharing one rate limiter), MESA/iRODS bootstrap.
 
 Secrets arrive only through the environment set by ``scripts/with-secrets.sh``; nothing here prints them.
+
+Every location is configurable; the defaults need no user-specific literal:
+
+==================================== =========================================================================
+``NEON_DUCKLAKE_ROOT``               data root (default: the repository checkout, i.e. the parent of ``src/``)
+``NEON_DUCKLAKE_IRODS_ROOT``         iRODS project collection (default ``/iplant/home/<user>/neon-ducklake``)
+``CYVERSE_USERNAME``                 CyVerse user; else ``MESA_MCP_IRODS__USER``, else the first line of
+                                     ``$MESA_HOME/cyverse-user`` (written by the MESA local install)
+``MESA_HOME``                        MESA local install (default ``~/.mesa``)
+``NEON_DUCKLAKE_PRECEDENT_LAKE``     neon-downloads spatial lake whose ``neon_*`` layers the catalog build copies
+                                     (default ``~/neon-downloads/ducklake/neon_spatial.ducklake``; optional:
+                                     absent or ``none`` skips the copy with a warning)
+``NEON_DUCKLAKE_PRECEDENT_DATA``     its DATA_PATH (default ``<lake dir>/data/``)
+``NEON_DUCKLAKE_PRECEDENT_VERSION``  its pinned snapshot (default 90)
+``NEON_DUCKLAKE_PRECEDENT_IRODS``    its iRODS path, for ``provenance.derivedFrom``
+                                     (default ``/iplant/home/<user>/neon-downloads/ducklake/neon_spatial.ducklake``)
+==================================== =========================================================================
+
+``IRODS_ROOT`` and ``ACTOR`` need the CyVerse user. When it cannot be resolved, reading either raises a
+``SystemExit`` that says how to set it, so offline commands still work and iRODS work fails clearly.
 """
 
 from __future__ import annotations
@@ -10,16 +30,71 @@ import fcntl
 import json
 import logging
 import os
+import re
 import subprocess
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(os.environ.get("NEON_DUCKLAKE_ROOT", "/home/tswetnam/neon-ducklake"))
-IRODS_ROOT = os.environ.get("NEON_DUCKLAKE_IRODS_ROOT", "/iplant/home/tswetnam/neon-ducklake")
-ACTOR = "tswetnam"
+CODE_ROOT = Path(__file__).resolve().parents[2]  # the checkout (pyproject.toml, src/, sql/) when not installed
+
+
+def _default_root() -> Path:
+    if (CODE_ROOT / "pyproject.toml").is_file() and (CODE_ROOT / "src" / "neon_ducklake").is_dir():
+        return CODE_ROOT
+    return Path.cwd()
+
+
+def _opt_path(var: str, default: Path | None) -> Path | None:
+    """``$var`` as a path; unset -> ``default``; empty/``none``/``off`` -> None (feature disabled)."""
+    raw = os.environ.get(var)
+    if raw is None:
+        return default
+    raw = raw.strip()
+    if raw.lower() in ("", "none", "off", "0", "false"):
+        return None
+    return Path(raw).expanduser()
+
+
+ROOT = Path(os.environ.get("NEON_DUCKLAKE_ROOT") or _default_root()).expanduser()
+MESA_HOME = Path(os.environ.get("MESA_HOME") or Path.home() / ".mesa").expanduser()
+IRODS_ZONE_HOME = "/iplant/home"
+USER_HINT = ("set CYVERSE_USERNAME (or run through scripts/with-secrets.sh, which sets MESA_MCP_IRODS__USER), "
+             "write the user name to $MESA_HOME/cyverse-user, or set NEON_DUCKLAKE_IRODS_ROOT")
+
+
+def cyverse_user(environ: Mapping[str, str] | None = None, mesa_home: Path | None = None) -> str | None:
+    """``$CYVERSE_USERNAME``, ``$MESA_MCP_IRODS__USER`` (not ``anonymous``), then ``$MESA_HOME/cyverse-user``."""
+    e = os.environ if environ is None else environ
+    for var in ("CYVERSE_USERNAME", "MESA_MCP_IRODS__USER"):
+        v = (e.get(var) or "").strip()
+        if v and v != "anonymous":
+            return v
+    try:
+        lines = ((mesa_home or MESA_HOME) / "cyverse-user").read_text().splitlines()
+    except OSError:
+        return None
+    v = lines[0].strip() if lines else ""
+    return v or None
+
+
+def _user_from_irods_path(path: str | None) -> str | None:
+    m = re.match(r"^/[^/]+/home/([^/]+)(/|$)", path or "")
+    return m.group(1) if m else None
+
+
+CYVERSE_USER = cyverse_user()
+_IRODS_ROOT = os.environ.get("NEON_DUCKLAKE_IRODS_ROOT") or (
+    f"{IRODS_ZONE_HOME}/{CYVERSE_USER}/neon-ducklake" if CYVERSE_USER else None)
+_ACTOR = CYVERSE_USER or _user_from_irods_path(_IRODS_ROOT)
+# Only defined when resolvable; otherwise module __getattr__ below raises a clear SystemExit on first use.
+if _IRODS_ROOT:
+    IRODS_ROOT: str = _IRODS_ROOT.rstrip("/")
+if _ACTOR:
+    ACTOR: str = _ACTOR  # snapshot author / MESA history actor / dc.creator: the iRODS user doing the writes
+
 API_DIR = ROOT / "api"
 RUNS_DIR = API_DIR / "runs"
 LAKE_DIR = ROOT / "ducklake"
@@ -30,20 +105,27 @@ LOCK_DIR = WORK_DIR / "locks"
 MESA_CACHE_DIR = WORK_DIR / "mesa-cache"
 QUARANTINE_DIR = WORK_DIR / "quarantine"
 LOG_DIR = ROOT / "logs"
-PRECEDENT_LAKE = Path("/home/tswetnam/neon-downloads/ducklake/neon_spatial.ducklake")
-PRECEDENT_DATA = Path("/home/tswetnam/neon-downloads/ducklake/data/")
-PRECEDENT_VERSION = 90
+MESA_CATALOG = MESA_HOME / "ducklake" / "catalog.duckdb"
+PRECEDENT_LAKE = _opt_path("NEON_DUCKLAKE_PRECEDENT_LAKE",
+                           Path.home() / "neon-downloads" / "ducklake" / "neon_spatial.ducklake")
+PRECEDENT_DATA = _opt_path("NEON_DUCKLAKE_PRECEDENT_DATA", PRECEDENT_LAKE.parent / "data" if PRECEDENT_LAKE else None)
+PRECEDENT_VERSION = int(os.environ.get("NEON_DUCKLAKE_PRECEDENT_VERSION") or 90)
+PRECEDENT_IRODS = os.environ.get("NEON_DUCKLAKE_PRECEDENT_IRODS") or (
+    f"{IRODS_ZONE_HOME}/{CYVERSE_USER}/neon-downloads/ducklake/neon_spatial.ducklake" if CYVERSE_USER else None)
 NEON_ROR = "https://ror.org/04j43p132"
 DUCKDB_SETTINGS = {"memory_limit": "40GB", "threads": 8}
 
-REPOS = {
-    "neon-mcp": Path("/home/tswetnam/github/idss-mesa/neon-mcp"),
-    "mesa-mcp": Path("/home/tswetnam/.mesa/repos/mesa-mcp"),
-    "mesa-ducklake": Path("/home/tswetnam/.mesa/repos/mesa-ducklake"),
-    "neon-ducklake": ROOT,
-}
+# The three code dependencies (installed from the git revs pinned in pyproject [tool.uv.sources]).
+DEPENDENCIES = {"neon-mcp": "neon_mcp", "mesa-mcp": "mesa_mcp", "mesa-ducklake": "mesa_ducklake"}
+SELF = "neon-ducklake"
 
 log = logging.getLogger("neon_ducklake")
+
+
+def __getattr__(name: str) -> Any:
+    if name in ("IRODS_ROOT", "ACTOR"):
+        raise SystemExit(f"neon-ducklake: cannot resolve the CyVerse user for {name}: {USER_HINT}")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def utcnow() -> datetime:
@@ -70,19 +152,100 @@ def setup_logging(level: str = "warning") -> None:
     root.propagate = False
 
 
-def repo_versions() -> dict[str, str]:
-    """git SHA (+ '-dirty') of every code tree we run, for provenance."""
-    out: dict[str, str] = {}
-    for name, path in REPOS.items():
-        try:
-            sha = subprocess.run(["git", "-C", str(path), "rev-parse", "--short", "HEAD"],
-                                 capture_output=True, text=True, check=True).stdout.strip()
-            dirty = subprocess.run(["git", "-C", str(path), "status", "--porcelain", "--untracked-files=no"],
-                                   capture_output=True, text=True, check=True).stdout.strip()
-            out[name] = sha + ("-dirty" if dirty else "")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            out[name] = "unknown"
+# ---------------------------------------------------------------- versions (provenance)
+
+def git_state(path: Path) -> tuple[str, bool] | None:
+    """(full HEAD SHA, dirty) of the git work tree at ``path``; None when it is not one."""
+    try:
+        sha = subprocess.run(["git", "-C", str(path), "rev-parse", "HEAD"],
+                             capture_output=True, text=True, check=True).stdout.strip()
+        dirty = subprocess.run(["git", "-C", str(path), "status", "--porcelain", "--untracked-files=no"],
+                               capture_output=True, text=True, check=True).stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError, NotADirectoryError):
+        return None
+    return (sha, bool(dirty)) if sha else None
+
+
+@dataclass(frozen=True)
+class DistInfo:
+    """Where an installed distribution came from (PEP 610 ``direct_url.json``)."""
+
+    name: str
+    version: str | None = None  # distribution version; None = not installed
+    commit: str | None = None  # full git commit: vcs_info.commit_id, or HEAD of an editable git checkout
+    dirty: bool = False  # editable checkout with uncommitted changes
+    source: str | None = None  # VCS URL or local path; None for an index/wheel install
+    editable: bool = False
+    requested: str | None = None  # requested revision (vcs_info.requested_revision)
+
+    @property
+    def short(self) -> str:
+        """``a5949d2`` / ``a5949d2-dirty`` when the commit is known, else the version (or ``unknown``)."""
+        if self.commit:
+            return self.commit[:7] + ("-dirty" if self.dirty else "")
+        return self.version or "unknown"
+
+    def describe(self) -> str:
+        if self.version is None:
+            return "not installed"
+        how = "editable " if self.editable else ""
+        where = f" from {how}{self.source}" if self.source else " from the package index"
+        return f"{self.version} ({self.short}){where}"
+
+
+def _file_url_path(url: str) -> Path:
+    from urllib.parse import unquote, urlparse
+
+    return Path(unquote(urlparse(url).path))
+
+
+def dist_info(name: str) -> DistInfo:
+    """Version and provenance of an installed distribution (``neon-mcp``, ``mesa-mcp``, ...)."""
+    from importlib import metadata
+
+    try:
+        dist = metadata.distribution(name)
+    except metadata.PackageNotFoundError:
+        return DistInfo(name)
+    version = dist.version
+    try:
+        raw = dist.read_text("direct_url.json")
+        direct = json.loads(raw) if raw else {}
+    except (OSError, ValueError):
+        direct = {}
+    url = direct.get("url") or ""
+    vcs = direct.get("vcs_info") or {}
+    if vcs:
+        return DistInfo(name, version, commit=vcs.get("commit_id"), source=url or None,
+                        requested=vcs.get("requested_revision"))
+    if url.startswith("file://"):
+        path = _file_url_path(url)
+        editable = bool((direct.get("dir_info") or {}).get("editable"))
+        g = git_state(path) if path.is_dir() else None
+        return DistInfo(name, version, commit=g[0] if g else None, dirty=g[1] if g else False,
+                        source=str(path), editable=editable)
+    return DistInfo(name, version, source=url or None)
+
+
+def self_info() -> DistInfo:
+    """This package: the git state of the checkout it runs from, else its distribution metadata."""
+    g = git_state(CODE_ROOT) if (CODE_ROOT / "src" / "neon_ducklake").is_dir() else None
+    if g:
+        d = dist_info(SELF)
+        return DistInfo(SELF, d.version, commit=g[0], dirty=g[1], source=str(CODE_ROOT), editable=True)
+    return dist_info(SELF)
+
+
+def dependency_infos() -> dict[str, DistInfo]:
+    """The three dependencies and this package, in a fixed order."""
+    out = {name: dist_info(name) for name in DEPENDENCIES}
+    out[SELF] = self_info()
     return out
+
+
+def repo_versions() -> dict[str, str]:
+    """Short git commit (+ ``-dirty``) of every code tree we run, else its version, for provenance."""
+    return {name: d.short for name, d in dependency_infos().items()}
 
 
 def tool_versions() -> dict[str, str]:
@@ -216,7 +379,7 @@ _DUCKLAKE_CLIENT: Any = None
 def mesa_ducklake_client(m: Mesa) -> Any:
     """The ONE mesa-ducklake client of this process, also installed as mesa-mcp's default.
 
-    Opening it takes the single-writer lock on ~/.mesa/ducklake/catalog.duckdb, so callers take
+    Opening it takes the single-writer lock on $MESA_HOME/ducklake/catalog.duckdb, so callers take
     the global 'mesa-tag' file lock first and keep the window short.
     """
     global _DUCKLAKE_CLIENT
@@ -246,7 +409,7 @@ def close_mesa_ducklake_client() -> None:
 
 def catalog_lock_holders(path: Path | None = None) -> list[dict[str, str]]:
     """Processes (other than us) with the MESA DuckDB catalog open, via /proc/*/fd."""
-    target = str(path or Path.home() / ".mesa/ducklake/catalog.duckdb")
+    target = str(path or MESA_CATALOG)
     me = os.getpid()
     out = []
     for pid_dir in Path("/proc").iterdir():

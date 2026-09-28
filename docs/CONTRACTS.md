@@ -1,7 +1,7 @@
 # neon-ducklake internal contracts
 
 Every module codes against these contracts. Changing one means updating this file first.
-The approved design is in `/home/tswetnam/.claude/plans/use-the-neon-mcp-to-eventual-treehouse.md`.
+The approved design is in `docs/PLAN.md`.
 
 ## Shared modules (do not modify without coordination)
 - `env.py`:

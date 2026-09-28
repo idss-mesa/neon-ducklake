@@ -1,21 +1,37 @@
+# Python / tooling
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Secrets and local environment (secrets come from the login keyring via scripts/with-secrets.sh)
+.env
+*.env
+.envrc
+.claude/
+.irods/
+
+# Runtime state, logs and data (mirrored to iRODS, never to git)
 work/
 logs/
-api/runs/*/raw/
-api/runs/*/stage/
-api/runs/*/sealed/
+api/runs/
 api/LATEST
 ducklake/
 sites/*/raw/
 sites/*/ducklake/
 sites/*/tmp/
+# generated per-site outputs (cards, reports, curation proposals and model traces) live in iRODS
+sites/*/cards/
+sites/*/reports/
+sites/*/curation/
 *.part
 *.wal
-.pytest_cache/
-.ruff_cache/
-sites/*/tmp/
-api/runs/*/stage/files/
-api/runs/*/stage/packages/
-api/runs/
+*.duckdb
+*.sqlite
+
+# re-downloadable public cache (OBO Foundry registry)
+ref/obofoundry_ontologies.jsonld

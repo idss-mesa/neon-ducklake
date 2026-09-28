@@ -10,14 +10,14 @@ from neon_ducklake import enroll, env, preflight
 
 from .test_avu_fakes import FakeIrods, FakeSession
 
-R = "/iplant/home/tswetnam/neon-ducklake"
+R = "/iplant/home/testuser/neon-ducklake"
 
 
 def test_nested_mesa_enabled_only_below_root() -> None:
     s = FakeIrods()
     s.add_coll(R, (("mesa.enabled", "true", ""),))
     s.add_coll(f"{R}/sites/SRER", (("neon.siteCode", "SRER", ""),))
-    s.add_coll("/iplant/home/tswetnam/neon-downloads", (("mesa.enabled", "true", ""),))
+    s.add_coll("/iplant/home/testuser/neon-downloads", (("mesa.enabled", "true", ""),))
     assert enroll.nested_mesa_enabled(FakeSession(s), R) == []
     s.add_coll(f"{R}/sites/HARV", (("mesa.enabled", "true", ""),))
     assert enroll.nested_mesa_enabled(FakeSession(s), R) == [f"{R}/sites/HARV"]
@@ -25,7 +25,7 @@ def test_nested_mesa_enabled_only_below_root() -> None:
 
 def test_ensure_root_is_idempotent() -> None:
     s = FakeIrods()
-    s.add_coll("/iplant/home/tswetnam")
+    s.add_coll("/iplant/home/testuser")
     assert enroll.ensure_root(FakeSession(s), R) is True
     assert enroll.ensure_root(FakeSession(s), R) is False
     assert s.calls["coll_create"] == 1

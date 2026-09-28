@@ -98,7 +98,7 @@ class FakeIrods:
                             out.append(dict(rep, COL_META_DATA_ATTR_NAME=a, COL_META_DATA_ATTR_VALUE=v,
                                             COL_META_DATA_ATTR_UNITS=u))
             elif table == "user":
-                out = [{"USER_ID": 7, "USER_NAME": "tswetnam"}]
+                out = [{"USER_ID": 7, "USER_NAME": "testuser"}]
         return out
 
 

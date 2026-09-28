@@ -89,8 +89,8 @@ def test_record_batches_writes_snapshots_with_exact_ts(con, lake) -> None:
     assert [x["status"] for x in b] == ["recorded", "recorded"] and [x["n_rows"] for x in b] == [3, 4]  # f0 has 3
     hist = client.get_history(project.project_id, f"{C}/f0.csv")
     got = {(h.attribute, h.op, h.ts.astimezone(UTC), h.source, h.actor) for h in hist}
-    assert ("neon.k0", "add", T0, "neon-ducklake:site.avus", "tswetnam") in got
-    assert ("neon.k0", "delete", T0, "neon-ducklake:site.avus", "tswetnam") in got
+    assert ("neon.k0", "add", T0, "neon-ducklake:site.avus", "testuser") in got
+    assert ("neon.k0", "delete", T0, "neon-ducklake:site.avus", "testuser") in got
     # nothing left to record
     assert history.plan_batches(con, "SRER") == []
 

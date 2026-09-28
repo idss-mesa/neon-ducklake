@@ -60,12 +60,12 @@ class FakeClient:
         return [SimpleNamespace(attribute=a, value=v, unit=u) for a, v, u in self.mesa_avus.get(path, set())]
 
 
-def snap(sid: int, note: str, actor: str = "tswetnam", parquet: str | None = None):
+def snap(sid: int, note: str, actor: str = "testuser", parquet: str | None = None):
     return SimpleNamespace(snapshot_id=sid, actor=actor, note=note, parquet_file=parquet or f"snapshot_{sid}.parquet")
 
 
 def write_parquet(cache: Path, sid: int, rows: list[tuple], source: str = "neon-ducklake:site.avus",
-                  actor: str = "tswetnam") -> None:
+                  actor: str = "testuser") -> None:
     d = cache / str(PID)
     d.mkdir(parents=True, exist_ok=True)
     pq.write_table(pa.table({"project_id": [str(PID)] * len(rows), "snapshot_id": [sid] * len(rows),

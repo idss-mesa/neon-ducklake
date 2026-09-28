@@ -15,6 +15,7 @@ import pytest
 from neon_ducklake import env
 from neon_ducklake.site import curate, ontology_store, validate
 
+from .test_curation_curate import fake_mesa_mcp
 from .test_site_common import SITE, site_env  # noqa: F401 - fixture
 
 REPO_CURATION = Path(__file__).resolve().parents[1] / "curation"
@@ -66,6 +67,8 @@ def fake_claude(site_env: Path, monkeypatch: pytest.MonkeyPatch) -> Path:  # noq
     script.chmod(script.stat().st_mode | stat.S_IXUSR)
     (bindir / "fake_config.json").write_text(json.dumps({"terms": STREAM_TERMS, "seen": SEEN}))
     monkeypatch.setattr(curate, "CLAUDE_BIN", script)
+    monkeypatch.setattr(env, "MESA_HOME", site_env / "mesa-home")
+    fake_mesa_mcp(env.MESA_HOME)
     monkeypatch.setattr(curate, "unmapped_units", list)
     monkeypatch.setenv("NEON_TOKEN", "must-not-leak")
     return bindir

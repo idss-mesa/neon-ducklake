@@ -113,7 +113,7 @@ def test_site_level(built) -> None:
     assert dc["datacite.identifier"] == f"https://de.cyverse.org/data/ds{S}"
     assert dc["datacite.resourceTypeGeneral"] == "Collection"
     assert dc["datacite.creator.1.nameIdentifier"] == "https://ror.org/04j43p132"
-    assert dc["datacite.contributor.1.name"] == "tswetnam" and dc["datacite.contributor.1.contributorType"] == \
+    assert dc["datacite.contributor.1.name"] == "testuser" and dc["datacite.contributor.1.contributorType"] == \
         "DataCurator"
     assert dc["datacite.publicationYear"] == "2026"
     assert "https://www.neonscience.org/field-sites/test" in dc.values()

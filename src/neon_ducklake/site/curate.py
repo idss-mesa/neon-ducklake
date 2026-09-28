@@ -5,8 +5,10 @@ This is the neon-avu-eval protocol (Opus 5.5 was the best model there). Each run
 
 * **Scrubbed environment.** The child gets only ``HOME``, ``PATH`` and ``DBUS_SESSION_BUS_ADDRESS``, as
   with ``env -i``. So it sees no NEON token, no iRODS password and no MESA catalog DSN.
-* **One MCP server.** ``--strict-mcp-config`` loads only ``curation/mcp-mesa-ols.json``. That config runs
-  mesa-mcp directly, with anonymous iRODS and ``MESA_MCP_DUCKLAKE__CATALOG_DSN=''``.
+* **One MCP server.** ``--strict-mcp-config`` loads only the config rendered from the template
+  ``curation/mcp-mesa-ols.json`` into ``work/mcp-mesa-ols.json`` (``${MESA_HOME}`` filled in, default ``~/.mesa``).
+  That config runs the MESA install's mesa-mcp directly, with anonymous iRODS and
+  ``MESA_MCP_DUCKLAKE__CATALOG_DSN=''``.
 * **Three tools.** Built-in tools are off (``--tools ""``). The three OLS tools are allowed, the rest of
   mesa-mcp's tools are hidden, and ``--permission-mode dontAsk`` denies anything else.
 * **Kept outputs.** The full ``stream-json`` trace goes to ``sites/<SITE>/curation/traces/<code>.rep<N>.jsonl``.
@@ -40,6 +42,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import subprocess
 import time
 from collections.abc import Iterable
@@ -54,7 +57,16 @@ from .ontology_store import norm_curie
 
 log = logging.getLogger("neon_ducklake.site.curate")
 
-CLAUDE_BIN = Path(os.environ.get("NEON_DUCKLAKE_CLAUDE", "/home/tswetnam/.local/bin/claude"))
+
+
+def _default_claude() -> Path:
+    """``~/.local/bin/claude`` (the native installer's location), else ``claude`` on PATH."""
+    local = Path.home() / ".local" / "bin" / "claude"
+    found = None if local.exists() else shutil.which("claude")
+    return Path(found) if found else local
+
+
+CLAUDE_BIN = Path(os.environ.get("NEON_DUCKLAKE_CLAUDE") or _default_claude()).expanduser()
 MODEL = "claude-opus-5-5"
 REPLICATES = 2
 PARALLEL = 4
@@ -235,8 +247,53 @@ def child_env(source: dict[str, str] | None = None) -> dict[str, str]:
     return {k: src[k] for k in CHILD_ENV_KEYS if src.get(k)}
 
 
+MCP_CONFIG = "mcp-mesa-ols.json"
+MCP_PLACEHOLDERS = ("${MESA_HOME}",)
+
+
+def mcp_template_path() -> Path:
+    """The tracked template (``curation/mcp-mesa-ols.json``): no absolute paths, ``${MESA_HOME}`` placeholders."""
+    return curation_root() / MCP_CONFIG
+
+
 def mcp_config_path() -> Path:
-    return curation_root() / "mcp-mesa-ols.json"
+    """The rendered config the child loads (``work/``, git-ignored); written by :func:`render_mcp_config`."""
+    return env.WORK_DIR / MCP_CONFIG
+
+
+def render_mcp_config() -> Path:
+    """Fill ``${MESA_HOME}`` into the template, write :func:`mcp_config_path` and check the server command.
+
+    Raises ``SystemExit`` with a hint when the template is missing, holds an unknown placeholder, or its
+    command (the MESA install's ``mesa-mcp``) does not exist.
+    """
+    tpl = mcp_template_path()
+    if not tpl.is_file():
+        raise SystemExit(f"MCP config template missing: {tpl}")
+    values = {"${MESA_HOME}": str(env.MESA_HOME)}
+
+    def fill(v: Any) -> Any:
+        if isinstance(v, str):
+            for k, val in values.items():
+                v = v.replace(k, val)
+            return v
+        if isinstance(v, list):
+            return [fill(x) for x in v]
+        if isinstance(v, dict):
+            return {k: fill(x) for k, x in v.items()}
+        return v
+
+    cfg = fill(json.loads(tpl.read_text()))
+    left = sorted(set(re.findall(r"\$\{[^}]*\}", json.dumps(cfg))))
+    if left:
+        raise SystemExit(f"{tpl}: unknown placeholder(s) {', '.join(left)} (known: {', '.join(MCP_PLACEHOLDERS)})")
+    command = Path(cfg["mcpServers"][SERVER]["command"])
+    if not (command.is_file() and os.access(command, os.X_OK)):
+        raise SystemExit(f"mesa-mcp not found at {command}: it is part of the MESA local install "
+                         f"(set MESA_HOME if that is not {env.MESA_HOME})")
+    out = mcp_config_path()
+    env.write_json(out, cfg)
+    return out
 
 
 def tool_names(tools: Iterable[str]) -> list[str]:
@@ -729,8 +786,10 @@ def main(site: str, products: list[str] | None = None, force: bool = False,
     if not CLAUDE_BIN.exists():
         log.error("claude CLI not found at %s", CLAUDE_BIN)
         return 1
-    if not mcp_config_path().exists():
-        log.error("MCP config missing: %s", mcp_config_path())
+    try:
+        render_mcp_config()
+    except SystemExit as exc:
+        log.error("%s", exc)
         return 1
     if site_level:
         rid = env.run_id()

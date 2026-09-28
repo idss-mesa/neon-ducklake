@@ -9,9 +9,9 @@ from ``work/mesa-cache/<project>/`` only. iRODS is read with GenQuery only.
 Checks (plan § Verification, MESA):
 - project        the project root is a MESA project
 - pending        0 pending pushes and 0 failed/pending snapshots of the project
-- snapshots      <= 200 snapshots; every snapshot actor is ``tswetnam``
+- snapshots      <= 200 snapshots; every snapshot actor is ``env.ACTOR``
 - journal        journal rows ``recorded`` == Σ rows of our (``batch=``) snapshots, per snapshot too
-- sources        every row of our snapshots has source ``neon-ducklake:*`` and actor ``tswetnam``
+- sources        every row of our snapshots has source ``neon-ducklake:*`` and actor ``env.ACTOR``
 - get_avus       for up to 50 random journal paths per level: MESA effective AVUs == iRODS AVUs minus
                  ``ipc*``/``mesa.enabled``/non-journal-owned triples
 """
@@ -34,7 +34,7 @@ from .verify_site import Check, _sample
 
 log = logging.getLogger("neon_ducklake.verify_mesa")
 
-MAX_SNAPSHOTS = 200
+MAX_SNAPSHOTS = 900  # the history budget guard in avu/history.py (all 81 sites need ~300-500)
 PATHS_PER_LEVEL = 50
 DEAD = ("pending", "failed")
 SOURCE_PREFIX = "neon-ducklake:"

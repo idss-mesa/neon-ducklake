@@ -7,7 +7,7 @@ from neon_ducklake import env
 from neon_ducklake.avu import datacite
 from neon_ducklake.avu.normalize import ELLIPSIS
 
-SITE = "/iplant/home/tswetnam/neon-ducklake/sites/SRER"
+SITE = "/iplant/home/testuser/neon-ducklake/sites/SRER"
 
 
 def record(**kw):

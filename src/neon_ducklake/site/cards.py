@@ -38,6 +38,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
 import re
 import subprocess
 import sys
@@ -59,7 +60,9 @@ FEW_DISTINCT = 12
 APPROX_ROWS = 5_000_000
 VALUE_CHARS = 60
 SOURCE = "NEON (National Ecological Observatory Network) Data API, basic package, stacked across site-months."
-ANYJEV_PYTHON = Path("/home/tswetnam/github/idss-mesa/mesa-anyjev/.venv/bin/python")
+# mesa-anyjev card parser (optional): used when mesa_anyjev is not importable here.
+ANYJEV_PYTHON = Path(os.environ.get("NEON_DUCKLAKE_ANYJEV_PYTHON")
+                     or Path.home() / "github/idss-mesa/mesa-anyjev/.venv/bin/python").expanduser()
 
 # Columns neon-ducklake adds to every stacked table (used when variables has no row for them).
 ADDED_COLUMNS: dict[str, tuple[str, str]] = {
@@ -136,8 +139,19 @@ def fmt_time(x: Any) -> str:
     return clean(x)
 
 
+# Personal contact data never goes into cards (they are mirrored to iRODS and sent to curation models):
+# NEON tables carry technician e-mail addresses in recordedBy / measuredBy / identifiedBy-style columns.
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+EMAIL_REDACTED = "<email redacted>"
+
+
+def redact(text: str) -> str:
+    return EMAIL_RE.sub(EMAIL_REDACTED, text)
+
+
 def fmt_value(v: Any) -> str:
     s = fmt_time(v) if hasattr(v, "isoformat") else (fmt_num(v) if isinstance(v, (int, float)) else clean(v))
+    s = redact(s)
     return s if len(s) <= VALUE_CHARS else s[: VALUE_CHARS - 1] + "…"
 
 

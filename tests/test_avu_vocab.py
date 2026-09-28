@@ -12,7 +12,7 @@ from neon_ducklake import env, state
 from neon_ducklake.avu import vocab
 
 RID = "20260927T143926Z"
-IR = "/iplant/home/tswetnam/neon-ducklake"
+IR = "/iplant/home/testuser/neon-ducklake"
 
 
 @pytest.fixture
@@ -81,10 +81,10 @@ def test_manifest_fallback_rows(root) -> None:
     top = rows_for(rows, IR)
     assert ("dc.license", "CC-BY-4.0", "https://creativecommons.org/licenses/by/4.0/") in top
     assert ("dc.publisher", "National Ecological Observatory Network (NEON)", "") in top
-    assert ("dc.creator", "tswetnam", "iRODS user") in top
+    assert ("dc.creator", "testuser", "iRODS user") in top
     assert ("mesa.local_root", str(r), "sparky-1 path") in top
     assert ("mesa.ducklake.catalog", "ducklake/neon_catalog.ducklake", "relative path") in top
-    assert ("provenance.derivedFrom", "/iplant/home/tswetnam/neon-downloads/ducklake/neon_spatial.ducklake@90",
+    assert ("provenance.derivedFrom", "/iplant/home/testuser/neon-downloads/ducklake/neon_spatial.ducklake@90",
             "iRODS path") in top
     assert ("provenance.tool", "neon-mcp a5949d2", "") in top
     assert ("neon.catalog.harvestRun", RID, "") in top

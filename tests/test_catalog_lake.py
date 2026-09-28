@@ -67,7 +67,7 @@ def test_first_build_creates_everything(built: tuple[FakeRun, cl.BuildResult, Pa
     snaps = con.execute("SELECT snapshot_id, author, commit_message, commit_extra_info FROM lk.snapshots() "
                         "ORDER BY 1").fetchall()
     assert [s[0] for s in snaps] == [0, 1]
-    assert snaps[1][1] == "tswetnam" and snaps[1][2] == f"catalog build {run.run_id}"
+    assert snaps[1][1] == "testuser" and snaps[1][2] == f"catalog build {run.run_id}"
     extra = json.loads(snaps[1][3])
     assert extra["runId"] == run.run_id and extra["inserted"]["files"] == 24 and extra["created"] is True
     opts = dict(con.execute("SELECT option_name, value FROM ducklake_options('lk')").fetchall())
@@ -283,7 +283,7 @@ def test_verify_flags_problems(built: tuple[FakeRun, cl.BuildResult, Path], monk
     seal.seal_run(run.run_dir, seal.read_ledger(run.run_id, run.ledger_db), workers=1)
     assert do_build(run, root).status == "committed"
     (run.run_dir / "sealed" / "planted.jsonl.gz").write_bytes(__import__("gzip").compress(b"?X-Goog-Credential=x"))
-    monkeypatch.setattr(env, "ACTOR", "tswetnam")
+    monkeypatch.setattr(env, "ACTOR", "testuser")
     results = verify_catalog.verify(run.run_id, lake_dir=root / "ducklake", run_dir=run.run_dir, workers=1, hooks=[])
     bad = {n for n, r in results.items() if r["hard"] and not r["ok"]}
     assert {"coverage.cells", "ledger.allOk", "ledger.dataQueryPairs", "signed.sealed"} <= bad
@@ -307,13 +307,16 @@ def test_verify_main_exit_code(built: tuple[FakeRun, cl.BuildResult, Path], monk
     assert verify_catalog.main(run.run_id, lake_dir=root / "ducklake") == 1
 
 
-def test_attach_all_and_sql_file(built: tuple[FakeRun, cl.BuildResult, Path]) -> None:
+def test_attach_all_and_sql_file(built: tuple[FakeRun, cl.BuildResult, Path],
+                                 monkeypatch: pytest.MonkeyPatch) -> None:
     _run, _res, root = built
     con = cl.connect(None)
     assert cl.attach_all(con, root) == ["neon"]
     assert con.execute("SELECT count(*) FROM neon.v_site_inventory WHERE siteCode='SRER'").fetchone()[0] == 5
     con.close()
-    sql = (cl.CODE_ROOT / "sql" / "attach_all.sql").read_text().replace("/home/tswetnam/neon-ducklake", str(root))
+    sql = (cl.CODE_ROOT / "sql" / "attach_all.sql").read_text()
+    assert "/home/" not in sql  # repo-relative paths: run from the data root
+    monkeypatch.chdir(root)
     con = duckdb.connect()
     ok, failed = [], []
     code = "\n".join(line for line in sql.splitlines() if not line.strip().startswith("--"))

@@ -102,11 +102,22 @@ def fake_claude(site_env: Path, monkeypatch: pytest.MonkeyPatch) -> Path:  # noq
     script.chmod(script.stat().st_mode | stat.S_IXUSR)
     (bindir / "fake_config.json").write_text(json.dumps({}))
     monkeypatch.setattr(curate, "CLAUDE_BIN", script)
+    monkeypatch.setattr(env, "MESA_HOME", site_env / "mesa-home")
+    fake_mesa_mcp(env.MESA_HOME)
     monkeypatch.setenv("NEON_TOKEN", "must-not-leak")
     monkeypatch.setenv("MESA_MCP_IRODS__PASSWORD", "must-not-leak")
     monkeypatch.setenv("MESA_MCP_DUCKLAKE__CATALOG_DSN", "duckdb:///nope")
     monkeypatch.setattr(curate, "unmapped_units", list)
     return bindir
+
+
+def fake_mesa_mcp(mesa_home: Path) -> Path:
+    """An executable stand-in for ``$MESA_HOME/.venv/bin/mesa-mcp`` (never run: the fake claude ignores it)."""
+    binary = mesa_home / ".venv" / "bin" / "mesa-mcp"
+    binary.parent.mkdir(parents=True, exist_ok=True)
+    binary.write_text("#!/bin/sh\nexit 0\n")
+    binary.chmod(binary.stat().st_mode | stat.S_IXUSR)
+    return binary
 
 
 def write_card(code: str, extra: str = "") -> Path:
@@ -171,7 +182,7 @@ def test_argv_and_child_env(site_env: Path) -> None:  # noqa: F811
     argv = curate.claude_argv(curate.PRODUCT_TOOLS)
     assert argv[argv.index("--model") + 1] == "claude-opus-5-5"
     assert "--strict-mcp-config" in argv and argv[argv.index("--tools") + 1] == ""
-    assert argv[argv.index("--mcp-config") + 1] == str(env.ROOT / "curation" / "mcp-mesa-ols.json")
+    assert argv[argv.index("--mcp-config") + 1] == str(env.WORK_DIR / "mcp-mesa-ols.json")
     assert argv[argv.index("--allowedTools") + 1].split(",") == ALLOWED
     hidden = argv[argv.index("--disallowedTools") + 1].split(",")
     assert "mcp__mesa-ols__ds_add_avu" in hidden and not set(hidden) & set(ALLOWED)
@@ -190,9 +201,34 @@ def test_mcp_config_is_scrubbed() -> None:
     cfg = json.loads((REPO_CURATION / "mcp-mesa-ols.json").read_text())
     srv = cfg["mcpServers"]["mesa-ols"]
     assert list(cfg["mcpServers"]) == ["mesa-ols"]
-    assert srv["command"] == "/home/tswetnam/.mesa/.venv/bin/mesa-mcp" and srv["args"] == ["--transport", "stdio"]
+    assert srv["command"] == "${MESA_HOME}/.venv/bin/mesa-mcp" and srv["args"] == ["--transport", "stdio"]
     assert srv["env"]["MESA_MCP_DUCKLAKE__CATALOG_DSN"] == "" and srv["env"]["MESA_MCP_IRODS__USER"] == "anonymous"
     assert not any("PASSWORD" in k or "TOKEN" in k for k in srv["env"])
+    assert "/home/" not in (REPO_CURATION / "mcp-mesa-ols.json").read_text()
+
+
+def test_mcp_config_rendered_into_work(site_env: Path, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: F811
+    shutil.copytree(REPO_CURATION, env.ROOT / "curation", ignore=shutil.ignore_patterns("generic"))
+    mesa_home = site_env / "mesa home"
+    monkeypatch.setattr(env, "MESA_HOME", mesa_home)
+    with pytest.raises(SystemExit, match="MESA local install"):
+        curate.render_mcp_config()  # no mesa-mcp in the MESA install
+    assert not curate.mcp_config_path().exists()
+    binary = fake_mesa_mcp(mesa_home)
+    out = curate.render_mcp_config()
+    assert out == env.WORK_DIR / "mcp-mesa-ols.json" and out == curate.mcp_config_path()
+    cfg = json.loads(out.read_text())
+    srv = cfg["mcpServers"]["mesa-ols"]
+    assert srv["command"] == str(binary) and srv["args"] == ["--transport", "stdio"]
+    assert srv["env"] == json.loads((REPO_CURATION / "mcp-mesa-ols.json").read_text())["mcpServers"]["mesa-ols"]["env"]
+    tpl = curate.mcp_template_path()
+    tpl.write_text(tpl.read_text().replace("${MESA_HOME}/.venv", "${NOPE}/.venv"))
+    with pytest.raises(SystemExit, match=r"unknown placeholder.*\$\{NOPE\}"):
+        curate.render_mcp_config()
+    tpl.unlink()
+    with pytest.raises(SystemExit, match="template missing"):
+        curate.render_mcp_config()
+    assert curate.main(SITE) == 1  # main reports it and stops before any claude run
 
 
 def test_prompts_carry_the_contract() -> None:

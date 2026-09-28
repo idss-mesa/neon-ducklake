@@ -4,6 +4,10 @@ Nothing here writes to iRODS, NEON or MESA. The MESA catalog is opened READ-ONLY
 ``duckdb.connect(read_only=True)`` — only when no other process holds it and this process has not
 opened it — and closed right away. Prints a table, writes ``work/preflight-<ts>.json`` and exits 1
 on any hard failure. Secrets are never printed.
+
+The code dependencies (neon-mcp, mesa-mcp, mesa-ducklake) must import; each reports its version and git
+commit (PEP 610 ``direct_url.json``). A commit that differs from the rev pinned in ``pyproject.toml``
+``[tool.uv.sources]`` (e.g. a local editable checkout) is a warning, not a failure.
 """
 
 from __future__ import annotations
@@ -27,15 +31,8 @@ MIN_IRODS = (4, 2, 8)
 DEFAULT_PLANNED_BYTES = 250 * 10**9
 DISK_FACTOR = 1.5
 MAX_SKEW_S = 60.0
-HOME = "/iplant/home/tswetnam"
 PROBE = {"productCode": "DP1.00002.001", "siteCodes": ["SRER"], "startDateMonth": "2024-06",
          "endDateMonth": "2024-06", "package": "basic", "includeProvisional": True}
-EXPECTED_MODULES = {
-    "neon_mcp": env.REPOS["neon-mcp"],
-    "mesa_mcp": env.REPOS["mesa-mcp"],
-    "mesa_ducklake": env.REPOS["mesa-ducklake"],
-    "neon_ducklake": env.ROOT,
-}
 
 
 @dataclass
@@ -64,23 +61,79 @@ def _catalog_path(dsn: str | None) -> Path:
     if dsn and dsn.startswith("duckdb://"):
         rest = dsn[len("duckdb://"):]
         return Path("/" + rest.lstrip("/")) if rest.startswith("/") else Path(rest).expanduser()
-    return Path.home() / ".mesa/ducklake/catalog.duckdb"
+    return env.MESA_CATALOG
+
+
+def pinned_revs(pyproject: Path | None = None) -> dict[str, str | None] | None:
+    """``[tool.uv.sources]`` git revs of the dependencies (None for a non-git source); None without pyproject."""
+    import tomllib
+
+    path = pyproject or env.CODE_ROOT / "pyproject.toml"
+    try:
+        data = tomllib.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
+    sources = ((data.get("tool") or {}).get("uv") or {}).get("sources") or {}
+    return {name: (sources.get(name) or {}).get("rev") for name in env.DEPENDENCIES}
+
+
+def dependency_check(info: env.DistInfo, pinned: str | None, have_pins: bool) -> tuple[str, str]:
+    """(status, detail) for one dependency: warn, never fail, when it is not the pinned commit."""
+    detail = info.describe()
+    if not have_pins:
+        return "info", detail + "; no pyproject.toml next to the code, pinned rev unknown"
+    if pinned is None:
+        return "warn", detail + "; pyproject pins no git rev for it (local source?)"
+    if info.commit is None:
+        return "warn", detail + f"; commit unknown, pinned {pinned[:7]}"
+    if not info.commit.startswith(pinned) and not pinned.startswith(info.commit):
+        return "warn", detail + f"; differs from the pinned rev {pinned[:7]}"
+    if info.dirty:
+        return "warn", detail + "; pinned commit but the checkout has uncommitted changes"
+    return "ok", detail
+
+
+def _irods_root() -> str | None:
+    try:
+        return env.IRODS_ROOT
+    except SystemExit:
+        return None
 
 
 # ---------------------------------------------------------------- local checks
 
+def check_identity(r: Report) -> None:
+    """The CyVerse user (snapshot author / MESA actor) and the iRODS project root, both resolved in env."""
+    root = _irods_root()
+    try:
+        actor = env.ACTOR
+    except SystemExit:
+        actor = None
+    if root and actor:
+        r.add("CyVerse user", "ok", f"{actor}; project root {root}", user=actor, irods_root=root)
+    else:
+        r.add("CyVerse user", "fail", f"not resolvable: {env.USER_HINT}")
+
 def check_imports(r: Report) -> None:
     import importlib
 
-    for mod, root in EXPECTED_MODULES.items():
+    pins = pinned_revs()
+    for dist, mod in (*env.DEPENDENCIES.items(), (env.SELF, "neon_ducklake")):
         try:
             m = importlib.import_module(mod)
-            f = Path(m.__file__ or "").resolve()
-            ok = root.resolve() in f.parents
-            r.add(f"module {mod}", "ok" if ok else "fail", str(f) if ok else f"{f} is not under {root}",
-                  file=str(f), version=getattr(m, "__version__", None))
         except Exception as exc:  # noqa: BLE001
             r.add(f"module {mod}", "fail", f"import failed: {type(exc).__name__}: {exc}")
+            continue
+        f = str(Path(m.__file__ or "").resolve())
+        if dist == env.SELF:
+            info = env.self_info()
+            status, detail = "ok", info.describe()
+        else:
+            info = env.dist_info(dist)
+            status, detail = dependency_check(info, (pins or {}).get(dist), pins is not None)
+        r.add(f"module {mod}", status, detail, file=str(f), version=info.version, commit=info.commit,
+              dirty=info.dirty, source=info.source, editable=info.editable,
+              pinned=(pins or {}).get(dist) if dist != env.SELF else None)
     for mod, want in (("duckdb", "1.5.5"), ("irods", "3.3.0"), ("pyarrow", None), ("h5py", None), ("numpy", None)):
         try:
             m = importlib.import_module(mod)
@@ -200,8 +253,9 @@ def check_irods(r: Report) -> Any | None:
         v = tuple(s.server_version)
         r.add("iRODS server", "ok" if v >= MIN_IRODS else "fail", f"{'.'.join(map(str, v))} as {m.auth.username}"
               f"@{m.auth.zone}", version=list(v))
-        home = s.collections.get(HOME)
-        r.add("iRODS read", "ok", f"read {HOME} (collection id {home.id})")
+        home_path = f"/{m.auth.zone}/home/{m.auth.username}"
+        home = s.collections.get(home_path)
+        r.add("iRODS read", "ok", f"read {home_path} (collection id {home.id})")
     except Exception as exc:  # noqa: BLE001
         r.add("iRODS server", "fail", f"{type(exc).__name__}: {exc}")
         return m
@@ -217,22 +271,26 @@ def check_irods(r: Report) -> Any | None:
             r.add("iRODS quota", "ok", "no quota rows; unlimited Data Store allocation (confirmed by user 2026-09-27)")
     except Exception as exc:  # noqa: BLE001
         r.add("iRODS quota", "ok", f"not queryable ({type(exc).__name__}); unlimited allocation (confirmed by user 2026-09-27)")
+    root = _irods_root()
+    if root is None:
+        r.add("project root", "fail", f"iRODS project root unknown: {env.USER_HINT}")
+        return m
     try:
         from irods.exception import CollectionDoesNotExist
 
         try:
-            s.collections.get(env.IRODS_ROOT)
+            s.collections.get(root)
             root_exists = True
         except CollectionDoesNotExist:
             root_exists = False
         if root_exists:
             from .enroll import nested_mesa_enabled
 
-            nested = nested_mesa_enabled(s, env.IRODS_ROOT)
+            nested = nested_mesa_enabled(s, root)
             r.add("no nested mesa.enabled", "ok" if not nested else "fail",
-                  f"{env.IRODS_ROOT} exists; " + ("no mesa.enabled below it" if not nested else f"found {nested[:5]}"))
+                  f"{root} exists; " + ("no mesa.enabled below it" if not nested else f"found {nested[:5]}"))
         else:
-            r.add("project root", "info", f"{env.IRODS_ROOT} does not exist yet (enroll creates it)")
+            r.add("project root", "info", f"{root} does not exist yet (enroll creates it)")
     except Exception as exc:  # noqa: BLE001
         r.add("no nested mesa.enabled", "fail", f"{type(exc).__name__}: {exc}")
     return m
@@ -276,7 +334,8 @@ def check_mesa_catalog(r: Report, m: Any | None) -> None:
         n, pend, fail = snaps.get(pid, (0, 0, 0))
         rows.append({"project_id": pid, "irods_path": ipath, "snapshots": n, "pending": pend, "failed": fail,
                      "pending_pushes": wal.get(pid, 0)})
-    ours = [x for x in rows if x["irods_path"] == env.IRODS_ROOT]
+    root = _irods_root()
+    ours = [x for x in rows if root and x["irods_path"] == root]
     total_wal = sum(wal.values())
     bad_ours = [x for x in ours if x["failed"] or x["pending_pushes"] or x["pending"]]
     others_bad = [x for x in rows if x not in ours and (x["failed"] or x["pending_pushes"])]
@@ -335,6 +394,7 @@ def main(site: str | None = None) -> int:
     r = Report()
     t0 = time.time()
     check_imports(r)
+    check_identity(r)
     check_duckdb_extensions(r)
     asyncio.run(_neon_probe(r))
     m = check_irods(r)

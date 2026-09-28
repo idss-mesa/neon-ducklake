@@ -31,13 +31,21 @@ build-backend = "hatchling.build"
 packages = ["src/neon_ducklake"]
 
 [tool.uv.sources]
-# The *installed* trees that the running MCP servers import (not the older github copies).
-neon-mcp = { path = "/home/tswetnam/github/idss-mesa/neon-mcp", editable = true }
-mesa-mcp = { path = "/home/tswetnam/.mesa/repos/mesa-mcp", editable = true }
-mesa-ducklake = { path = "/home/tswetnam/.mesa/repos/mesa-ducklake", editable = true }
+# None of the three is on PyPI. Each is pinned to the commit the MCP servers of the MESA install run
+# (the same trees `neon-ducklake preflight` reports; it warns when an installed commit differs from these revs).
+#
+# Developing against local checkouts instead:
+#   * one-off:   uv sync --extra dev && uv pip install -e ../neon-mcp -e ../mesa-mcp -e ../mesa-ducklake
+#                then run with `uv run --no-sync ...` (or .venv/bin/...): a plain `uv sync`/`uv run`
+#                reinstalls the pinned revs.
+#   * sticky:    replace a line below with e.g. `neon-mcp = { path = "../neon-mcp", editable = true }` and run
+#                `uv lock && uv sync --extra dev`; do not commit that swap (it rewrites uv.lock with local paths).
+neon-mcp = { git = "https://github.com/idss-mesa/neon-mcp", rev = "a5949d2525e0909decb1c0dda41112b76570bc82" }
+mesa-mcp = { git = "https://github.com/idss-mesa/mesa-mcp", rev = "8fbaedf850301146b38b997774ab7aed1d0cb179" }
+mesa-ducklake = { git = "https://github.com/idss-mesa/mesa-ducklake", rev = "7bc143fefb093f0a2ace748a7036598147533ca0" }
 
 [tool.uv]
-# Keep shared libraries identical to ~/.mesa/.venv (the MCP servers' runtime).
+# Keep shared libraries identical to $MESA_HOME/.venv (default ~/.mesa/.venv, the MCP servers' runtime).
 constraint-dependencies = [
     "mcp==2.2.0",
     "mcp-types==2.2.0",

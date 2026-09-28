@@ -7,7 +7,7 @@ style, or an iRODS copy) always attach with their own absolute ``DATA_PATH`` + `
 A relative ``'data/'`` would be resolved against the process cwd at write time, which is why the catalog
 lake chdirs; the site code never changes directory.
 
-Writes go through :func:`commit` (one DuckLake snapshot, author ``tswetnam`` + message). Upserts use
+Writes go through :func:`commit` (one DuckLake snapshot, author ``env.ACTOR`` + message). Upserts use
 ``MERGE INTO`` on logical keys and only touch changed rows, so ``table_changes`` shows real diffs.
 """
 
@@ -227,7 +227,7 @@ def attach_catalog(con: duckdb.DuckDBPyConnection, alias: str = CATALOG_ALIAS) -
 @contextlib.contextmanager
 def commit(con: duckdb.DuckDBPyConnection, message: str, extra: dict[str, Any] | None = None,
            alias: str = ALIAS) -> Iterator[None]:
-    """One DuckLake snapshot: BEGIN … commit message (author tswetnam) … COMMIT; ROLLBACK on error."""
+    """One DuckLake snapshot: BEGIN … commit message (author env.ACTOR) … COMMIT; ROLLBACK on error."""
     con.execute("BEGIN")
     try:
         yield

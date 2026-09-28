@@ -2,7 +2,7 @@
   "mcpServers": {
     "mesa-ols": {
       "type": "stdio",
-      "command": "/home/tswetnam/.mesa/.venv/bin/mesa-mcp",
+      "command": "${MESA_HOME}/.venv/bin/mesa-mcp",
       "args": ["--transport", "stdio"],
       "env": {
         "MESA_MCP_DUCKLAKE__CATALOG_DSN": "",

@@ -43,7 +43,7 @@ def test_upsert_commit_and_checkpoint(site_env: Path) -> None:  # noqa: F811
     assert r == {"changed": 2, "source": 3}
     assert con.execute("SELECT k, v FROM lake.t ORDER BY k").fetchall() == [("a", 1), ("b", 3), ("c", None)]
     snaps = con.execute("SELECT author, commit_message FROM lake.snapshots() WHERE author IS NOT NULL").fetchall()
-    assert snaps == [("tswetnam", "first"), ("tswetnam", "second")]
+    assert snaps == [("testuser", "first"), ("testuser", "second")]
     # a write without commit() is refused (require_commit_message)
     with pytest.raises(duckdb.Error):
         con.execute("CREATE TABLE lake.nope AS SELECT 1 AS x")

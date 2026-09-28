@@ -255,7 +255,12 @@ class SpatialSource:
     version: int
 
     @classmethod
-    def default(cls) -> SpatialSource:
+    def default(cls) -> SpatialSource | None:
+        """The configured precedent lake (env.PRECEDENT_*), or None when it is disabled."""
+        if env.PRECEDENT_LAKE is None or env.PRECEDENT_DATA is None:
+            log.warning("no precedent lake configured (NEON_DUCKLAKE_PRECEDENT_LAKE); "
+                        "the spatial-layer copy is skipped")
+            return None
         return cls(env.PRECEDENT_LAKE, env.PRECEDENT_DATA, env.PRECEDENT_VERSION)
 
 
@@ -344,6 +349,9 @@ def build(run_id: str, *, run_dir: Path, lake_dir: Path, dry_run: bool = False, 
                 con.execute(f"ATTACH 'ducklake:{spatial.lake}' AS {src_alias} (READ_ONLY, DATA_PATH "
                             f"'{str(spatial.data_path).rstrip('/')}/', OVERRIDE_DATA_PATH true)")
                 layers = spatial_layers(con, src_alias, spatial.version)
+            elif spatial is not None:
+                log.warning("precedent lake %s not found (NEON_DUCKLAKE_PRECEDENT_LAKE); "
+                            "the spatial-layer copy is skipped", spatial.lake)
             old_catalog = {}
             if "table_catalog" in existing:
                 cur = con.execute(f"SELECT * FROM {ALIAS}.table_catalog")

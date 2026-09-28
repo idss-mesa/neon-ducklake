@@ -223,7 +223,7 @@ def test_list_writes_journal_and_lake(fake: FakeBundle, site_env: Path) -> None:
         assert sm == {"2024-06": "PROVISIONAL", "2024-07": "PROVISIONAL"}
         assert con.execute("SELECT fileCount, isProvisional FROM lake.site_months WHERE productCode='DP1.00002.001' "
                            "AND month='2024-07'").fetchone() == (3, True)
-        assert con.execute("SELECT count(*) FROM lake.snapshots() WHERE author='tswetnam'").fetchone()[0] == 1
+        assert con.execute("SELECT count(*) FROM lake.snapshots() WHERE author='testuser'").fetchone()[0] == 1
     finally:
         con.close()
     # signed URLs never reach the lake

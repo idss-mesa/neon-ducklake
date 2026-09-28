@@ -72,7 +72,7 @@ The orchestrator overlaps these across sites. Upload and AVU apply use separate 
 
 - **Upload:** ≈3.2M objects ÷ ~10 files/s ≈ 90 h. This is the long pole.
 - **AVU apply:** ≈3.2M objects ÷ 60/s ≈ 15 h.
-- **Record:** ≈65M rows ÷ 1,100/s ≈ 16 h.
+- **Record:** the SRER run recorded ~32 AVUs per file (41,282 rows over 1,274 files), not the ~20 assumed above. That is ≈100M rows ÷ 1,100/s ≈ 26 h, and ≈470 history snapshots at 250k rows each, still under the 900 budget.
 
 Expect roughly 4–5 days of unattended running for every site. A single terrestrial site is ~4–7 h; an aquatic site is ~2–3 h.
 

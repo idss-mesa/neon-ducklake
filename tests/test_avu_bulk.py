@@ -11,7 +11,7 @@ from neon_ducklake.tuning import ConnectionBudget
 
 from .test_avu_fakes import FakeIrods, FakeMeta, FakeSession
 
-R = "/iplant/home/tswetnam/neon-ducklake"
+R = "/iplant/home/testuser/neon-ducklake"
 C = f"{R}/sites/SRER/raw/DP1.00002.001/2024-06"
 F1, F2 = f"{C}/a.csv", f"{C}/b.csv"
 

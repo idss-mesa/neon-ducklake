@@ -322,3 +322,11 @@ def test_site_card_aquatic_uses_habitat_never_type_eco(lakes):
     assert "_site" not in {p["product"] for p in summary["products"]}
     anyjev = (env.SITES_DIR / SITE / "cards" / "anyjev" / f"{IS}.SAAT_30min.md").read_text()
     assert cards.grammar_problems(anyjev, 7) == [] and "Aquatic Wadeable Stream)" in anyjev
+
+
+def test_card_values_never_contain_email_addresses() -> None:
+    from neon_ducklake.site.cards import EMAIL_REDACTED, fmt_value
+
+    assert fmt_value("jdoe@example.org") == EMAIL_REDACTED
+    assert "@" not in fmt_value("measured by a.b-c@example.org and x@example.net")
+    assert fmt_value("0000-0002-2135-1234") == "0000-0002-2135-1234"  # ORCID iDs are public identifiers
