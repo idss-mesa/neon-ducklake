@@ -43,6 +43,7 @@ A unit whose input fingerprint (sorted name + md5, plus the variables files for 
 
 from __future__ import annotations
 
+import contextlib
 import csv
 import hashlib
 import logging
@@ -1068,6 +1069,11 @@ def prune_stale_tables(ctx: Ctx, product: str, expected: set[str]) -> list[str]:
                     con.execute(f"DELETE FROM lake.{derived} WHERE productCode = ? AND {col} = ?", [product, table])
             if neon_table and site_lake.table_exists(con, "file_taxa"):
                 con.execute("DELETE FROM lake.file_taxa WHERE productCode = ? AND tableName = ?", [product, neon_table])
+    for table, _n in stale:  # DuckLake removes the files, not the directory
+        d = site_lake.site_paths(ctx.site).data_dir / "main" / table
+        with contextlib.suppress(OSError):
+            if d.is_dir() and not any(d.iterdir()):
+                d.rmdir()
     log.warning("stack %s %s: dropped %d stale table(s): %s", ctx.site, product, len(stale), [t for t, _ in stale])
     return [t for t, _ in stale]
 

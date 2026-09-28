@@ -1,7 +1,7 @@
 {
  "productCode": "DP1.10003.001",
  "site": "SRER",
- "validatedAt": "2026-09-28T01:19:16.424562+00:00",
+ "validatedAt": "2026-09-28T04:08:24.089853+00:00",
  "model": "claude-opus-5-5",
  "rules": {
   "maxPerProduct": 25,
@@ -55,54 +55,12 @@
   }
  ],
  "counts": {
-  "accepted": 7,
+  "accepted": 6,
   "human_accepted": 0,
   "proposed": 6,
-  "rejected": 1
+  "rejected": 2
  },
  "accepted": [
-  {
-   "proposalId": "e4177acc29a03cb2",
-   "productCode": "DP1.10003.001",
-   "status": "accepted",
-   "reason": null,
-   "attribute": "ncbitaxon.aves",
-   "value": "Aves",
-   "unit": "NCBITaxon:8782",
-   "curie": "NCBITaxon:8782",
-   "label": "Aves",
-   "ontologyId": "ncbitaxon",
-   "aspect": "organism_group",
-   "aspectKnown": true,
-   "column": "scientificName",
-   "rationale": "Product observes breeding landbirds, all members of class Aves.",
-   "model": "claude-opus-5-5",
-   "reps": 2,
-   "replicates": 2,
-   "grounded": true,
-   "checks": [
-    {
-     "rep": 1,
-     "valid": true,
-     "reason": null,
-     "grounded": true,
-     "modelAttribute": "ncbitaxon.aves",
-     "modelValue": "Aves",
-     "modelLabel": "Aves",
-     "column": "scientificName"
-    },
-    {
-     "rep": 2,
-     "valid": true,
-     "reason": null,
-     "grounded": true,
-     "modelAttribute": "ncbitaxon.aves",
-     "modelValue": "Aves",
-     "modelLabel": "Aves",
-     "column": "scientificName"
-    }
-   ]
-  },
   {
    "proposalId": "3e6555c49425e63f",
    "productCode": "DP1.10003.001",
@@ -551,6 +509,48 @@
   }
  ],
  "rejected": [
+  {
+   "proposalId": "e4177acc29a03cb2",
+   "productCode": "DP1.10003.001",
+   "status": "rejected",
+   "reason": "duplicate_deterministic",
+   "attribute": "",
+   "value": "Aves",
+   "unit": "",
+   "curie": "NCBITaxon:8782",
+   "label": "Aves",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "Product observes breeding landbirds, all members of class Aves.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.aves",
+     "modelValue": "Aves",
+     "modelLabel": "Aves",
+     "column": "scientificName"
+    },
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.aves",
+     "modelValue": "Aves",
+     "modelLabel": "Aves",
+     "column": "scientificName"
+    }
+   ]
+  },
   {
    "proposalId": "8483a9da615c12de",
    "productCode": "DP1.10003.001",

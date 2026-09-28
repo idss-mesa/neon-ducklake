@@ -877,7 +877,12 @@ class Builder:
         if not data.is_dir():
             return
         n_files = 0
+        # only directories that hold files exist in iRODS (upload creates collections for files; a dropped
+        # table leaves an empty local directory behind)
+        with_files = {p for f in files for p in f.parents}
         for d in [data, *dirs]:
+            if d not in with_files:
+                continue
             rel = d.relative_to(data).parts
             avus: list[Avu] = [("neon.siteCode", s), ("provenance.generator", stack_gen)]
             if not rel:

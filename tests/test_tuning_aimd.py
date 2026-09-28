@@ -304,3 +304,37 @@ def test_irods_error_kind() -> None:
     assert irods_error_kind(NetworkException("Could not receive server response")) == "reset"
     assert irods_error_kind(RuntimeError("CATALOG_ALREADY_HAS_ITEM_BY_THAT_NAME")) is None
     assert irods_error_kind(ValueError("bad")) is None
+
+
+def test_learned_ceiling_stops_the_sawtooth_then_expires() -> None:
+    """A reset at 10 caps growth at 9 for cap_hold_s; after it expires the controller probes again."""
+    from neon_ducklake.tuning import AIMD
+
+    now = [0.0]
+    a = AIMD("upload", start=8, lo=4, hi=32, target=1.0, ceiling=3.0, every=4, min_samples=2, cooldown_s=0,
+             integer=True, cap_hold_s=100.0, clock=lambda: now[0])
+
+    def grow(n: int) -> None:
+        for _ in range(n):
+            a.mark_binding()
+            a.on_success(0.5)
+
+    grow(8)
+    assert a.value == 10
+    a.on_error("reset")
+    assert a.value == 5 and a.cap == 9
+    grow(80)
+    assert a.value == 9  # never re-enters the limit that reset us
+    now[0] += 101.0
+    grow(8)
+    assert a.value >= 10  # cap expired: probing resumes
+    a.on_error("timeout")
+    assert a.cap is not None and a.cap < a.hi
+
+
+def test_semantic_errors_do_not_learn_a_ceiling() -> None:
+    from neon_ducklake.tuning import AIMD
+
+    a = AIMD("apply", start=20, lo=5, hi=60, target=0.25, ceiling=1.0, cooldown_s=0)
+    a.on_error("catalog")
+    assert a.cap is None

@@ -284,7 +284,10 @@ class SiteVerifier:
         inv = {(r["productCode"], r["month"]): r for r in d.inventory if self.pm_ok(r["productCode"], r["month"])}
         lake = {(r["productCode"], r["month"]): r for r in d.site_months if self.pm_ok(r["productCode"], r["month"])}
         external = sorted(k for k in set(inv) - set(lake) if inv[k].get("isExternal"))
-        missing = sorted(k for k in set(inv) - set(lake) if not inv[k].get("isExternal"))
+        covered = self._listed_windows()
+        unlisted = sorted(k for k in set(inv) - set(lake)
+                          if not inv[k].get("isExternal") and covered is not None and not _in_windows(k, covered))
+        missing = sorted(k for k in set(inv) - set(lake) if not inv[k].get("isExternal") and k not in set(unlisted))
         extra = sorted(set(lake) - set(inv))
         diffs = []
         for k in sorted(set(inv) & set(lake)):
@@ -297,13 +300,34 @@ class SiteVerifier:
                               "lake": [b.get("fileCount"), b.get("totalBytes")], "release": [a.get("release"),
                                                                                              b.get("release")]})
         status = "pass" if not (missing or extra or diffs) else "warn"
-        self.add("listing", status, f"inventory {len(inv)} site-months ({len(external)} external, link-only), "
+        self.add("listing", status, f"inventory {len(inv)} site-months ({len(external)} external, link-only; "
+                                    f"{len(unlisted)} outside the listed windows, e.g. a --sample run), "
                                     f"lake {len(lake)}; missing {len(missing)}, "
                                     f"extra {len(extra)}, count/byte diffs {len(diffs)}",
                  missing=["/".join(k) for k in _sample(missing)], extra=["/".join(k) for k in _sample(extra)],
                  diffs=_sample(diffs), n_missing=len(missing), n_extra=len(extra), n_diffs=len(diffs),
                  inventory_files=sum(int(r.get("fileCount") or 0) for r in inv.values()),
                  lake_files=sum(int(r.get("fileCount") or 0) for r in lake.values()))
+
+    def _listed_windows(self) -> dict[str, list[tuple[str, str]]] | None:
+        """product -> [(start, end)] of the recorded listing windows (None when the journal has none)."""
+        try:
+            from . import state
+
+            con = state.connect()
+            try:
+                rows = con.execute("SELECT product, start_month, end_month FROM listings WHERE site=? AND "
+                                   "start_month IS NOT NULL", (self.site,)).fetchall()
+            finally:
+                con.close()
+        except Exception:  # noqa: BLE001 - no journal: treat everything as in scope
+            return None
+        if not rows:
+            return None
+        out: dict[str, list[tuple[str, str]]] = {}
+        for p, a, b in rows:
+            out.setdefault(p, []).append((a, b))
+        return out
 
     def check_local(self) -> None:
         rows = [r for r in self.data.journal if self.pm_ok(r["product"], r["month"])]
@@ -825,3 +849,8 @@ def main(site: str, products: list[str] | str | None = None, months: list[str] |
     print(render(report))
     print(f"\nwrote {path}")
     return 0 if report["ok"] else 1
+
+
+def _in_windows(key: tuple[str, str], windows: dict[str, list[tuple[str, str]]]) -> bool:
+    product, month = key
+    return any(a <= month <= b for a, b in windows.get(product, []))

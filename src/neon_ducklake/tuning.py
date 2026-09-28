@@ -100,6 +100,9 @@ class Change:
     reason: str
 
 
+CAP_ERROR_KINDS = frozenset({"reset", "conn_limit", "timeout"})
+
+
 class AIMD:
     """Thread-safe additive-increase / multiplicative-decrease controller (see module docstring)."""
 
@@ -107,7 +110,7 @@ class AIMD:
 
     def __init__(self, name: str, *, start: float, lo: float, hi: float, target: float, ceiling: float,
                  step: float = 1.0, factor: float = 0.5, every: int = 16, window: int = 64, min_samples: int = 8,
-                 cooldown_s: float = 5.0, integer: bool = False,
+                 cooldown_s: float = 5.0, integer: bool = False, cap_hold_s: float = 900.0,
                  clock: Callable[[], float] = time.monotonic) -> None:
         if lo > hi:
             raise ValueError(f"{name}: lo {lo} > hi {hi}")
@@ -132,6 +135,12 @@ class AIMD:
         self._last_decrease = -math.inf
         self._binding = False
         self.history: deque[Change] = deque(maxlen=200)
+        # Learned ceiling (like TCP ssthresh): a connection-type error at value V caps growth at V - step for
+        # ``cap_hold_s``, so the controller settles just below a server-side connection limit instead of
+        # sawtoothing into it (observed on CyVerse: resets at ~10 concurrent puts).
+        self.cap_hold_s = cap_hold_s
+        self.cap: float | None = None
+        self._cap_until = -math.inf
 
     # ---------------------------------------------------------- helpers
     def _round(self, v: float) -> float:
@@ -198,7 +207,7 @@ class AIMD:
                 if p > self.ceiling:
                     self._decrease(f"p95 {p:.3g} > ceiling {self.ceiling:.3g} over {n} calls")
                     return self.value
-            if self._since_change >= self.every and self.value < self.hi and self._can_increase():
+            if self._since_change >= self.every and self.value < self._effective_hi() and self._can_increase():
                 recent = list(self._samples)[-self.every:]  # judged on the latest K only (not on idle-time samples)
                 p = p95(recent)
                 if p is not None and p < self.target:
@@ -212,8 +221,24 @@ class AIMD:
             self.errors += 1
             self.errors_by_kind[kind] += 1
             self._since_change = 0
+            if kind in CAP_ERROR_KINDS:
+                self._learn_cap(kind)
             self._decrease(f"error: {kind}")
             return self.value
+
+    def _effective_hi(self) -> float:
+        if self.cap is not None and self._clock() < self._cap_until:
+            return min(self.hi, self.cap)
+        return self.hi
+
+    def _learn_cap(self, kind: str) -> None:
+        """Cap growth just below the value at which the server dropped us (held for ``cap_hold_s``)."""
+        new_cap = max(self.lo, self._round(self.value - self.step))
+        if self.cap is None or self._clock() >= self._cap_until or new_cap < self.cap:
+            self.cap = new_cap
+            log.info("%s: learned ceiling %s after %s at %s (held %.0fs)", self.name, self._fmt(new_cap), kind,
+                     self._fmt(self.value), self.cap_hold_s)
+        self._cap_until = self._clock() + self.cap_hold_s
 
     def p95(self) -> float | None:
         with self._lock:
@@ -225,6 +250,7 @@ class AIMD:
             return {"name": self.name, "start": self.start, "current": self.value, "min": self.min_seen,
                     "max": self.max_seen, "lo": self.lo, "hi": self.hi, "increases": self.increases,
                     "decreases": self.decreases, "successes": self.successes, "errors": self.errors,
+                    "cap": self.cap if self._clock() < self._cap_until else None,
                     "errors_by_kind": dict(self.errors_by_kind), "p95": None if p is None else round(p, 4),
                     "changes": [asdict(c) for c in list(self.history)[-20:]]}
 
