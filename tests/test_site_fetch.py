@@ -245,3 +245,132 @@ def test_external_without_landing_does_one_get(fake: FakeBundle, site_env: Path)
         "externalData": [{"name": "Phenocam", "type": "Website", "url": "https://phenocam.example/y"}]}
     assert fetch.main("list", SITE, products=["DP1.00033.001"]) == 0
     assert fake.list_client.calls == [("get", f"/data/DP1.00033.001/{SITE}/2024-07")]
+
+
+# ---------------------------------------------------------------- adaptive download lanes + eviction
+
+class SlowClient(FakeClient):
+    """A download client that yields to the loop mid-transfer and records its concurrency."""
+
+    def __init__(self, blobs: dict[str, bytes], meter: dict[str, int]) -> None:
+        super().__init__(blobs=blobs)
+        self.meter = meter
+        self.active = 0
+        self.peak = 0
+
+    async def stream_to_file(self, url: str, dest: Path, **kw):  # type: ignore[override]
+        self.active += 1
+        self.meter["active"] += 1
+        self.peak = max(self.peak, self.active)
+        self.meter["peak"] = max(self.meter["peak"], self.meter["active"])
+        try:
+            await asyncio.sleep(0.001)
+            return await super().stream_to_file(url, dest, **kw)
+        finally:
+            self.active -= 1
+            self.meter["active"] -= 1
+
+
+def _seed_downloads(n: int) -> tuple[sqlite3.Connection, dict[str, bytes]]:
+    con = state.connect(state.DB_PATH)
+    con.executescript(fetch.SUPERSEDED_SCHEMA)
+    blobs: dict[str, bytes] = {}
+    now = env.utcnow().isoformat()
+    for i in range(n):
+        name = f"NEON.D99.TEST.DP1.00002.001.000.010.030.SAAT_30min.2024-01.basic.{i:05d}.csv"
+        body = f"payload {i}\n".encode() * (1 + i % 5)
+        blobs[f"https://storage.googleapis.com/bucket/{name}"] = body
+        con.execute("INSERT INTO site_files(site, product, month, name, kind, size, md5, url, listed_at, local_path)"
+                    " VALUES (?,?,?,?,?,?,?,?,?,?)",
+                    (SITE, "DP1.00002.001", "2024-01", name, "data", len(body), md5(body),
+                     f"https://storage.googleapis.com/bucket/{name}?X-Goog-Signature=v1", now,
+                     f"sites/{SITE}/raw/DP1.00002.001/2024-01/{name}"))
+    return con, blobs
+
+
+def test_downloads_spread_over_three_clients_and_grow_to_24(site_env: Path) -> None:  # noqa: F811
+    con, blobs = _seed_downloads(400)
+    meter = {"active": 0, "peak": 0}
+    c1, c2, c3 = (SlowClient(blobs, meter) for _ in range(3))
+    f = fetch.Fetcher(site=SITE, bundle=FakeBundle(FakeClient(), c1), con=con, pairs=[], threads=8,
+                      extra_clients=[c2, c3])
+    asyncio.run(f.download_all(None, None))
+    st = f.download_stats
+    assert f.counts["downloaded"] == 400 and f.counts["failed"] == 0
+    assert st["clients"] == 3 and st["concurrencyStart"] == 8 and st["concurrencyMax"] == fetch.DL_MAX == 24
+    assert meter["peak"] <= 24 and st["peakInFlight"] == meter["peak"] > 8
+    assert max(c.peak for c in (c1, c2, c3)) <= fetch.DL_CONCURRENCY  # never more than 8 streams per client
+    assert all(c.peak > 0 for c in (c1, c2, c3)) and st["peakPerClient"] == [c1.peak, c2.peak, c3.peak]
+    assert st["mbPerS"] >= 0 and st["filesPerS"] > 0
+    rows = con.execute("SELECT dl_status, local_path FROM site_files").fetchall()
+    assert {r["dl_status"] for r in rows} == {"ok"} and all((site_env / r["local_path"]).exists() for r in rows)
+    con.close()
+
+
+def test_one_client_caps_at_eight_streams(site_env: Path) -> None:  # noqa: F811
+    con, blobs = _seed_downloads(120)
+    meter = {"active": 0, "peak": 0}
+    c1 = SlowClient(blobs, meter)
+    f = fetch.Fetcher(site=SITE, bundle=FakeBundle(FakeClient(), c1), con=con, pairs=[], threads=20)
+    asyncio.run(f.download_all(None, None))
+    assert f.counts["downloaded"] == 120 and f.download_stats["clients"] == 1  # a fake bundle has no config
+    assert f.download_stats["concurrencyStart"] == 8 and c1.peak == 8 and meter["peak"] == 8
+    con.close()
+
+
+def test_transport_errors_halve_download_concurrency(site_env: Path, monkeypatch) -> None:  # noqa: F811
+    from neon_mcp.errors import NeonApiError
+
+    monkeypatch.setattr(fetch, "RETRY_DELAYS", [0, 0, 0, 0, 0])
+    con, blobs = _seed_downloads(40)
+    c1 = FakeClient(blobs=blobs)
+    names = [r[0] for r in con.execute("SELECT name FROM site_files ORDER BY name LIMIT 3")]
+    for n in names:
+        c1.stream_failures[n] = [NeonApiError(0, "ReadTimeout", "/bucket/x", kind="transport")]
+    c1.stream_failures[names[0]].append(NeonApiError(503, "unavailable", "/bucket/x"))
+    f = fetch.Fetcher(site=SITE, bundle=FakeBundle(FakeClient(), c1), con=con, pairs=[], threads=8)
+    asyncio.run(f.download_all(None, None))
+    st = f.download_stats
+    assert f.counts["downloaded"] == 40 and f.counts["failed"] == 0
+    assert st["errorsByKind"] == {"transport": 3, "http_503": 1}
+    assert st["concurrencyMin"] == 4 and st["changes"][0]["reason"] == "error: transport"  # one halving per burst
+    con.close()
+
+
+def test_evicted_files_are_never_redownloaded(fake: FakeBundle, site_env: Path) -> None:  # noqa: F811
+    assert fetch.main("list", SITE) == 0
+    assert fetch.main("download", SITE) == 0
+    con = state.connect(state.DB_PATH)
+    con.execute("ALTER TABLE site_files ADD COLUMN local_evicted INTEGER DEFAULT 0")  # the evict step's column
+    evicted = [r["local_path"] for r in con.execute(
+        "SELECT local_path FROM site_files WHERE product='DP1.00002.001'")]
+    con.execute("UPDATE site_files SET local_evicted=1 WHERE product='DP1.00002.001'")
+    for rel in evicted:
+        (site_env / rel).unlink()
+    stale = SAAT.format(m="2024-05")
+    con.execute("UPDATE site_files SET dl_status='stale' WHERE name=?", (stale,))  # upstream MD5 changed
+    con.close()
+    dc = fake.download_client
+    dc.calls.clear()
+    assert fetch.main("download", SITE) == 0
+    assert [c for c in dc.calls if c[0] == "stream"] == [("stream", stale)]  # only the stale one
+    rows = {r["name"]: r for r in _rows("SELECT * FROM site_files WHERE site=?", (SITE,))}
+    assert rows[stale]["dl_status"] == "ok" and rows[stale]["local_evicted"] == 0
+    assert all(r["dl_status"] == "ok" and r["local_evicted"] == 1 for n, r in rows.items()
+               if r["product"] == "DP1.00002.001" and n != stale)
+    assert sum(1 for rel in evicted if (site_env / rel).exists()) == 1
+    import json
+
+    summary = json.loads((site_lake.site_paths(SITE).reports_dir / "download_summary.json").read_text())
+    assert summary["counts"]["evicted"] == len(evicted) - 1
+    # a second pass does nothing at all
+    dc.calls.clear()
+    assert fetch.main("download", SITE) == 0
+    assert not [c for c in dc.calls if c[0] == "stream"]
+
+
+def test_download_tolerates_a_journal_without_the_evict_column(fake: FakeBundle) -> None:
+    assert fetch.main("list", SITE, products=["DP1.10003.001"]) == 0
+    assert fetch.main("download", SITE, products=["DP1.10003.001"]) == 0
+    assert all(r["dl_status"] == "ok" for r in _rows("SELECT dl_status FROM site_files"))
+    assert "local_evicted" not in {r[1] for r in _rows("PRAGMA table_info(site_files)")}

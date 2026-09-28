@@ -16,6 +16,19 @@ Per work unit (``unit_id`` = a collection path; usually that collection plus its
 A crash between the iRODS call and the journal update leaves ``intent`` rows; the next run
 reconciles them against iRODS before computing ownership. Units whose rows vanished from
 ``avu_desired`` altogether are left untouched (a filtered build must never strip other units).
+
+Pacing (docs/SCALING.md "Hard limits"): every iRODS call takes a token from a ``tuning.AdaptiveRate``.
+
+- The rate starts at ``rate``, has a floor of 5 calls/s and a ceiling of 60 calls/s.
+- It grows by 2 calls/s after 40 successful writes whose p95 is below 250 ms, and only while the bucket
+  is binding.
+- It halves on a p95 above 1 s or on a connection-limit, reset, timeout or retryable error; semantic
+  catalog errors don't count.
+- ``LatencyMonitor`` stays as the hard stop: ``LatencyAbort`` fires once a full 200-call window has a
+  p95 above 5 s.
+- Worker threads (at most 16) lease sessions from a ``tuning.SessionPool`` bound to the cross-process
+  iRODS connection budget (``work/locks/irods-conn-NN.lock``, 32 slots shared with
+  ``mirror.push_tree``).
 """
 
 from __future__ import annotations
@@ -33,14 +46,24 @@ from datetime import UTC, datetime
 from typing import Any
 
 from .. import state
+from ..tuning import AdaptiveRate, ConnectionBudget, SessionPool, irods_budget, irods_error_kind
 from .normalize import Triple, is_protected, normalize
 
 log = logging.getLogger("neon_ducklake.avu.bulk")
 
-MAX_THREADS = 16  # iRODS connection budget across all our processes
+MAX_THREADS = 16  # worker sessions of one apply (each holds a slot of the shared iRODS connection budget)
 MAX_OPS_PER_CALL = 500
 P95_WINDOW = 200
-P95_LIMIT_S = 2.0
+P95_LIMIT_S = 5.0  # hard stop (LatencyAbort); the adaptive rate backs off long before, at 1 s
+RATE_MIN = 5.0
+RATE_MAX = 60.0
+RATE_STEP = 2.0
+RATE_EVERY = 40
+RATE_TARGET_S = 0.25
+RATE_CEILING_S = 1.0
+RATE_WINDOW = 100
+RATE_MIN_SAMPLES = 20
+RATE_COOLDOWN_S = 2.0
 OWNED_STATUSES = ("applied", "recorded")
 COUNTERS = ("units_done", "targets", "missing", "adds", "removes", "absent_removes", "noops", "errors", "queries",
             "atomic_calls", "fallback_calls", "retries", "intents_reconciled", "objects_changed", "unit_failures")
@@ -132,8 +155,17 @@ def load_desired(con: sqlite3.Connection, scope: str, only_units: Iterable[str] 
 
 # ---------------------------------------------------------------- pacing + latency guard
 
+def adaptive_rate(rate: float, *, clock: Callable[[], float] = time.monotonic,
+                  sleep: Callable[[float], None] = time.sleep) -> AdaptiveRate:
+    """The AIMD calls/s bucket of one apply (start ``rate``, clamped to [5, 60])."""
+    return AdaptiveRate("avu-apply", start=min(RATE_MAX, max(RATE_MIN, rate)), lo=RATE_MIN, hi=RATE_MAX,
+                        step=RATE_STEP, every=RATE_EVERY, target=RATE_TARGET_S, ceiling=RATE_CEILING_S,
+                        window=RATE_WINDOW, min_samples=RATE_MIN_SAMPLES, cooldown_s=RATE_COOLDOWN_S,
+                        clock=clock, sleep=sleep)
+
+
 class TokenBucket:
-    """Thread-safe token bucket: ``rate`` tokens/s, at most ``burst`` banked."""
+    """Thread-safe fixed-rate token bucket: ``rate`` tokens/s, at most ``burst`` banked (see AdaptiveRate)."""
 
     def __init__(self, rate: float, burst: float = 1.0, *, clock: Callable[[], float] = time.monotonic,
                  sleep: Callable[[float], None] = time.sleep) -> None:
@@ -265,15 +297,16 @@ class Op:
 
 class BulkWriter:
     def __init__(self, con: sqlite3.Connection, scope: str, session: Any, *, rate: float = 20.0,
-                 dry_run: bool = False, bucket: TokenBucket | None = None,
-                 monitor: LatencyMonitor | None = None) -> None:
+                 dry_run: bool = False, bucket: TokenBucket | AdaptiveRate | None = None,
+                 monitor: LatencyMonitor | None = None, budget: ConnectionBudget | None = None,
+                 clock: Callable[[], float] = time.monotonic, sleep: Callable[[float], None] = time.sleep) -> None:
         self.con, self.scope, self.root_session, self.dry_run = con, scope, session, dry_run
-        self.bucket = bucket or TokenBucket(rate)
+        self.clock = clock
+        self.bucket = bucket if bucket is not None else adaptive_rate(rate, clock=clock, sleep=sleep)
         self.monitor = monitor or LatencyMonitor()
+        self.pool = SessionPool(session, budget=budget if budget is not None else irods_budget())
         self._db = threading.Lock()
         self._slock = threading.Lock()
-        self._local = threading.local()
-        self._clones: list[Any] = []
         self.stop = threading.Event()
         self.all_desired_paths: set[str] = set()
         self.stats: dict[str, Any] = defaultdict(int)
@@ -282,23 +315,22 @@ class BulkWriter:
                            "unit_errors": []})
 
     # ---------------------------------------------------------- plumbing
-    def _session(self) -> Any:
-        s = getattr(self._local, "session", None)
-        if s is None:
-            s = self.root_session.clone() if hasattr(self.root_session, "clone") else self.root_session
-            self._local.session = s
-            with self._slock:
-                self._clones.append(s)
-        return s
-
     def cleanup(self) -> None:
-        for s in self._clones:
-            if s is not self.root_session and hasattr(s, "cleanup"):
-                try:
-                    s.cleanup()
-                except Exception as exc:  # noqa: BLE001
-                    log.debug("session cleanup failed: %s", exc)
-        self._clones.clear()
+        self.pool.close()
+
+    def _ok(self, seconds: float) -> None:
+        """One successful write call: feed the adaptive rate, then the hard-stop monitor."""
+        on_success = getattr(self.bucket, "on_success", None)
+        if on_success is not None:
+            on_success(seconds)
+        self.monitor.observe(seconds)
+
+    def _failed(self, exc: BaseException) -> None:
+        """A failed write call: connection/timeout/retryable failures halve the adaptive rate."""
+        kind = irods_error_kind(exc)
+        on_error = getattr(self.bucket, "on_error", None)
+        if kind is not None and on_error is not None:
+            on_error(kind)
 
     def _bump(self, key: str, n: int = 1) -> None:
         with self._slock:
@@ -438,7 +470,10 @@ class BulkWriter:
     def process_unit(self, unit: Unit) -> None:
         if self.stop.is_set():
             return
-        session = self._session()
+        with self.pool.lease() as session:
+            self._process_unit(session, unit)
+
+    def _process_unit(self, session: Any, unit: Unit) -> None:
         rows = self._journal_rows(unit)
         # journal-only paths (desired no more) stay with this unit unless another unit now wants them
         journal_keys = {(r["path"], r["target_type"]) for r in rows
@@ -521,16 +556,19 @@ class BulkWriter:
         avu_ops = [AVUOperation(operation=o.op, avu=iRODSMeta(o.triple[0], o.triple[1], o.triple[2] or None))
                    for o in ops]
         self.bucket.acquire()
-        t0 = time.monotonic()
+        t0 = self.clock()
         try:
             session.metadata.apply_atomic_operations(model_for(key[1]), key[0], *avu_ops)
+        except Exception as exc:
+            self._failed(exc)
+            raise
         finally:
-            dt = time.monotonic() - t0
+            dt = self.clock() - t0
             self._bump("atomic_calls")
         self._set_status(ops, "applied", applied=True)
         self._bump("adds", sum(1 for o in ops if o.op == "add"))
         self._bump("removes", sum(1 for o in ops if o.op == "remove"))
-        self.monitor.observe(dt)
+        self._ok(dt)
 
     def apply_target(self, session: Any, key: Key, ops: list[Op]) -> None:
         ordered = [o for o in ops if o.op == "remove"] + [o for o in ops if o.op == "add"]
@@ -590,7 +628,7 @@ class BulkWriter:
         model = model_for(key[1])
         for o in chunk:
             self.bucket.acquire()
-            t0 = time.monotonic()
+            t0 = self.clock()
             try:
                 meta = iRODSMeta(o.triple[0], o.triple[1], o.triple[2] or None)
                 if o.op == "add":
@@ -602,6 +640,7 @@ class BulkWriter:
                     self._set_status([o], "noop", error=_err_name(exc))
                     self._bump("noops")
                 else:
+                    self._failed(exc)
                     self._set_status([o], "error", error=_err_name(exc))
                     self._bump("errors")
                     self._note("error_samples", f"{key[0]} {o.op} {o.triple[0]}: {_err_name(exc)}")
@@ -610,7 +649,7 @@ class BulkWriter:
                 self._bump("fallback_calls")
             self._set_status([o], "applied", applied=True)
             self._bump("adds" if o.op == "add" else "removes")
-            self.monitor.observe(time.monotonic() - t0)
+            self._ok(self.clock() - t0)
 
     # ---------------------------------------------------------- driver
     def _guarded(self, unit: Unit) -> None:
@@ -622,6 +661,7 @@ class BulkWriter:
             self.stop.set()
             raise
         except Exception as exc:  # noqa: BLE001 - one bad unit must not stop the rest
+            self._failed(exc)  # e.g. a read query hit a connection reset: back off like a failed write
             log.error("unit %s failed: %s", unit.unit_id, _err_name(exc))
             self._bump("unit_failures")
             self._note("unit_errors", f"{unit.unit_id}: {_err_name(exc)}")
@@ -650,16 +690,29 @@ class BulkWriter:
             p = self.monitor.p95()
             self.stats["p95_ms"] = round(p * 1000, 1) if p is not None else None
             self.stats["seconds"] = round(time.time() - t0, 1)
+            snap = getattr(self.bucket, "snapshot", None)
+            if snap is not None:
+                r = snap()
+                self.stats.update(rate_start=r["start"], rate_final=round(r["current"], 2),
+                                  rate_min=round(r["min"], 2), rate_max=round(r["max"], 2),
+                                  rate_changes=r["changes"])
+            else:
+                self.stats["rate_final"] = getattr(self.bucket, "rate", None)
+            self.stats.update(self.pool.stats())
         return dict(self.stats)
 
 
 def apply_scope(scope: str, *, threads: int = 8, rate: float = 20.0, dry_run: bool = False,
                 only_units: Iterable[str] | None = None, con: sqlite3.Connection | None = None,
-                session: Any | None = None) -> dict[str, Any]:
+                session: Any | None = None, budget: ConnectionBudget | None = None,
+                clock: Callable[[], float] = time.monotonic,
+                sleep: Callable[[float], None] = time.sleep) -> dict[str, Any]:
     """Apply ``avu_desired`` rows of ``scope`` to iRODS (see module docstring). Returns stats.
 
-    ``con``/``session`` are injectable for tests; by default the journal at work/state.sqlite and the
-    pooled MESA session are used (one ``session.clone()`` per worker thread).
+    ``rate`` is the starting calls/s of the adaptive bucket (AIMD in [5, 60]); ``threads`` <= 16.
+    ``con``/``session``/``budget``/``clock``/``sleep`` are injectable for tests; by default the journal
+    at work/state.sqlite, the pooled MESA session (leased clones, one per concurrent unit) and the shared
+    iRODS connection budget are used.
     """
     con = con or state.connect()
     units = load_desired(con, scope, only_units)
@@ -673,11 +726,13 @@ def apply_scope(scope: str, *, threads: int = 8, rate: float = 20.0, dry_run: bo
         from ..env import mesa
 
         session = mesa().session
-    writer = BulkWriter(con, scope, session, rate=rate, dry_run=dry_run)
+    writer = BulkWriter(con, scope, session, rate=rate, dry_run=dry_run, budget=budget, clock=clock, sleep=sleep)
     stats = writer.run(units, threads)
     stats["threads"] = threads
     log.info("apply %s%s: units=%d targets=%d adds=%d removes=%d noops=%d errors=%d missing=%d calls=%d p95=%sms"
-             " in %ss", scope, " (dry run)" if dry_run else "", stats.get("units", 0), stats.get("targets", 0),
-             stats.get("adds", 0), stats.get("removes", 0), stats.get("noops", 0), stats.get("errors", 0),
-             stats.get("missing", 0), stats.get("atomic_calls", 0), stats.get("p95_ms"), stats.get("seconds"))
+             " in %ss; rate %s -> %s calls/s (min %s, max %s)", scope, " (dry run)" if dry_run else "",
+             stats.get("units", 0), stats.get("targets", 0), stats.get("adds", 0), stats.get("removes", 0),
+             stats.get("noops", 0), stats.get("errors", 0), stats.get("missing", 0), stats.get("atomic_calls", 0),
+             stats.get("p95_ms"), stats.get("seconds"), stats.get("rate_start"), stats.get("rate_final"),
+             stats.get("rate_min"), stats.get("rate_max"))
     return stats

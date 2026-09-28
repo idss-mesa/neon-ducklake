@@ -13,17 +13,31 @@ list:
   * site lake tables ``files``, ``site_months``, ``external_links`` are upserted in one snapshot.
 
 download:
-  * ``NeonClient.stream_to_file`` on the download client (semaphore 8, token=None: GCS signed URLs);
+  * ``NeonClient.stream_to_file`` with token=None (GCS signed URLs);
+  * up to 3 download clients (the bundle's 'download' client plus 2 built like it, sharing the
+    bundle's rate limiter and cache), each with at most 8 streams (its httpx pool size);
+  * the number of concurrent streams is adaptive (``tuning.AsyncAdaptiveLimit``, AIMD):
+    - it starts at ``threads``, with a floor of ``min(4, threads)`` and a ceiling of 24;
+    - each file reports its latency divided by ``5 s + bytes / 1.5 MB/s``;
+    - it grows by 1 per 16 on-time files while binding;
+    - it halves on transport errors, timeouts, 429 or 5xx, or when p95 exceeds 4x the target;
+    - each new stream goes to the least-loaded client;
   * MD5 is hard for data files and soft for EML/readme (kept with ``md5_verified=0`` on mismatch);
   * per-file retry x4: checksum mismatch -> retry then re-list the product; GCS 400/403/404 -> re-list;
     transport/5xx -> backoff; rate_limited -> sleep ``retryAfterSeconds``;
   * resume: ``dl_status='ok'`` rows whose file exists with ``size == dl_bytes`` are skipped; stale
-    ``*.part`` files are removed first; URLs older than 6 days are refreshed by a re-list.
+    ``*.part`` files are removed first; URLs older than 6 days are refreshed by a re-list;
+  * evicted files are never re-downloaded. These have ``site_files.local_evicted = 1``, a column added by
+    the evict step that may be absent. Their raw file was deleted locally after it was verified in iRODS,
+    so they count as ok. The one exception is a row a re-list marked ``stale`` (upstream MD5 changed):
+    it is downloaded again and its ``local_evicted`` is reset to 0;
+  * MB/s and concurrency are logged with progress and in ``reports/download_summary.json``.
 """
 
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import random
 import sqlite3
@@ -35,6 +49,7 @@ from pathlib import Path
 from typing import Any
 
 from .. import env, state
+from ..tuning import AsyncAdaptiveLimit
 from . import plan as planmod
 from . import site_lake
 
@@ -42,7 +57,17 @@ log = logging.getLogger("neon_ducklake.site.fetch")
 
 SOFT_KINDS = frozenset({"eml", "readme"})
 RELIST_AFTER = timedelta(days=6)
-DL_CONCURRENCY = 8
+DL_CONCURRENCY = 8  # streams per download client (= its httpx connection pool)
+DL_CLIENTS = 3
+DL_MAX = DL_CLIENTS * DL_CONCURRENCY
+DL_MIN = 4
+DL_TARGET_S = 5.0  # per-file latency target: 5 s + bytes / DL_REF_BPS
+DL_REF_BPS = 1.5e6
+DL_CEILING = 4.0  # halve when p95(latency / target) exceeds this
+DL_GROW_EVERY = 16
+DL_WINDOW = 64
+DL_MIN_SAMPLES = 16
+DL_COOLDOWN_S = 5.0
 LIST_CONCURRENCY = 4
 DL_TRIES = 4
 PROGRESS_EVERY = 500
@@ -64,6 +89,72 @@ class ListingError(RuntimeError):
 
 def max_bytes_for(size: int | None) -> int:
     return int(size * 1.1) + MIB if size else 64 * MIB
+
+
+def dl_target_seconds(nbytes: int | None) -> float:
+    return DL_TARGET_S + max(0, nbytes or 0) / DL_REF_BPS
+
+
+def extra_download_clients(bundle: Any, n: int) -> list[Any]:
+    """``n`` more 'download' NeonClients built exactly like ``env.neon_bundle`` builds that role.
+
+    They share the bundle's rate limiter and cache. Each client is its own 8-connection pool. This
+    returns [] for a bundle that isn't a real ``env.NeonBundle`` (tests).
+    """
+    cfg = getattr(bundle, "config", None)
+    base = bundle.client("download")
+    limiter = getattr(base, "_limiter", None)
+    cache = getattr(base, "cache", None)
+    if n <= 0 or cfg is None or limiter is None or cache is None:
+        return []
+    from neon_mcp.neon.client import NeonClient
+
+    role = env.ROLE_SETTINGS["download"]
+    out = []
+    for _ in range(n):
+        ncfg = cfg.neon.model_copy(deep=True)
+        ncfg.retries.max_attempts = role["max_attempts"]
+        ncfg.read_timeout_s = role["read_timeout_s"]
+        ncfg.download_read_timeout_s = max(ncfg.download_read_timeout_s, role["read_timeout_s"])
+        out.append(NeonClient(ncfg, cache=cache, limiter=limiter,
+                              send_token_on_public=cfg.effective_token_for_public("stdio"),
+                              allowed_hosts=cfg.downloads.allowed_hosts))
+    return out
+
+
+class DownloadLanes:
+    """Adaptive concurrent GCS streams spread over download clients, never more than 8 per client."""
+
+    def __init__(self, clients: list[Any], start: int) -> None:
+        if not clients:
+            raise ValueError("at least one download client is required")
+        self.clients = clients
+        hi = max(1, min(DL_MAX, len(clients) * DL_CONCURRENCY))
+        start = max(1, min(start, hi))
+        self.limit = AsyncAdaptiveLimit("download", start=start, lo=min(DL_MIN, start), hi=hi, target=1.0,
+                                        ceiling=DL_CEILING, every=DL_GROW_EVERY, window=DL_WINDOW,
+                                        min_samples=DL_MIN_SAMPLES, cooldown_s=DL_COOLDOWN_S)
+        self.in_flight = [0] * len(clients)
+        self.peak_per_client = [0] * len(clients)
+
+    @contextlib.asynccontextmanager
+    async def slot(self) -> Any:
+        async with self.limit:
+            i = min(range(len(self.clients)), key=self.in_flight.__getitem__)
+            self.in_flight[i] += 1
+            self.peak_per_client[i] = max(self.peak_per_client[i], self.in_flight[i])
+            try:
+                yield self.clients[i]
+            finally:
+                self.in_flight[i] -= 1
+
+    def stats(self) -> dict[str, Any]:
+        snap = self.limit.snapshot()
+        return {"clients": len(self.clients), "concurrencyStart": int(snap["start"]),
+                "concurrencyFinal": int(snap["current"]), "concurrencyMin": int(snap["min"]),
+                "concurrencyMax": int(snap["max"]), "peakInFlight": snap["peak_in_flight"],
+                "peakPerClient": list(self.peak_per_client), "latencyP95Ratio": snap["p95"],
+                "errorsByKind": snap["errors_by_kind"], "changes": snap["changes"]}
 
 
 def month_runs(months: list[str]) -> list[tuple[str, str]]:
@@ -167,6 +258,9 @@ class Fetcher:
     relist_count: dict[str, int] = field(default_factory=lambda: defaultdict(int))
     relisted_at: dict[str, float] = field(default_factory=dict)
     sleep: Any = asyncio.sleep
+    extra_clients: list[Any] | None = None  # None: built from the bundle when downloads start
+    download_stats: dict[str, Any] = field(default_factory=dict)
+    _own_extra: list[Any] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         self.site = self.site.upper()
@@ -423,7 +517,11 @@ class Fetcher:
             args += months
         rows = self.con.execute(f"SELECT * FROM site_files WHERE {' AND '.join(where)}", args).fetchall()
         todo = []
+        evict_col = bool(rows) and "local_evicted" in set(rows[0].keys())  # column added by the evict step
         for r in rows:
+            if evict_col and r["local_evicted"] == 1 and r["dl_status"] != "stale":
+                self.counts["evicted"] += 1  # verified in iRODS and deleted locally: counts as ok
+                continue
             if r["dl_status"] == "ok":
                 dest = env.ROOT / r["local_path"]
                 try:
@@ -476,11 +574,10 @@ class Fetcher:
             log.info("refreshing signed URLs for %d product(s): %s", len(need), ", ".join(sorted(need)))
             await asyncio.gather(*(self.relist(p, "url missing or older than 6 days") for p in sorted(need)))
 
-    async def download_one(self, r: sqlite3.Row, sem: asyncio.Semaphore, progress: dict[str, Any]) -> None:
+    async def download_one(self, r: sqlite3.Row, lanes: DownloadLanes, progress: dict[str, Any]) -> None:
         import httpx
         from neon_mcp.errors import NeonApiError, ToolError
 
-        client = self.bundle.client("download")
         dest = env.ROOT / r["local_path"]
         soft = r["kind"] in SOFT_KINDS
         expected = None if soft else (r["md5"] or None)
@@ -500,9 +597,11 @@ class Fetcher:
                     break
             attempts += 1
             try:
-                async with sem:
+                async with lanes.slot() as client:
+                    t0 = time.monotonic()
                     outcome = await client.stream_to_file(url, dest, token=None, max_bytes=limit,
                                                           expected_md5=expected)
+                lanes.limit.on_success((time.monotonic() - t0) / dl_target_seconds(outcome.bytes))
                 break
             except ToolError as exc:
                 last = f"tool:{exc.code}"
@@ -526,11 +625,16 @@ class Fetcher:
                     if not await self.relist(r["product"], f"GCS {exc.status}"):
                         break
                 elif exc.kind == "transport" or exc.status == 429 or (exc.status or 0) >= 500:
+                    lanes.limit.on_error("transport" if exc.kind == "transport" else f"http_{exc.status}")
                     await self.sleep(RETRY_DELAYS[min(attempts - 1, len(RETRY_DELAYS) - 1)])
                 else:
                     break
             except (httpx.HTTPError, OSError) as exc:  # mid-body failures are not retried by the client
                 last = f"transport:{type(exc).__name__}"
+                if isinstance(exc, httpx.TimeoutException | TimeoutError):
+                    lanes.limit.on_error("timeout")
+                elif isinstance(exc, httpx.HTTPError | ConnectionError):
+                    lanes.limit.on_error("transport")
                 await self.sleep(RETRY_DELAYS[min(attempts - 1, len(RETRY_DELAYS) - 1)])
         key = (self.site, r["product"], r["month"], r["name"])
         if outcome is None:
@@ -548,10 +652,11 @@ class Fetcher:
                 verified = outcome.md5_verified is True
                 if not verified:
                     self.counts["unverified"] += 1
+            evicted = ", local_evicted=0" if progress.get("evictedColumn") else ""
             self.con.execute(
                 "UPDATE site_files SET dl_md5=?, dl_bytes=?, md5_verified=?, downloaded_at=?, dl_status='ok',"
-                " dl_error=NULL, url=NULL, dl_attempts=coalesce(dl_attempts,0)+? WHERE site=? AND product=? AND"
-                " month=? AND name=?",
+                f" dl_error=NULL, url=NULL, dl_attempts=coalesce(dl_attempts,0)+?{evicted} WHERE site=? AND"
+                " product=? AND month=? AND name=?",
                 (outcome.md5, outcome.bytes, int(verified), env.utcnow().isoformat(), attempts, *key))
             self.counts["downloaded"] += 1
             self.counts["downloadedBytes"] += outcome.bytes
@@ -559,21 +664,54 @@ class Fetcher:
         if progress["n"] % PROGRESS_EVERY == 0 or progress["n"] == progress["total"]:
             el = max(time.monotonic() - progress["t0"], 1e-6)
             mb = self.counts["downloadedBytes"] / 1e6
-            log.info("download %d/%d files, %.1f MB, %.2f MB/s, failed %d", progress["n"], progress["total"], mb,
-                     mb / el, self.counts["failed"])
+            log.info("download %d/%d files, %.1f MB, %.2f MB/s, concurrency %d (in flight %d over %d client(s)),"
+                     " failed %d", progress["n"], progress["total"], mb, mb / el, lanes.limit.limit,
+                     lanes.limit.in_flight, len(lanes.clients), self.counts["failed"])
+
+    def download_clients(self, pending: int) -> list[Any]:
+        """The bundle's download client plus up to DL_CLIENTS - 1 more (only as many as ``pending`` can use)."""
+        want = max(0, min(DL_CLIENTS - 1, -(-pending // DL_CONCURRENCY) - 1))
+        if self.extra_clients is None:
+            self.extra_clients = extra_download_clients(self.bundle, want)
+            self._own_extra = list(self.extra_clients)
+        return [self.bundle.client("download"), *self.extra_clients[:want]]
+
+    async def aclose_extra(self) -> None:
+        for c in self._own_extra:
+            with contextlib.suppress(Exception):
+                await c.aclose()
+        self._own_extra = []
+
+    def _has_evicted_column(self) -> bool:
+        return any(r[1] == "local_evicted" for r in self.con.execute("PRAGMA table_info(site_files)"))
 
     async def download_all(self, products: list[str] | None, months: list[str] | None) -> None:
         self.counts["partsRemoved"] = self.clean_parts()
         rows = self.pending_rows(products, months)
-        log.info("download %s: %d file(s) pending, %d already ok", self.site, len(rows), self.counts["skipped"])
+        log.info("download %s: %d file(s) pending, %d already ok, %d evicted (kept in iRODS only)", self.site,
+                 len(rows), self.counts["skipped"], self.counts["evicted"])
         if not rows:
             return
         await self.refresh_expired(rows)
-        sem = asyncio.Semaphore(min(max(self.threads, 1), DL_CONCURRENCY))
-        progress = {"n": 0, "total": len(rows), "t0": time.monotonic()}
+        lanes = DownloadLanes(self.download_clients(len(rows)), max(self.threads, 1))
+        progress: dict[str, Any] = {"n": 0, "total": len(rows), "t0": time.monotonic(),
+                                    "evictedColumn": self._has_evicted_column()}
+        log.info("download %s: %d client(s), concurrency %d (adaptive %d..%d)", self.site, len(lanes.clients),
+                 lanes.limit.limit, int(lanes.limit.lo), int(lanes.limit.hi))
         # biggest first keeps the tail short; supporting files ride along
         rows.sort(key=lambda r: -(r["size"] or 0))
-        await asyncio.gather(*(self.download_one(r, sem, progress) for r in rows))
+        try:
+            await asyncio.gather(*(self.download_one(r, lanes, progress) for r in rows))
+        finally:
+            secs = max(time.monotonic() - progress["t0"], 1e-6)
+            mb = self.counts["downloadedBytes"] / 1e6
+            self.download_stats = {**lanes.stats(), "seconds": round(secs, 1), "mb": round(mb, 1),
+                                   "mbPerS": round(mb / secs, 2), "filesPerS": round(progress["n"] / secs, 2)}
+            log.info("download %s: %.1f MB in %.0fs = %.2f MB/s (%.1f files/s); concurrency %d -> %d (min %d, max %d,"
+                     " peak in flight %d, per client %s)", self.site, mb, secs, mb / secs, progress["n"] / secs,
+                     self.download_stats["concurrencyStart"], self.download_stats["concurrencyFinal"],
+                     self.download_stats["concurrencyMin"], self.download_stats["concurrencyMax"],
+                     self.download_stats["peakInFlight"], self.download_stats["peakPerClient"])
 
     # ------------------------------------------------------------ site lake
     def lake_file_rows(self, products: list[str] | None = None) -> list[dict[str, Any]]:
@@ -698,8 +836,11 @@ async def _run(step: str, site: str, products: list[str] | None, months: list[st
     finally:
         summary.update({"status": status, "seconds": round(time.monotonic() - t0, 1), "counts": dict(f.counts),
                         "errors": f.errors[:200], "errorCount": len(f.errors)})
+        if f.download_stats:
+            summary["download"] = f.download_stats
         env.write_json(f.paths.reports_dir / f"{step}_summary.json", summary)
         state.finish_run(con, rid, f"site-{step}", site, status, {k: summary[k] for k in ("counts", "errorCount")})
+        await f.aclose_extra()
         await bundle.aclose()
         con.close()
     c = f.counts
@@ -707,9 +848,10 @@ async def _run(step: str, site: str, products: list[str] | None, months: list[st
         log.info("list %s done in %.0fs: %d files %.2f GB, %d external link(s), %d error(s)", site,
                  summary["seconds"], c["files"], c["bytes"] / 1e9, c["externalLinks"], len(f.errors))
     else:
-        log.info("download %s done in %.0fs: %d downloaded (%.2f GB), %d skipped, %d failed, %d soft-MD5 "
-                 "mismatch, %d relists", site, summary["seconds"], c["downloaded"], c["downloadedBytes"] / 1e9,
-                 c["skipped"], c["failed"], c["softMismatch"], c["relists"])
+        log.info("download %s done in %.0fs: %d downloaded (%.2f GB, %s MB/s), %d skipped, %d evicted, %d failed,"
+                 " %d soft-MD5 mismatch, %d relists", site, summary["seconds"], c["downloaded"],
+                 c["downloadedBytes"] / 1e9, f.download_stats.get("mbPerS", 0.0), c["skipped"], c["evicted"],
+                 c["failed"], c["softMismatch"], c["relists"])
     return 0 if status == "ok" else 2
 
 

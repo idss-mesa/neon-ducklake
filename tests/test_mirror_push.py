@@ -9,10 +9,17 @@ from irods.exception import LOCKED_DATA_OBJECT_ACCESS, SYS_COPY_LEN_ERR
 
 from neon_ducklake import env, mirror, state
 from neon_ducklake.mirror import push_tree, report_orphans
+from neon_ducklake.tuning import ConnectionBudget
 
-from .test_avu_fakes import SYS_MAX_CONNECT_COUNT_EXCEEDED, FakeIrods, FakeSession
+from .test_avu_fakes import SYS_MAX_CONNECT_COUNT_EXCEEDED, FakeDataObjects, FakeIrods, FakeSession
 
 R = "/iplant/home/tswetnam/neon-ducklake"
+
+
+@pytest.fixture(autouse=True)
+def _hermetic_locks(tmp_path, monkeypatch) -> None:
+    """The default iRODS connection budget lives in env.LOCK_DIR: never the real work/locks."""
+    monkeypatch.setattr(env, "LOCK_DIR", tmp_path / "locks")
 
 
 @pytest.fixture
@@ -115,7 +122,133 @@ def test_connection_budget_exceeded_halves_concurrency(con, tree) -> None:
     s.put_errors = [SYS_MAX_CONNECT_COUNT_EXCEEDED("SYS_MAX_CONNECT_COUNT_EXCEEDED")]
     stats = push_tree(items, threads=8, session=FakeSession(s), con=con, sleep=lambda _: None)
     assert stats["uploaded"] == 4 and stats["threads_start"] == 8 and stats["threads_final"] == 4
-    assert stats["conn_backoffs"] == 1
+    assert stats["conn_backoffs"] == 1 and stats["threads_min"] == 4 and stats["threads_max"] == 8
+    assert s.calls["cleanup"] == s.calls["clone"]  # the failed session was discarded, the rest closed
+
+
+# ---------------------------------------------------------------- adaptive concurrency + connection budget
+
+class Clock:
+    """Shared fake monotonic clock; each put advances it by ``latency``."""
+
+    def __init__(self) -> None:
+        import threading
+
+        self.t = 0.0
+        self.latency = 0.0
+        self._lock = threading.Lock()
+
+    def __call__(self) -> float:
+        with self._lock:
+            return self.t
+
+    def advance(self, dt: float) -> None:
+        with self._lock:
+            self.t += dt
+
+
+@pytest.fixture
+def clock(monkeypatch) -> Clock:
+    import time
+
+    c = Clock()
+    orig = FakeDataObjects.put
+
+    def put(self, local, irods_path, num_threads=0, **opts):
+        time.sleep(0.005)  # real overlap, so callers queue at the gate (the limit is binding)
+        c.advance(c.latency)
+        return orig(self, local, irods_path, num_threads, **opts)
+
+    monkeypatch.setattr(FakeDataObjects, "put", put)
+    return c
+
+
+def many_files(tmp_path, n: int, sub: str = "many") -> list:
+    items = []
+    for i in range(n):
+        p = tmp_path / sub / f"d{i % 7}" / f"f{i:04d}.csv"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(f"row {i}\n".encode())
+        items.append((p, f"{R}/{sub}/d{i % 7}/f{i:04d}.csv", None))
+    return items
+
+
+def test_concurrency_grows_while_uploads_are_fast(con, tmp_path, clock) -> None:
+    clock.latency = 0.05  # far below the 3 s small-file target (even with 32 puts overlapping)
+    items = many_files(tmp_path, 300)
+    s = FakeIrods()
+    stats = push_tree(items, threads=4, session=FakeSession(s), con=con, sleep=lambda _: None, clock=clock)
+    assert stats["uploaded"] == 300 and stats["errors"] == 0
+    assert stats["threads_start"] == 4 and stats["threads_min"] == 4
+    assert stats["threads_max"] > 8 and stats["threads_final"] == stats["threads_max"] <= mirror.MAX_THREADS
+    assert stats["peak_in_flight"] <= stats["threads_max"]
+    assert all("< target" in c["reason"] for c in stats["concurrency_changes"])
+    assert stats["files_per_s"] > 0 and stats["mb_per_s"] >= 0 and "uploads_per_s" in stats
+    assert stats["sessions_created"] <= stats["threads_max"]
+    assert s.calls["cleanup"] == s.calls["clone"]
+
+
+def test_concurrency_halves_to_the_floor_when_uploads_are_slow(con, tmp_path, clock, monkeypatch) -> None:
+    monkeypatch.setattr(mirror, "COOLDOWN_S", 0.0)
+    clock.latency = 12.0  # 4x the 3 s target -> p95 ratio above the 3.0 ceiling
+    items = many_files(tmp_path, 60)
+    stats = push_tree(items, threads=16, session=FakeSession(FakeIrods()), con=con, sleep=lambda _: None,
+                      clock=clock)
+    assert stats["uploaded"] == 60
+    assert stats["threads_start"] == 16 and stats["threads_final"] == 4 and stats["threads_min"] == 4
+    reasons = [c["reason"] for c in stats["concurrency_changes"]]
+    assert reasons and all("> ceiling" in r for r in reasons)
+
+
+def test_target_scales_with_size() -> None:
+    assert mirror.target_seconds(0) == mirror.SMALL_TARGET_S == 3.0
+    assert mirror.target_seconds(100_000_000) == pytest.approx(13.0)
+    lim = mirror.upload_limit(1)
+    assert (lim.limit, lim.lo, lim.hi) == (1, 1, 32)
+    lim = mirror.upload_limit(64)
+    assert (lim.limit, lim.lo) == (32, 4)
+
+
+def test_connection_reset_is_retried_on_a_fresh_session(con, tree) -> None:
+    _root, items = tree
+    s = FakeIrods()
+    s.put_errors = [ConnectionResetError("Connection reset by peer")]
+    slept: list[float] = []
+    stats = push_tree(items, threads=8, session=FakeSession(s), con=con, sleep=slept.append)
+    assert stats["uploaded"] == 4 and stats["errors"] == 0 and stats["net_retries"] == 1
+    assert slept == [mirror.NET_WAIT_S] and stats["threads_final"] == 4
+    assert stats["sessions_discarded"] == 1 and s.calls["cleanup"] == s.calls["clone"]
+    first_path, _n, first_opts = s.put_log[0]
+    assert "forceFlag" not in first_opts
+    retried = [o for p, _, o in s.put_log if p == first_path]
+    assert len(retried) == 2 and "forceFlag" in retried[1]  # the reset put may have created the object
+
+
+def test_worker_sessions_are_capped_by_the_shared_budget(con, tmp_path) -> None:
+    lock_dir = tmp_path / "budget"
+    other = ConnectionBudget(3, lock_dir=lock_dir)  # "another process" (flock is per open file)
+    held = [other.try_acquire(), other.try_acquire()]
+    assert None not in held
+    budget = ConnectionBudget(3, lock_dir=lock_dir, poll_s=0.001)
+    items = many_files(tmp_path, 25)
+    s = FakeIrods()
+    stats = push_tree(items, threads=8, session=FakeSession(s), con=con, sleep=lambda _: None, budget=budget)
+    assert stats["uploaded"] == 25
+    assert stats["sessions_created"] == 1 and budget.peak_held == 1  # one free slot -> one connection
+    assert budget.held() == 0 and other.held() == 2 and budget.in_use() == 2
+    assert s.calls["cleanup"] == s.calls["clone"] == 1
+
+
+def test_big_put_holds_extra_budget_slots_on_a_dedicated_session(con, tree, tmp_path, monkeypatch) -> None:
+    _root, items = tree
+    monkeypatch.setattr(mirror, "BIG_BYTES", 9)
+    budget = ConnectionBudget(8, lock_dir=tmp_path / "b8", poll_s=0.001)
+    s = FakeIrods()
+    stats = push_tree(items, threads=4, session=FakeSession(s), con=con, sleep=lambda _: None, budget=budget)
+    assert stats["uploaded"] == 4
+    assert {p: n for p, n, _ in s.put_log}[f"{R}/ducklake/data/main/sites/b.parquet"] == mirror.BIG_THREADS
+    assert budget.peak_held >= mirror.BIG_THREADS + 1 and budget.held() == 0
+    assert s.calls["cleanup"] == s.calls["clone"]
 
 
 def test_missing_checksum_is_computed_on_verify(con, tree) -> None:

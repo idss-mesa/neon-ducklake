@@ -8,9 +8,24 @@
   has the local size and a checksum equal to the local MD5 (plain MD5 hex at CyVerse);
 - otherwise ``put`` with ``REG_CHKSUM_KW`` (``num_threads=1`` below 512 MiB, else 4 on a 2-slot lane),
   then verify size + checksum (``data_objects.chksum`` when iRODS has none yet);
-- LOCKED_DATA_OBJECT_ACCESS / SYS_REPLICA_INACCESSIBLE are retried after 60 s (3x);
-  SYS_MAX_CONNECT_COUNT_EXCEEDED backs off and halves the concurrency;
+- LOCKED_DATA_OBJECT_ACCESS / SYS_REPLICA_INACCESSIBLE are retried after 60 s (3x); connection resets
+  and timeouts after 15/30/45 s on a fresh session (3x); SYS_MAX_CONNECT_COUNT_EXCEEDED backs off
+  30 s x n (6x);
 - ``*.ducklake`` catalog files are uploaded LAST, and only when everything else succeeded.
+
+Adaptive concurrency (``tuning.AdaptiveLimit``, AIMD; docs/SCALING.md "Hard limits"):
+
+- C starts at ``threads``. Its floor is ``min(4, threads)`` and its ceiling is 32; the thread pool has
+  32 workers, and the ones above C wait at the gate.
+- Each put + verify reports its latency divided by a size-dependent target:
+  ``3 s + size / 10 MB/s``, i.e. 3 s for small files.
+- C grows by 1 after 16 successes whose p95 ratio is below 1, and only while C is actually binding.
+- C halves on SYS_MAX_CONNECT_COUNT_EXCEEDED, connection resets or timeouts, RETRYABLE errors, or a
+  p95 ratio above 3. Idle sessions beyond the new C are closed at once.
+- Worker sessions come from a ``tuning.SessionPool`` bound to the cross-process iRODS connection
+  budget (``work/locks/irods-conn-NN.lock``, 32 slots shared with ``avu.bulk.apply_scope``).
+  A >= 512 MiB put uses a dedicated session holding 4 + 1 slots, which is closed after the put.
+- Stats report ``threads_start/final/min/max``, ``peak_in_flight``, ``files_per_s`` and ``mb_per_s``.
 
 Results go to the ``uploads`` table (and ``site_files`` when ``record_site`` is given). Local MD5s are
 cached in ``mirror_md5`` by (path, size, mtime). Nothing is ever deleted remotely; orphans are reported.
@@ -18,6 +33,7 @@ cached in ``mirror_md5`` by (path, size, mtime). Nothing is ever deleted remotel
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import logging
@@ -32,19 +48,30 @@ from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Self
+from typing import Any
 
 from . import env, state
+from .tuning import AdaptiveLimit, ConnectionBudget, SessionPool, irods_budget, irods_error_kind
 
 log = logging.getLogger("neon_ducklake.mirror")
 
 BIG_BYTES = 512 << 20
 BIG_LANES = 2
 BIG_THREADS = 4
-MAX_THREADS = 16
+MIN_THREADS = 4
+MAX_THREADS = 32
+SMALL_TARGET_S = 3.0  # p95 per-file latency target for small files
+TARGET_BPS = 10e6  # plus size / 10 MB/s for larger files
+CEILING_RATIO = 3.0  # halve C when p95(latency / target) exceeds this
+GROW_EVERY = 16
+LATENCY_WINDOW = 64
+MIN_SAMPLES = 8
+COOLDOWN_S = 10.0
 RETRY_WAIT_S = 60.0
 MAX_RETRIES = 3
 MAX_CONN_RETRIES = 6
+NET_WAIT_S = 15.0
+MAX_NET_RETRIES = 3
 RETRYABLE = ("LOCKED_DATA_OBJECT_ACCESS", "SYS_REPLICA_INACCESSIBLE")
 CONN_EXCEEDED = "SYS_MAX_CONNECT_COUNT_EXCEEDED"
 CODE_FILES = ("README.md", "pyproject.toml", "uv.lock")
@@ -55,7 +82,7 @@ MD5_DDL = """CREATE TABLE IF NOT EXISTS mirror_md5 (
 )"""
 
 COUNTERS = ("files", "present", "uploaded", "bytes_uploaded", "errors", "blocked", "retries", "conn_backoffs",
-            "md5_computed", "queries", "collections_created")
+            "net_retries", "md5_computed", "queries", "collections_created")
 
 Item = tuple[Path, str, str | None]
 
@@ -129,43 +156,29 @@ def existing_collections(session: Any, prefix: str) -> set[str]:
     return out
 
 
-class AdaptiveLimit:
-    """A counting gate whose limit can be lowered at runtime."""
+def target_seconds(size: int) -> float:
+    """Per-file latency target of one put + verify: 3 s for small files, + size / 10 MB/s."""
+    return SMALL_TARGET_S + max(0, size) / TARGET_BPS
 
-    def __init__(self, n: int) -> None:
-        self.limit = max(1, n)
-        self.active = 0
-        self._cv = threading.Condition()
 
-    def __enter__(self) -> Self:
-        with self._cv:
-            while self.active >= self.limit:
-                self._cv.wait()
-            self.active += 1
-        return self
-
-    def __exit__(self, *exc: object) -> None:
-        with self._cv:
-            self.active -= 1
-            self._cv.notify_all()
-
-    def shrink(self) -> int:
-        with self._cv:
-            self.limit = max(1, self.limit // 2)
-            return self.limit
+def upload_limit(threads: int, *, clock: Callable[[], float] = time.monotonic) -> AdaptiveLimit:
+    start = max(1, min(threads, MAX_THREADS))
+    return AdaptiveLimit("upload", start=start, lo=min(MIN_THREADS, start), hi=MAX_THREADS, target=1.0,
+                         ceiling=CEILING_RATIO, every=GROW_EVERY, window=LATENCY_WINDOW, min_samples=MIN_SAMPLES,
+                         cooldown_s=COOLDOWN_S, clock=clock)
 
 
 class Mirror:
     def __init__(self, session: Any, con: sqlite3.Connection, *, threads: int = 8, record_site: str | None = None,
-                 sleep: Callable[[float], None] = time.sleep) -> None:
-        self.root_session, self.con, self.record_site, self.sleep = session, con, record_site, sleep
+                 sleep: Callable[[float], None] = time.sleep, clock: Callable[[], float] = time.monotonic,
+                 budget: ConnectionBudget | None = None) -> None:
+        self.root_session, self.con, self.record_site, self.sleep, self.clock = session, con, record_site, sleep, clock
         self.threads = max(1, min(threads, MAX_THREADS))
-        self.limit = AdaptiveLimit(self.threads)
+        self.limit = upload_limit(self.threads, clock=clock)
+        self.pool = SessionPool(session, budget=budget)
         self.big = threading.Semaphore(BIG_LANES)
         self._db = threading.Lock()
         self._slock = threading.Lock()
-        self._local = threading.local()
-        self._clones: list[Any] = []
         self.known_colls: set[str] = set()
         self.stats: dict[str, Any] = defaultdict(int)
         self.stats.update({k: 0 for k in COUNTERS})
@@ -173,23 +186,8 @@ class Mirror:
         con.execute(MD5_DDL)
 
     # ---------------------------------------------------------- plumbing
-    def session(self) -> Any:
-        s = getattr(self._local, "session", None)
-        if s is None:
-            s = self.root_session.clone() if hasattr(self.root_session, "clone") else self.root_session
-            self._local.session = s
-            with self._slock:
-                self._clones.append(s)
-        return s
-
     def cleanup(self) -> None:
-        for s in self._clones:
-            if s is not self.root_session and hasattr(s, "cleanup"):
-                try:
-                    s.cleanup()
-                except Exception as exc:  # noqa: BLE001
-                    log.debug("session cleanup failed: %s", exc)
-        self._clones.clear()
+        self.pool.close()
 
     def bump(self, key: str, n: int = 1) -> None:
         with self._slock:
@@ -284,30 +282,45 @@ class Mirror:
             self.record(local, irods_path, size, md5, "present", checksum=md5)
             self.bump("present")
             return "present"
-        attempts = retries = conn_retries = 0
+        attempts = retries = conn_retries = net_retries = 0
         exists = bool(reps)
+        big = size >= BIG_BYTES
         while True:
             attempts += 1
-            session = self.session()
             try:
                 opts = {kw.REG_CHKSUM_KW: ""}
                 if exists:
                     opts[kw.FORCE_FLAG_KW] = ""
-                with self.limit:
-                    if size >= BIG_BYTES:
-                        with self.big:
-                            session.data_objects.put(str(local), irods_path, num_threads=BIG_THREADS, **opts)
-                    else:
-                        session.data_objects.put(str(local), irods_path, num_threads=1, **opts)
-                    exists = True
+                # the big lane is taken before the gate so waiting for it never holds a concurrency slot
+                with contextlib.ExitStack() as stack:
+                    if big:
+                        stack.enter_context(self.big)
+                    stack.enter_context(self.limit)
+                    session = stack.enter_context(self.pool.dedicated(BIG_THREADS + 1) if big else self.pool.lease())
+                    t0 = self.clock()
+                    exists = True  # a failed or timed-out put may still have created the object: retries force
+                    session.data_objects.put(str(local), irods_path, num_threads=BIG_THREADS if big else 1, **opts)
                     checksum = self.verify(session, irods_path, size, md5)
+                    self.limit.on_success((self.clock() - t0) / target_seconds(size))
+                self.pool.trim(self.limit.limit)  # after a p95-driven decrease: close idle connections above C
             except Exception as exc:  # noqa: BLE001 - classify and retry below
-                if _has(exc, (CONN_EXCEEDED,)) and conn_retries < MAX_CONN_RETRIES:
+                kind = irods_error_kind(exc)
+                if kind is not None:
+                    self.limit.on_error(kind)
+                    self.pool.trim(self.limit.limit)
+                if kind == "conn_limit" and conn_retries < MAX_CONN_RETRIES:
                     conn_retries += 1
-                    new = self.limit.shrink()
-                    log.warning("%s: connection budget exceeded; concurrency -> %d, backing off", irods_path, new)
+                    log.warning("%s: iRODS connection limit exceeded; concurrency now %d, backing off", irods_path,
+                                self.limit.limit)
                     self.bump("conn_backoffs")
                     self.sleep(min(300.0, 30.0 * conn_retries))
+                    continue
+                if kind in ("reset", "timeout") and net_retries < MAX_NET_RETRIES:
+                    net_retries += 1
+                    log.warning("%s: %s; concurrency now %d, retry %d/%d on a fresh session in %.0fs", irods_path,
+                                _err(exc), self.limit.limit, net_retries, MAX_NET_RETRIES, NET_WAIT_S * net_retries)
+                    self.bump("net_retries")
+                    self.sleep(NET_WAIT_S * net_retries)
                     continue
                 if _has(exc, RETRYABLE) and retries < MAX_RETRIES:
                     retries += 1
@@ -340,9 +353,9 @@ class Mirror:
             by_coll[posixpath.dirname(it[1])].append(it)
 
         def remote(coll: str) -> dict[str, list[Replica]]:
-            with self.limit:
+            with self.limit, self.pool.lease() as session:
                 self.bump("queries")
-                return remote_replicas(self.session(), coll)
+                return remote_replicas(session, coll)
 
         remote_futs = {c: pool.submit(remote, c) for c in sorted(by_coll)}
         remote_state = {c: f.result() for c, f in remote_futs.items()}
@@ -362,14 +375,11 @@ class Mirror:
         items = list(seen.values())
         catalogs = [it for it in items if it[1].endswith(".ducklake")]
         rest = [it for it in items if not it[1].endswith(".ducklake")]
-        if any(it[0].exists() and it[0].stat().st_size >= BIG_BYTES for it in items):
-            # 2 big lanes x 4 streams must still fit the 16-connection budget
-            self.threads = min(self.threads, MAX_THREADS - BIG_LANES * (BIG_THREADS - 1))
-            self.limit = AdaptiveLimit(self.threads)
-        self.stats.update(files=len(items), threads_start=self.threads)
+        self.stats.update(files=len(items), threads_start=self.limit.limit)
         try:
             self.ensure_collections({posixpath.dirname(it[1]) for it in items})
-            with ThreadPoolExecutor(max_workers=self.threads, thread_name_prefix="put") as pool:
+            workers = max(1, min(self.limit.hi, len(items) + 1))
+            with ThreadPoolExecutor(max_workers=int(workers), thread_name_prefix="put") as pool:
                 if rest:
                     self._batch(pool, rest)
                 if catalogs:
@@ -385,22 +395,38 @@ class Mirror:
                         self._batch(pool, catalogs)
         finally:
             self.cleanup()
-        self.stats["threads_final"] = self.limit.limit
-        self.stats["seconds"] = round(time.time() - t0, 1)
+        secs = max(time.time() - t0, 1e-9)
+        snap = self.limit.snapshot()
+        self.stats.update(threads_final=self.limit.limit, threads_min=int(snap["min"]), threads_max=int(snap["max"]),
+                          peak_in_flight=snap["peak_in_flight"], seconds=round(secs, 1),
+                          files_per_s=round((self.stats["uploaded"] + self.stats["present"]) / secs, 2),
+                          uploads_per_s=round(self.stats["uploaded"] / secs, 2),
+                          mb_per_s=round(self.stats["bytes_uploaded"] / 1e6 / secs, 2),
+                          concurrency_changes=snap["changes"], latency_p95_ratio=snap["p95"], **self.pool.stats())
         return dict(self.stats)
 
 
 def push_tree(items: list[Item], *, threads: int = 8, record_site: str | None = None, session: Any | None = None,
-              con: sqlite3.Connection | None = None, sleep: Callable[[float], None] = time.sleep) -> dict[str, Any]:
-    """Upload ``items`` idempotently (see module docstring). ``*.ducklake`` files go last. Returns stats."""
+              con: sqlite3.Connection | None = None, sleep: Callable[[float], None] = time.sleep,
+              clock: Callable[[], float] = time.monotonic, budget: ConnectionBudget | None = None) -> dict[str, Any]:
+    """Upload ``items`` idempotently (see module docstring). ``*.ducklake`` files go last. Returns stats.
+
+    ``threads`` is the starting concurrency (AIMD between ``min(4, threads)`` and 32). ``budget``
+    defaults to the shared cross-process iRODS connection budget (``tuning.irods_budget()``).
+    """
     con = con or state.connect()
     if session is None:
         session = env.mesa().session
-    stats = Mirror(session, con, threads=threads, record_site=record_site, sleep=sleep).run(items)
-    log.info("push_tree: %d files, %d present, %d uploaded (%.1f MB), %d errors, %d blocked in %ss",
+    budget = budget if budget is not None else irods_budget()
+    stats = Mirror(session, con, threads=threads, record_site=record_site, sleep=sleep, clock=clock,
+                   budget=budget).run(items)
+    log.info("push_tree: %d files, %d present, %d uploaded (%.1f MB), %d errors, %d blocked in %ss; "
+             "%.2f files/s, %.2f MB/s; concurrency start %d final %d min %d max %d (peak in flight %d)",
              stats.get("files", 0), stats.get("present", 0), stats.get("uploaded", 0),
              stats.get("bytes_uploaded", 0) / 1e6, stats.get("errors", 0), stats.get("blocked", 0),
-             stats.get("seconds"))
+             stats.get("seconds"), stats.get("files_per_s", 0.0), stats.get("mb_per_s", 0.0),
+             stats.get("threads_start", 0), stats.get("threads_final", 0), stats.get("threads_min", 0),
+             stats.get("threads_max", 0), stats.get("peak_in_flight", 0))
     return stats
 
 
@@ -530,7 +556,9 @@ def main(what: set[str], run_id: str | None = None, threads: int = 8) -> int:
         print(f"== mirror {w}: {stats.get('files', 0)} files, {stats.get('present', 0)} present, "
               f"{stats.get('uploaded', 0)} uploaded ({stats.get('bytes_uploaded', 0) / 1e6:.1f} MB), "
               f"{stats.get('errors', 0)} errors, {stats.get('blocked', 0)} blocked, "
-              f"orphans {stats['orphans']['count']}, {stats.get('seconds')}s")
+              f"orphans {stats['orphans']['count']}, {stats.get('seconds')}s, {stats.get('files_per_s')} files/s, "
+              f"{stats.get('mb_per_s')} MB/s, concurrency {stats.get('threads_start')}->{stats.get('threads_final')} "
+              f"(min {stats.get('threads_min')}, max {stats.get('threads_max')})")
         for s in stats.get("error_samples", []):
             print(f"   error: {s}")
         for o in stats["orphans"]["sample"]:

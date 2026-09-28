@@ -254,3 +254,68 @@ def test_record_scope_requires_enrolled_project(con, tmp_path, monkeypatch) -> N
     with pytest.raises(SystemExit, match="enroll"):
         history.record_scope("SRER", con=con)
     client.close()
+
+
+# ---------------------------------------------------------------- batch size + snapshot budget
+
+def test_default_batch_size_and_env_override(con, monkeypatch) -> None:
+    monkeypatch.delenv(history.ROWS_PER_BATCH_ENV, raising=False)
+    assert history.DEFAULT_ROWS_PER_BATCH == 250_000 == history.rows_per_batch_default()
+    add_rows(con, n_paths=5, per_path=2)
+    assert [len(b) for b in history.plan_batches(con, "SRER")] == [10]
+    monkeypatch.setenv(history.ROWS_PER_BATCH_ENV, "4")
+    assert [len(b) for b in history.plan_batches(con, "SRER")] == [4, 4, 2]
+    assert [len(b) for b in history.plan_batches(con, "SRER", rows_per_batch=6)] == [6, 4]  # explicit wins
+    monkeypatch.setenv(history.ROWS_PER_BATCH_ENV, "1_000")
+    assert history.rows_per_batch_default() == 1000
+    for bad in ("lots", "0"):
+        monkeypatch.setenv(history.ROWS_PER_BATCH_ENV, bad)
+        with pytest.raises(SystemExit, match=history.ROWS_PER_BATCH_ENV):
+            history.rows_per_batch_default()
+
+
+def test_snapshot_budget_guard_refuses_before_writing(con, lake) -> None:
+    client, project = lake
+    first = add_rows(con, n_paths=2, per_path=1)
+    out = history.record_batches(client, project.project_id, None, con, "SRER", rows_per_batch=1)
+    assert out["batches_recorded"] == 2 and out["snapshots_before"] == 0
+    ids = add_rows(con, n_paths=3, per_path=2)
+    con.executemany("UPDATE avu_journal SET path = path || '.new' WHERE id = ?", [(i,) for i in ids])
+    n_batches = con.execute("SELECT count(*) FROM batches").fetchone()[0]
+    with pytest.raises(history.SnapshotBudgetExceeded, match=r"already has 2 snapshot\(s\).*2 \+ 3 > 4"):
+        history.record_batches(client, project.project_id, None, con, "SRER", rows_per_batch=2, snapshot_budget=4)
+    # nothing was written: no batch rows, no snapshots, the rows are still applied and un-batched
+    assert con.execute("SELECT count(*) FROM batches").fetchone()[0] == n_batches
+    assert len(history._catalog_snapshots(client, project.project_id)) == 2
+    assert {(s, b) for s, b, _ in status_of(con, ids)} == {("applied", None)}
+    assert {s for s, _, _ in status_of(con, first)} == {"recorded"}
+    out = history.record_batches(client, project.project_id, None, con, "SRER", rows_per_batch=2, snapshot_budget=5)
+    assert out["batches_recorded"] == 3 and out["snapshots_before"] == 2
+    assert issubclass(history.SnapshotBudgetExceeded, SystemExit) and history.SNAPSHOT_BUDGET == 900
+
+
+def test_pending_snapshots_count_against_the_budget(con, lake) -> None:
+    client, project = lake
+    cat = client._get_catalog()
+    for _ in range(3):
+        cat.create_snapshot(project.project_id, env.ACTOR, None, "someone else's pending push", "pending")
+    add_rows(con, n_paths=1, per_path=1)
+    with pytest.raises(SystemExit, match="3 snapshot"):
+        history.record_batches(client, project.project_id, None, con, "SRER", snapshot_budget=3)
+
+
+def test_batch_staging_throughput_is_reported(con, lake, caplog) -> None:
+    import logging
+
+    client, project = lake
+    add_rows(con, n_paths=3, per_path=2)
+    caplog.set_level(logging.INFO, logger="neon_ducklake.avu.history")
+    out = history.record_batches(client, project.project_id, None, con, "SRER", rows_per_batch=4)
+    assert [b["rows"] for b in out["batch_stats"]] == [4, 2] and out["rows_per_batch"] == 4
+    assert all(b["rows_per_s"] > 0 and b["seconds"] >= 0 for b in out["batch_stats"])
+    assert "rows/s)" in caplog.text
+    notes = [r[0] for r in con.execute("SELECT note FROM batches ORDER BY seq")]
+    assert all(" | staged " in n and n.endswith("rows/s)") and "batch=" in n for n in notes)
+    # the MESA snapshot note itself is unchanged (recovery matches on it)
+    snaps = history._catalog_snapshots(client, project.project_id)
+    assert all("staged" not in s.note for s in snaps)

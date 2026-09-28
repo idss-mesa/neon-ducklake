@@ -45,13 +45,38 @@ def main(argv: list[str] | None = None) -> int:
 
     st = sub.add_parser("site", help="Phase 2 steps for one site")
     st.add_argument("step", choices=["plan", "list", "download", "stack", "terms", "cards", "curate", "validate",
-                                     "upload", "build-avus"])
+                                     "upload", "build-avus", "evict"])
     st.add_argument("site")
     st.add_argument("--products", help="comma list of product codes (dry runs)")
     st.add_argument("--months", help="comma list of YYYY-MM (dry runs)")
+    st.add_argument("--sample", type=int, metavar="N",
+                    help="list/download: only the N most recent months per product (always the latest released "
+                         "and latest PROVISIONAL month)")
     st.add_argument("--threads", type=int, default=8)
     st.add_argument("--accept", default="", help="curation: extra proposal ids or 'proposed'")
     st.add_argument("--force", action="store_true")
+    st.add_argument("--dry-run", action="store_true", help="evict: report what would be deleted, delete nothing")
+
+    r = sub.add_parser("run", help="multi-site orchestrator: every Phase-2 stage per site, resumable")
+    r.add_argument("sites", nargs="*", help="site codes (in this order)")
+    r.add_argument("--all", dest="all_sites", action="store_true", help="every site of the catalog")
+    r.add_argument("--habitat", help="Terrestrial | aquatic | 'Aquatic Wadeable Stream' | 'Aquatic Lake' | "
+                                     "'Aquatic Non-wadeable Stream'")
+    r.add_argument("--sample", type=int, metavar="N", help="probe: N most recent months per product (no evict)")
+    r.add_argument("--stages", help="comma list of stages to run (default: all)")
+    r.add_argument("--from-stage", help="re-run from this stage even when later stages are ok")
+    r.add_argument("--no-evict", action="store_true", help="keep raw files on disk (skip the evict stage)")
+    r.add_argument("--max-sites-in-flight", type=int, default=3)
+    r.add_argument("--dry-run", action="store_true", help="print the plan and commands; run nothing")
+    r.add_argument("--restack", action="store_true", help="re-download evicted inputs and force a full re-stack")
+    r.add_argument("--order", choices=["aquatic-first", "size", "name", "given"],
+                   help="site order (default: given for SITES, aquatic-first for --all/--habitat)")
+    r.add_argument("--threads", type=int, help="passed to list/download/upload")
+    r.add_argument("--poll", type=float, default=5.0, help=argparse.SUPPRESS)
+
+    ss = sub.add_parser("status", help="per-site stage table + totals; writes logs/status.json")
+    ss.add_argument("sites", nargs="*")
+    ss.add_argument("--json", action="store_true", help="print the JSON report instead of the table")
 
     v = sub.add_parser("verify")
     v.add_argument("scope", help="'catalog', 'mesa', or a site code")
@@ -95,6 +120,14 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "site":
         from .site import dispatch
         return dispatch(a)
+    if a.cmd == "run":
+        from .run import main as run
+        return run(a.sites, all_sites=a.all_sites, habitat=a.habitat, sample=a.sample, stages=a.stages,
+                   from_stage=a.from_stage, evict=not a.no_evict, max_in_flight=a.max_sites_in_flight,
+                   dry_run=a.dry_run, restack=a.restack, order=a.order, threads=a.threads, poll_s=a.poll)
+    if a.cmd == "status":
+        from .run import status_main as run
+        return run(a.sites, as_json=a.json)
     if a.cmd == "verify":
         from .verify import main as run
         return run(a.scope, run_id=a.run_id, products=a.products, months=a.months, threads=a.threads)

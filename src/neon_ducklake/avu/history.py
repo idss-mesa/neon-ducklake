@@ -17,14 +17,27 @@ Recovery (the only private mesa-ducklake API use lives in :func:`_catalog_snapsh
    ``recover_pending_pushes`` — LakeStore reads glob every cached ``snapshot_*.parquet``.
 4. Batches whose snapshot committed are marked recorded; dead batches release their rows for
    re-recording; a batch still pending after recovery blocks its rows (never recorded twice).
+
+Scale (docs/SCALING.md "Hard limits"):
+
+- ``rows_per_batch`` defaults to 250,000, about 3 min of staging at ~1,380 rows/s. That is about 4-5
+  snapshots per site. ``NEON_DUCKLAKE_ROWS_PER_BATCH`` overrides it (``tag`` has no flag for it).
+- **Snapshot budget guard.** mesa-ducklake's ``_ENSURE_CACHED_LIMIT`` is 1000 snapshots per project,
+  with no compaction. Before recording, the project's snapshots are counted, including pending ones.
+  If that count plus the planned batches would pass 900, recording is refused with a clear message
+  (``SystemExit``) and nothing is written.
+- Each batch's staging time and rows/s are logged, returned in ``batch_stats``, and appended to
+  ``batches.note`` locally. The MESA snapshot note itself is unchanged.
 """
 
 from __future__ import annotations
 
 import logging
+import os
 import re
 import shutil
 import sqlite3
+import time
 import uuid
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -37,7 +50,31 @@ log = logging.getLogger("neon_ducklake.avu.history")
 
 BATCH_RE = re.compile(r"\bbatch=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b")
 DEAD_PARQUET = ("pending", "failed")
-DEFAULT_ROWS_PER_BATCH = 60000
+DEFAULT_ROWS_PER_BATCH = 250_000
+ROWS_PER_BATCH_ENV = "NEON_DUCKLAKE_ROWS_PER_BATCH"
+SNAPSHOT_BUDGET = 900  # refuse to record past this many project snapshots (MESA caches at most 1000)
+SNAPSHOT_LIST_LIMIT = 1000
+
+
+class SnapshotBudgetExceeded(SystemExit):
+    """Recording would push the MESA project past SNAPSHOT_BUDGET snapshots."""
+
+
+def rows_per_batch_default() -> int:
+    """``NEON_DUCKLAKE_ROWS_PER_BATCH`` (read at call time) or DEFAULT_ROWS_PER_BATCH."""
+    raw = os.environ.get(ROWS_PER_BATCH_ENV, "").strip()
+    if not raw:
+        return DEFAULT_ROWS_PER_BATCH
+    try:
+        n = int(raw.replace("_", ""))
+    except ValueError as exc:
+        raise SystemExit(f"{ROWS_PER_BATCH_ENV}={raw!r} is not an integer") from exc
+    if n < 1:
+        raise SystemExit(f"{ROWS_PER_BATCH_ENV} must be >= 1 (got {n})")
+    if n > DEFAULT_ROWS_PER_BATCH:
+        log.warning("%s=%d exceeds the designed %d rows per batch (longer MESA lock windows)", ROWS_PER_BATCH_ENV,
+                    n, DEFAULT_ROWS_PER_BATCH)
+    return n
 
 
 def parse_ts(value: str) -> datetime:
@@ -54,7 +91,7 @@ def batch_id_of(note: str | None) -> str | None:
 # ---------------------------------------------------------------- private-API helpers (one place)
 
 def _catalog_snapshots(client: Any, project_id: Any) -> list[Any]:
-    return list(client._get_catalog().list_snapshots(project_id, limit=1000, include_pending=True))
+    return list(client._get_catalog().list_snapshots(project_id, limit=SNAPSHOT_LIST_LIMIT, include_pending=True))
 
 
 def _pending_pushes(client: Any) -> list[Any]:
@@ -63,9 +100,10 @@ def _pending_pushes(client: Any) -> list[Any]:
 
 # ---------------------------------------------------------------- batching
 
-def plan_batches(con: sqlite3.Connection, scope: str, rows_per_batch: int = DEFAULT_ROWS_PER_BATCH
+def plan_batches(con: sqlite3.Connection, scope: str, rows_per_batch: int | None = None
                  ) -> list[list[sqlite3.Row]]:
     """Applied, un-batched rows of ``scope`` in (path, id) order, cut into batches without splitting a path."""
+    rows_per_batch = rows_per_batch or rows_per_batch_default()
     rows = con.execute("SELECT * FROM avu_journal WHERE scope=? AND status='applied' AND batch_id IS NULL"
                        " ORDER BY path, id", (scope,)).fetchall()
     by_path: dict[str, list[sqlite3.Row]] = defaultdict(list)
@@ -103,12 +141,35 @@ def to_changes(rows: list[sqlite3.Row], scope: str) -> list[Any]:
     return out
 
 
+def check_snapshot_budget(client: Any, project_id: Any, planned: int, budget: int = SNAPSHOT_BUDGET) -> int:
+    """Existing snapshots of the project (pending included); refuses when ``existing + planned > budget``."""
+    existing = len(_catalog_snapshots(client, project_id))
+    if existing + planned > budget:
+        capped = " (listing capped)" if existing >= SNAPSHOT_LIST_LIMIT else ""
+        raise SnapshotBudgetExceeded(
+            f"MESA snapshot budget: project {project_id} already has {existing}{capped} snapshot(s) and this "
+            f"record needs {planned} more; {existing} + {planned} > {budget} (mesa-ducklake caches at most "
+            f"{SNAPSHOT_LIST_LIMIT}). Nothing was recorded. Use fewer, larger batches "
+            f"({ROWS_PER_BATCH_ENV}, default {DEFAULT_ROWS_PER_BATCH}) or compact the project's history first.")
+    return existing
+
+
 def record_batches(client: Any, project_id: Any, session: Any, con: sqlite3.Connection, scope: str,
-                   rows_per_batch: int = DEFAULT_ROWS_PER_BATCH) -> dict[str, Any]:
-    """Record every applied, un-batched row of ``scope``; one snapshot per batch. Stops at the first failure."""
+                   rows_per_batch: int | None = None, *, snapshot_budget: int = SNAPSHOT_BUDGET) -> dict[str, Any]:
+    """Record every applied, un-batched row of ``scope``; one snapshot per batch. Stops at the first failure.
+
+    Refuses (``SnapshotBudgetExceeded``) before writing anything when the project's snapshots plus the
+    planned batches would exceed ``snapshot_budget``.
+    """
+    rows_per_batch = rows_per_batch or rows_per_batch_default()
     batches = plan_batches(con, scope, rows_per_batch)
     total = len(batches)
-    out: dict[str, Any] = {"batches_planned": total, "batches_recorded": 0, "rows_recorded": 0, "snapshots": []}
+    out: dict[str, Any] = {"batches_planned": total, "batches_recorded": 0, "rows_recorded": 0, "snapshots": [],
+                           "rows_per_batch": rows_per_batch, "batch_stats": []}
+    if total:
+        out["snapshots_before"] = check_snapshot_budget(client, project_id, total, snapshot_budget)
+        log.info("recording %s: %d batch(es) of <= %d rows; project has %d snapshot(s), budget %d", scope, total,
+                 rows_per_batch, out["snapshots_before"], snapshot_budget)
     for k, rows in enumerate(batches, 1):
         batch_id = str(uuid.uuid4())
         n_paths = len({r["path"] for r in rows})
@@ -125,6 +186,7 @@ def record_batches(client: Any, project_id: Any, session: Any, con: sqlite3.Conn
         except BaseException:
             con.execute("ROLLBACK")
             raise
+        t0 = time.monotonic()
         try:
             snap = client.record_changes(project_id, env.ACTOR, changes, note=note, session=session)
         except Exception as exc:  # noqa: BLE001 - any failure leaves the batch for `recover`
@@ -134,22 +196,28 @@ def record_batches(client: Any, project_id: Any, session: Any, con: sqlite3.Conn
             out["failed_batch"] = batch_id
             out["error"] = f"{type(exc).__name__}: {exc}"[:500]
             return out
-        _mark_recorded(con, batch_id, snap.snapshot_id)
+        secs = max(time.monotonic() - t0, 1e-6)
+        rps = len(rows) / secs
+        _mark_recorded(con, batch_id, snap.snapshot_id,
+                       note_suffix=f" | staged {len(rows)} rows in {secs:.1f}s ({rps:.0f} rows/s)")
         out["batches_recorded"] += 1
         out["rows_recorded"] += len(rows)
         out["snapshots"].append(snap.snapshot_id)
-        log.info("recorded batch %d/%d: snapshot %s, %d rows over %d paths", k, total, snap.snapshot_id,
-                 len(rows), n_paths)
+        out["batch_stats"].append({"seq": k, "snapshot_id": snap.snapshot_id, "rows": len(rows),
+                                   "seconds": round(secs, 2), "rows_per_s": round(rps, 1)})
+        log.info("recorded batch %d/%d: snapshot %s, %d rows over %d paths in %.1fs (%.0f rows/s)", k, total,
+                 snap.snapshot_id, len(rows), n_paths, secs, rps)
     return out
 
 
-def _mark_recorded(con: sqlite3.Connection, batch_id: str, snapshot_id: int) -> int:
+def _mark_recorded(con: sqlite3.Connection, batch_id: str, snapshot_id: int, note_suffix: str = "") -> int:
     con.execute("BEGIN IMMEDIATE")
     try:
         n = con.execute("UPDATE avu_journal SET status='recorded', snapshot_id=? WHERE batch_id=?"
                         " AND status='applied'", (snapshot_id, batch_id)).rowcount
-        con.execute("UPDATE batches SET status='recorded', snapshot_id=?, recorded_at=?, error=NULL"
-                    " WHERE batch_id=?", (snapshot_id, env.utcnow().isoformat(), batch_id))
+        con.execute("UPDATE batches SET status='recorded', snapshot_id=?, recorded_at=?, error=NULL,"
+                    " note=COALESCE(note, '') || ? WHERE batch_id=?",
+                    (snapshot_id, env.utcnow().isoformat(), note_suffix, batch_id))
         con.execute("COMMIT")
     except BaseException:
         con.execute("ROLLBACK")
@@ -300,9 +368,14 @@ def _open() -> tuple[Any, Any, Any]:
     return m, client, project
 
 
-def record_scope(scope: str, *, rows_per_batch: int = DEFAULT_ROWS_PER_BATCH,
+def record_scope(scope: str, *, rows_per_batch: int | None = None,
                  con: sqlite3.Connection | None = None) -> dict[str, Any]:
-    """Recover, then record every applied journal row of ``scope`` into MESA history."""
+    """Recover, then record every applied journal row of ``scope`` into MESA history.
+
+    ``rows_per_batch`` defaults to ``NEON_DUCKLAKE_ROWS_PER_BATCH`` or 250,000. The snapshot budget
+    guard (see module docstring) runs before any batch is written.
+    """
+    rows_per_batch = rows_per_batch or rows_per_batch_default()
     con = con or state.connect()
     with env.file_lock("mesa-tag"):
         _guard_catalog()

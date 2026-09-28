@@ -4,11 +4,12 @@ from datetime import datetime
 
 import pytest
 
-from neon_ducklake import state
+from neon_ducklake import env, state, tuning
 from neon_ducklake.avu import bulk
 from neon_ducklake.avu.bulk import LatencyAbort, LatencyMonitor, TokenBucket, apply_scope, replace_desired
+from neon_ducklake.tuning import ConnectionBudget
 
-from .test_avu_fakes import FakeIrods, FakeSession
+from .test_avu_fakes import FakeIrods, FakeMeta, FakeSession
 
 R = "/iplant/home/tswetnam/neon-ducklake"
 C = f"{R}/sites/SRER/raw/DP1.00002.001/2024-06"
@@ -17,8 +18,15 @@ F1, F2 = f"{C}/a.csv", f"{C}/b.csv"
 
 @pytest.fixture(autouse=True)
 def _no_pacing(monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest) -> None:
-    if "token_bucket" not in request.node.name:
+    if "token_bucket" not in request.node.name and "adaptive_rate" not in request.node.name:
         monkeypatch.setattr(bulk.TokenBucket, "acquire", lambda self: 0.0)
+        monkeypatch.setattr(tuning.AdaptiveRate, "acquire", lambda self: 0.0)
+
+
+@pytest.fixture(autouse=True)
+def _hermetic_locks(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The default iRODS connection budget lives in env.LOCK_DIR: never the real work/locks."""
+    monkeypatch.setattr(env, "LOCK_DIR", tmp_path / "locks")
 
 
 @pytest.fixture
@@ -287,3 +295,87 @@ def test_token_bucket_paces() -> None:
     for _ in range(5):
         b.acquire()
     assert sum(slept) == pytest.approx(2.0)
+
+
+# ---------------------------------------------------------------- adaptive rate + connection budget
+
+class Clock:
+    def __init__(self) -> None:
+        self.t = 0.0
+
+    def __call__(self) -> float:
+        return self.t
+
+    def sleep(self, dt: float) -> None:
+        self.t += dt
+
+
+def _many_objects(s: FakeIrods, n_colls: int, per_coll: int) -> list[tuple]:
+    rows = []
+    for i in range(n_colls):
+        c = f"{R}/sites/SRER/raw/DP1.00002.001/2023-{i + 1:02d}"
+        for j in range(per_coll):
+            f = f"{c}/f{j:03d}.csv"
+            s.add_obj(f)
+            rows.append((c, f, "data_object", "neon.month", c[-7:], "", "object", "g"))
+    return rows
+
+
+def test_adaptive_rate_grows_while_fast_then_halves_to_the_floor(con, monkeypatch) -> None:
+    clock = Clock()
+    s = FakeIrods()
+    replace_desired(con, "SRER", _many_objects(s, 12, 40))  # 480 objects -> 480 atomic calls
+    calls = [0]
+    orig = FakeMeta.apply_atomic_operations
+
+    def timed(self, model, path, *ops):
+        calls[0] += 1
+        clock.t += 0.01 if calls[0] <= 300 else 1.5  # 10 ms, then a sick iCAT at 1.5 s per call
+        return orig(self, model, path, *ops)
+
+    monkeypatch.setattr(FakeMeta, "apply_atomic_operations", timed)
+    stats = apply_scope("SRER", con=con, session=FakeSession(s), threads=1, rate=20.0, clock=clock,
+                        sleep=clock.sleep)
+    assert stats["adds"] == 480 and stats["errors"] == 0
+    assert stats["rate_start"] == 20.0 and stats["rate_max"] > 30  # grew in +2/s steps while p95 < 250 ms
+    assert stats["rate_final"] == bulk.RATE_MIN == stats["rate_min"]  # halved on p95 > 1 s, down to 5/s
+    reasons = [c["reason"] for c in stats["rate_changes"]]
+    assert any("< target 0.25" in r for r in reasons) and any("> ceiling 1" in r for r in reasons)
+
+
+def test_adaptive_rate_halves_on_connection_errors_but_not_on_semantic_ones(con, irods, monkeypatch) -> None:
+    clock = Clock()
+    replace_desired(con, "SRER", desired())
+    errors = [ConnectionResetError("Connection reset by peer"), RuntimeError("CAT_SQL_ERR semantic")]
+    orig = FakeMeta.apply_atomic_operations
+
+    def flaky(self, model, path, *ops):
+        if errors:
+            raise errors.pop(0)
+        return orig(self, model, path, *ops)
+
+    monkeypatch.setattr(FakeMeta, "apply_atomic_operations", flaky)
+    stats = apply_scope("SRER", con=con, session=FakeSession(irods), threads=1, rate=20.0, clock=clock,
+                        sleep=clock.sleep)
+    assert stats["errors"] == 0 and stats["retries"] == 1  # reset -> re-read + atomic retry -> semantic -> per-AVU
+    assert stats["rate_final"] == 10.0 and [c["reason"] for c in stats["rate_changes"]] == ["error: reset"]
+    assert {r["status"] for r in journal(con)} == {"applied"}
+
+
+def test_adaptive_rate_start_is_clamped(con, irods) -> None:
+    replace_desired(con, "SRER", desired())
+    assert apply_scope("SRER", con=con, session=FakeSession(irods), threads=1, rate=500.0)["rate_start"] == 60.0
+    assert bulk.adaptive_rate(1.0).rate == bulk.RATE_MIN
+    assert bulk.P95_LIMIT_S == 5.0  # the hard stop
+
+
+def test_sessions_come_from_the_shared_budget(con, tmp_path) -> None:
+    s = FakeIrods()
+    replace_desired(con, "SRER", _many_objects(s, 12, 2))
+    other = ConnectionBudget(3, lock_dir=tmp_path / "b")  # another process holds one slot
+    assert other.try_acquire() is not None
+    budget = ConnectionBudget(3, lock_dir=tmp_path / "b", poll_s=0.001)
+    stats = apply_scope("SRER", con=con, session=FakeSession(s), threads=16, budget=budget)
+    assert stats["adds"] == 24 and stats["units_done"] == 12 and stats["threads"] == 16
+    assert stats["sessions_created"] <= 2 and budget.peak_held <= 2 and budget.held() == 0
+    assert s.calls["cleanup"] == s.calls["clone"]
