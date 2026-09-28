@@ -56,6 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     v = sub.add_parser("verify")
     v.add_argument("scope", help="'catalog', 'mesa', or a site code")
     v.add_argument("--run-id")
+    v.add_argument("--products", help="comma list (site scope)")
+    v.add_argument("--months", help="comma list (site scope)")
+    v.add_argument("--threads", type=int, default=4)
     sub.add_parser("recover", help="drain MESA pending pushes + reconcile batches")
     d = sub.add_parser("diff")
     d.add_argument("--from", dest="frm", type=int)
@@ -94,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
         return dispatch(a)
     if a.cmd == "verify":
         from .verify import main as run
-        return run(a.scope, run_id=a.run_id)
+        return run(a.scope, run_id=a.run_id, products=a.products, months=a.months, threads=a.threads)
     if a.cmd == "recover":
         from .avu.history import recover_main as run
         return run()

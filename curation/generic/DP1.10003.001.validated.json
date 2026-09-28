@@ -1,0 +1,587 @@
+{
+ "productCode": "DP1.10003.001",
+ "site": "SRER",
+ "validatedAt": "2026-09-28T01:19:16.424562+00:00",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/SRER/curation/proposals/DP1.10003.001.rep1.json",
+   "trace": "sites/SRER/curation/traces/DP1.10003.001.rep1.jsonl",
+   "card_sha256": "05407b4ac9a51965f6f2c53eab76544a684475328ef7fa292d5ef019bea35ba1",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 49.1,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6337,
+    "cache_creation_input_tokens": 33405,
+    "cache_read_input_tokens": 87610,
+    "thinking_tokens": 585
+   },
+   "total_cost_usd": 0.4115
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/SRER/curation/proposals/DP1.10003.001.rep2.json",
+   "trace": "sites/SRER/curation/traces/DP1.10003.001.rep2.jsonl",
+   "card_sha256": "05407b4ac9a51965f6f2c53eab76544a684475328ef7fa292d5ef019bea35ba1",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 50.7,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6361,
+    "cache_creation_input_tokens": 35647,
+    "cache_read_input_tokens": 121366,
+    "thinking_tokens": 791
+   },
+   "total_cost_usd": 0.4367
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "e4177acc29a03cb2",
+   "productCode": "DP1.10003.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.aves",
+   "value": "Aves",
+   "unit": "NCBITaxon:8782",
+   "curie": "NCBITaxon:8782",
+   "label": "Aves",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "Product observes breeding landbirds, all members of class Aves.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.aves",
+     "modelValue": "Aves",
+     "modelLabel": "Aves",
+     "column": "scientificName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.aves",
+     "modelValue": "Aves",
+     "modelLabel": "Aves",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "3e6555c49425e63f",
+   "productCode": "DP1.10003.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pco.community_species_diversity",
+   "value": "community species diversity",
+   "unit": "PCO:0000019",
+   "curie": "PCO:0000019",
+   "label": "community species diversity",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "taxonID",
+   "rationale": "Point counts record species identities and counts supporting avian community diversity estimates.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_diversity",
+     "modelValue": "community species diversity",
+     "modelLabel": "community species diversity",
+     "column": "taxonID"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_diversity",
+     "modelValue": "community species diversity",
+     "modelLabel": "community species diversity",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "834573cf0f347fd5",
+   "productCode": "DP1.10003.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.distance",
+   "value": "observer-to-bird distance",
+   "unit": "PATO:0000040",
+   "curie": "PATO:0000040",
+   "label": "distance",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "observerDistance",
+   "rationale": "Radial distance from observer to each bird, used for distance sampling and detectability.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.distance",
+     "modelValue": "observer-to-bird distance",
+     "modelLabel": "distance",
+     "column": "observerDistance"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.distance",
+     "modelValue": "observer-to-bird distance",
+     "modelLabel": "distance",
+     "column": "observerDistance"
+    }
+   ]
+  },
+  {
+   "proposalId": "e6f21bd2d2075f98",
+   "productCode": "DP1.10003.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_wind_speed",
+   "value": "atmospheric wind speed",
+   "unit": "ENVO:01001362",
+   "curie": "ENVO:01001362",
+   "label": "atmospheric wind speed",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "kmPerHourObservedWindSpeed",
+   "rationale": "Average wind speed recorded as a covariate for bird detectability.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_speed",
+     "modelValue": "atmospheric wind speed",
+     "modelLabel": "atmospheric wind speed",
+     "column": "kmPerHourObservedWindSpeed"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_speed",
+     "modelValue": "atmospheric wind speed",
+     "modelLabel": "atmospheric wind speed",
+     "column": "kmPerHourObservedWindSpeed"
+    }
+   ]
+  },
+  {
+   "proposalId": "6b86e6bbbbc5e682",
+   "productCode": "DP1.10003.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.cloud_cover",
+   "value": "cloud cover",
+   "unit": "ENVO:01001858",
+   "curie": "ENVO:01001858",
+   "label": "cloud cover",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "startCloudCoverPercentage",
+   "rationale": "Observer estimates percent cloud cover at the start and end of sampling.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.cloud_cover",
+     "modelValue": "cloud cover",
+     "modelLabel": "cloud cover",
+     "column": "startCloudCoverPercentage"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.cloud_cover",
+     "modelValue": "cloud cover",
+     "modelLabel": "cloud cover",
+     "column": "startCloudCoverPercentage"
+    }
+   ]
+  },
+  {
+   "proposalId": "34483b836de3111e",
+   "productCode": "DP1.10003.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.vocalization_behavior",
+   "value": "vocalization behavior",
+   "unit": "GO:0071625",
+   "curie": "GO:0071625",
+   "label": "vocalization behavior",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "detectionMethod",
+   "rationale": "Most birds are first detected by calling or singing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.vocalization_behavior",
+     "modelValue": "vocalization behavior",
+     "modelLabel": "vocalization behavior",
+     "column": "detectionMethod"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.vocalization_behavior",
+     "modelValue": "vocalization behavior",
+     "modelLabel": "vocalization behavior",
+     "column": "detectionMethod"
+    }
+   ]
+  },
+  {
+   "proposalId": "2552fe44e8717ab5",
+   "productCode": "DP1.10003.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "bco.human_observation_process",
+   "value": "human observation process",
+   "unit": "BCO:0000065",
+   "curie": "BCO:0000065",
+   "label": "human observation process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Trained human observers conduct timed six-minute point counts by sight and sound.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.human_observation_process",
+     "modelValue": "human observation process",
+     "modelLabel": "human observation process",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.human_observation_process",
+     "modelValue": "point count",
+     "modelLabel": "human observation process",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "bc54fb67ee27f896",
+   "productCode": "DP1.10003.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pco.community_species_richness",
+   "value": "community species richness",
+   "unit": "PCO:0000010",
+   "curie": "PCO:0000010",
+   "label": "community species richness",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "All detected bird species are recorded, giving the number of species present.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_richness",
+     "modelValue": "community species richness",
+     "modelLabel": "community species richness",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "728028f377cd7b82",
+   "productCode": "DP1.10003.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.phenotypic_sex",
+   "value": "phenotypic sex",
+   "unit": "PATO:0001894",
+   "curie": "PATO:0001894",
+   "label": "phenotypic sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sexOrAge",
+   "rationale": "Observers record each bird's sex from visible or audible traits when they can.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.phenotypic_sex",
+     "modelValue": "phenotypic sex",
+     "modelLabel": "phenotypic sex",
+     "column": "sexOrAge"
+    }
+   ]
+  },
+  {
+   "proposalId": "5636fafdff4fcbfe",
+   "productCode": "DP1.10003.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.air",
+   "value": "air",
+   "unit": "ENVO:00002005",
+   "curie": "ENVO:00002005",
+   "label": "air",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "startRH",
+   "rationale": "Weather covariates (humidity, temperature, wind) are measured in ambient air.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": "startRH"
+    }
+   ]
+  },
+  {
+   "proposalId": "56286e2350665e30",
+   "productCode": "DP1.10003.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "bco.taxonomic_identification_process",
+   "value": "taxonomic identification process",
+   "unit": "BCO:0000042",
+   "curie": "BCO:0000042",
+   "label": "taxonomic identification process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "taxonID",
+   "rationale": "Each detected bird is assigned to a taxon, usually at species level.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "taxonID"
+    }
+   ]
+  },
+  {
+   "proposalId": "490f75682770c9f4",
+   "productCode": "DP1.10003.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.temperature_of_air",
+   "value": "temperature of air",
+   "unit": "ENVO:09200001",
+   "curie": "ENVO:09200001",
+   "label": "temperature of air",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "observedAirTemp",
+   "rationale": "Air temperature from a handheld meter, recorded as a detectability covariate.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_air",
+     "modelValue": "temperature of air",
+     "modelLabel": "temperature of air",
+     "column": "observedAirTemp"
+    }
+   ]
+  },
+  {
+   "proposalId": "d8619edaccf0b1d2",
+   "productCode": "DP1.10003.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records hold field measurements: counts, distances and weather readings per point.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "8483a9da615c12de",
+   "productCode": "DP1.10003.001",
+   "status": "rejected",
+   "reason": "obsolete",
+   "attribute": "",
+   "value": "air temperature",
+   "unit": "",
+   "curie": "ENVO:01000753",
+   "label": "obsolete air temperature",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "observedAirTemp",
+   "rationale": "Air temperature measured with a handheld weather meter at each point count.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "obsolete",
+     "grounded": true,
+     "modelAttribute": "envo.air_temperature",
+     "modelValue": "air temperature",
+     "modelLabel": "air temperature",
+     "column": "observedAirTemp"
+    }
+   ]
+  }
+ ]
+}

@@ -62,7 +62,8 @@ CREATE TABLE IF NOT EXISTS uploads (
 """
 
 
-def connect(path: Path = DB_PATH) -> sqlite3.Connection:
+def connect(path: Path | None = None) -> sqlite3.Connection:
+    path = path if path is not None else DB_PATH  # resolved at call time so tests can patch DB_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
     new = not path.exists()
     con = sqlite3.connect(path, timeout=60, isolation_level=None, check_same_thread=False)

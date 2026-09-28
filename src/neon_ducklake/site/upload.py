@@ -110,10 +110,41 @@ def _failures(result: Any) -> int:
     return 0
 
 
+def external_products(site: str, products: list[str] | None = None) -> list[str]:
+    """Externally hosted products (no /data files) recorded in the site lake's external_links."""
+    try:
+        con = site_lake.open_site_lake(site, read_only=True)
+    except Exception:  # noqa: BLE001 - no lake yet
+        return []
+    try:
+        rows = [r[0] for r in con.execute("SELECT DISTINCT productCode FROM lake.external_links").fetchall()]
+    except Exception:  # noqa: BLE001 - table missing
+        rows = []
+    finally:
+        con.close()
+    return sorted(p for p in rows if not products or p in products)
+
+
+def ensure_external_collections(site: str, products: list[str] | None = None) -> list[str]:
+    """Create raw/<DP> collections for external-only products so their product AVUs have a target."""
+    ext = external_products(site, products)
+    if not ext:
+        return []
+    m = env.mesa()
+    made = []
+    for code in ext:
+        path = f"{env.IRODS_ROOT}/sites/{site}/raw/{code}"
+        m.session.collections.create(path, recurse=True)
+        made.append(path)
+    log.info("upload %s: ensured %d external-product collection(s)", site, len(made))
+    return made
+
+
 def main(site: str, products: list[str] | None = None, months: list[str] | None = None, threads: int = 8) -> int:
     from ..mirror import push_tree  # written by the mirror owner; imported lazily
 
     site = site.upper()
+    ensure_external_collections(site, products)
     with env.file_lock(f"site-lake-{site}", blocking=True):
         first, catalog = build_items(site, products, months)
         n_raw = sum(1 for it in first if "/raw/" in it[1])

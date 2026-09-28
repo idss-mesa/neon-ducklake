@@ -1,0 +1,576 @@
+{
+ "productCode": "DP1.00002.001",
+ "site": "SRER",
+ "validatedAt": "2026-09-28T01:19:16.423966+00:00",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/SRER/curation/proposals/DP1.00002.001.rep1.json",
+   "trace": "sites/SRER/curation/traces/DP1.00002.001.rep1.jsonl",
+   "card_sha256": "3d1c3cf47a97d0d760562dc8b82be3806c3ae924b9c37d09a255cc17ffb57896",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 45.7,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5863,
+    "cache_creation_input_tokens": 27839,
+    "cache_read_input_tokens": 93353,
+    "thinking_tokens": 517
+   },
+   "total_cost_usd": 0.3587
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/SRER/curation/proposals/DP1.00002.001.rep2.json",
+   "trace": "sites/SRER/curation/traces/DP1.00002.001.rep2.jsonl",
+   "card_sha256": "3d1c3cf47a97d0d760562dc8b82be3806c3ae924b9c37d09a255cc17ffb57896",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 45.7,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6149,
+    "cache_creation_input_tokens": 29778,
+    "cache_read_input_tokens": 72226,
+    "thinking_tokens": 594
+   },
+   "total_cost_usd": 0.3757
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 8,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "8c66b8f1e5151120",
+   "productCode": "DP1.00002.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.temperature_of_air",
+   "value": "temperature of air",
+   "unit": "ENVO:09200001",
+   "curie": "ENVO:09200001",
+   "label": "temperature of air",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "tempSingleMean",
+   "rationale": "Main measured quantity: the temperature of air, reported as mean, minimum and maximum.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_air",
+     "modelValue": "temperature of air",
+     "modelLabel": "temperature of air",
+     "column": "tempSingleMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_air",
+     "modelValue": "temperature of air",
+     "modelLabel": "temperature of air",
+     "column": "tempSingleMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "4fc649500527448b",
+   "productCode": "DP1.00002.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.air",
+   "value": "air",
+   "unit": "ENVO:00002005",
+   "curie": "ENVO:00002005",
+   "label": "air",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Ambient air is the material whose temperature is sensed.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "70d070542f0127ca",
+   "productCode": "DP1.00002.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.temperature_measurement_assay",
+   "value": "temperature measurement assay",
+   "unit": "OBI:0002140",
+   "curie": "OBI:0002140",
+   "label": "temperature measurement assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Platinum resistance thermometers in fan-aspirated shields measure air temperature at 1 Hz.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_assay",
+     "modelValue": "aspirated platinum resistance thermometer temperature measurement",
+     "modelLabel": "temperature measurement assay",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_assay",
+     "modelValue": "temperature measurement assay",
+     "modelLabel": "temperature measurement assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "6a87f89a4c7db2dc",
+   "productCode": "DP1.00002.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "Data are time-stamped averages over 1-minute and 30-minute intervals.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "1-minute and 30-minute averaged air temperature time series",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "60095e350b6c2220",
+   "productCode": "DP1.00002.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tempSingleStdErMean",
+   "rationale": "Standard error of the mean temperature is reported for each interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "tempSingleStdErMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "tempSingleStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "3f3a01d2226f04e5",
+   "productCode": "DP1.00002.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tempSingleExpUncert",
+   "rationale": "Expanded uncertainty of the temperature measurement is given per record.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "tempSingleExpUncert"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "tempSingleExpUncert"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "110736b4bad65208",
+   "productCode": "DP1.00002.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.atmospheric_boundary_layer",
+   "value": "atmospheric boundary layer",
+   "unit": "ENVO:01000323",
+   "curie": "ENVO:01000323",
+   "label": "atmospheric boundary layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "verticalPosition",
+   "rationale": "Sensors at several tower heights measure the near-surface atmospheric layer.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_boundary_layer",
+     "modelValue": "atmospheric boundary layer",
+     "modelLabel": "atmospheric boundary layer",
+     "column": "verticalPosition"
+    }
+   ]
+  },
+  {
+   "proposalId": "d1b86fa2a466fe64",
+   "productCode": "DP1.00002.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.scalar_measurement_datum",
+   "value": "scalar measurement datum",
+   "unit": "IAO:0000032",
+   "curie": "IAO:0000032",
+   "label": "scalar measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tempSingleMean",
+   "rationale": "Each value is a number with a unit from a sensor measurement.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.scalar_measurement_datum",
+     "modelValue": "scalar measurement datum",
+     "modelLabel": "scalar measurement datum",
+     "column": "tempSingleMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "52cc99c9e81ee811",
+   "productCode": "DP1.00002.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.variance_calculation",
+   "value": "variance calculation",
+   "unit": "OBI:0200120",
+   "curie": "OBI:0200120",
+   "label": "variance calculation",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "tempSingleVariance",
+   "rationale": "Variance of the 1 Hz temperature readings is calculated for each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.variance_calculation",
+     "modelValue": "variance calculation",
+     "modelLabel": "variance calculation",
+     "column": "tempSingleVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "b1140efffff271d5",
+   "productCode": "DP1.00002.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.temperature_measurement_datum",
+   "value": "temperature measurement datum",
+   "unit": "OBI:0003079",
+   "curie": "OBI:0003079",
+   "label": "temperature measurement datum",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tempSingleMean",
+   "rationale": "Records are scalar results of temperature measurement.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_datum",
+     "modelValue": "temperature measurement datum",
+     "modelLabel": "temperature measurement datum",
+     "column": "tempSingleMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "b510cb577ff07ad3",
+   "productCode": "DP1.00002.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tempSingleMean",
+   "rationale": "Arithmetic mean of air temperature over each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "tempSingleMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "8db0ad42b5c83c90",
+   "productCode": "DP1.00002.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.maximum_observed_value",
+   "value": "maximum observed value",
+   "unit": "STATO:0000151",
+   "curie": "STATO:0000151",
+   "label": "maximum observed value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tempSingleMaximum",
+   "rationale": "Maximum air temperature within each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.maximum_observed_value",
+     "modelValue": "maximum observed value",
+     "modelLabel": "maximum observed value",
+     "column": "tempSingleMaximum"
+    }
+   ]
+  },
+  {
+   "proposalId": "71ed9726ae3939ea",
+   "productCode": "DP1.00002.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.minimum_observed_value",
+   "value": "minimum observed value",
+   "unit": "STATO:0000150",
+   "curie": "STATO:0000150",
+   "label": "minimum observed value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tempSingleMinimum",
+   "rationale": "Minimum air temperature within each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.minimum_observed_value",
+     "modelValue": "minimum observed value",
+     "modelLabel": "minimum observed value",
+     "column": "tempSingleMinimum"
+    }
+   ]
+  },
+  {
+   "proposalId": "11df70f4da6e1afb",
+   "productCode": "DP1.00002.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tempSingleVariance",
+   "rationale": "Variance of air temperature within each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "tempSingleVariance"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

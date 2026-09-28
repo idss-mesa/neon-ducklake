@@ -144,3 +144,54 @@ avu_desired(scope TEXT, unit_id TEXT, path TEXT, target_type TEXT CHECK IN ('col
 - It skips a file when iRODS has a good replica (`replica_status == '1'`) with the same size and a checksum equal to the local MD5.
 - Results go to the `uploads` table. For site raw files it also updates `site_files.up_status`, `irods_checksum` and `irods_path`.
 - A `.ducklake` catalog file is always uploaded after its `data/**`.
+
+## Amendments after the first build round (2026-09-27)
+
+**Catalog lake**
+- Every table carries `rowHash` and `loadedRun`.
+- `catalog_builds` gets one row per build.
+- `files.kind` adds `'lab'`, for `NEON.<Lab_Name>.<table>.<ts>.csv` files.
+- Only the metadata database is checkpointed (`CHECKPOINT __ducklake_metadata_neon`). Plain `CHECKPOINT` would run DuckLake maintenance.
+- The build sets `TimeZone='UTC'`.
+- `data_query_pairs` is keyed by (productCode, siteCode, requestRelease), where requestRelease is `CURRENT` or a release tag.
+- `location_history` is keyed by (locationName, historyIndex).
+
+**Site lake**
+- Always attached with the absolute `DATA_PATH '<ROOT>/sites/<SITE>/ducklake/data/'` and `OVERRIDE_DATA_PATH true`; no chdir.
+- `site_lake.checkpoint_detach` checkpoints `__ducklake_metadata_lake`.
+- Extra columns:
+  - `file_stats`: `lakeTable`, `month`, `hor`, `ver`, `tmi`.
+  - `site_months`: `packageGenerationDate`, `isExternal`.
+  - `table_catalog`: `kind`, typed/VARCHAR column counts and dedup counts; key is (tableName, productCode).
+  - `sensor_positions`: `release`, `publicationDate`, HOR/VER, catalog and history lat/lon.
+- Module table `fetch_superseded`. Superseded files get `dl_status='superseded'`; they stay on disk but are excluded from `files`, stacking and upload.
+
+**AVU engine**
+- `avu_desired` is created by `avu.bulk.ensure_desired(con)`. Builders write rows through
+  `avu.bulk.replace_desired(con, scope, rows)`, where each row is `(unit_id, path, target_type, attribute, value, unit, level, generator)`.
+- Ownership is per (scope, path).
+- If a whole unit is absent from `avu_desired`, it is left untouched. Filtered builds are therefore safe.
+- `avu_journal.op` is `add` or `remove` (mapped to MESA `delete`).
+- `avu_journal.status` values: intent, applied, recorded, noop, error, abandoned.
+- `batches.status` values: recording, recorded, failed, pending, abandoned.
+- Local MD5s are cached in the `mirror_md5` table.
+
+**Mirror**
+- `push_tree(items, *, threads=8, record_site=None, session=None, con=None) -> dict` returns counts including `errors`.
+- `site/upload.py` calls it twice: first everything else, then the `.ducklake` catalog alone.
+
+## Ontology and curation stores (owners: site/terms.py, site/curate.py, site/validate.py)
+
+DuckDB file `work/ontology_cache.duckdb` (shared by all sites; exported to `ref/ontology_maps/<table>.parquet`):
+
+| Table | Columns |
+|---|---|
+| `ols_term_cache` | curie PK, iri, label, ontologyId, isObsolete BOOLEAN, oboFoundry BOOLEAN, fetchedAt |
+| `ref_ncbitaxon_map` | taxonTypeCode, taxonID, neonName, queryName, curie, label, method {exact, genus_fallback, family_fallback, unresolved}, status {ok, obsolete, unresolved, pending}, resolvedAt; PK (taxonTypeCode, taxonID) |
+| `ref_unit_map` | neonUnit PK, uoCurie, uoLabel, method {seed, exact, curated, unmapped}, status {ok, unmapped, pending}, validatedAt |
+| `ref_nlcd_envo` | nlcdClass PK, envoCurie, envoLabel |
+| `ref_site_envo` | siteCode PK, envoCurie, envoLabel, typeEco, method {curated, pending}, status |
+| `curation_avus` | proposalId PK, productCode, attribute, value, unit, curie, label, ontologyId, aspect, columnName, rationale, model, reps INT, grounded BOOLEAN, status {accepted, proposed, rejected, human_accepted}, reason, createdAt |
+
+Generic per-product results go in `curation/generic/<productCode>.validated.json`, so a product curated for SRER is reused for HARV.
+Site AVU building reads these tables. It uses curated rows only where `status in ('accepted','human_accepted')`.

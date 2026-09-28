@@ -54,7 +54,10 @@ def test_site_scope_uses_lazy_builder(calls, monkeypatch) -> None:
 
 
 def test_missing_site_builder_is_a_clear_error(calls, monkeypatch) -> None:
+    import neon_ducklake.site as site_pkg
+
     monkeypatch.setitem(sys.modules, "neon_ducklake.site.avus", None)  # import fails
+    monkeypatch.delattr(site_pkg, "avus", raising=False)
     with pytest.raises(SystemExit, match="site AVU builder unavailable"):
         tag.main("HARV")
 
