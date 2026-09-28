@@ -331,3 +331,83 @@ def test_formatting_helpers() -> None:
     assert avus.ontology_avu("ncbitaxon", "Amphispiza bilineata", "Black-throated Sparrow", "NCBITaxon:198939") == \
         ("ncbitaxon.amphispiza_bilineata", "Black-throated Sparrow", "NCBITaxon:198939")
     assert avus.ontology_avu("uo", "", "x", "UO:1") is None
+
+
+def _aquatic_facts():
+    f = make_facts()
+    f.site_info.update(siteName="Test Creek NEON", habitat="Aquatic Wadeable Stream",
+                       siteProperties={"HABITAT": "Aquatic Wadeable Stream"},
+                       typeEco="lightly grazed North American natural shortgrass steppe")  # NEON's copied value
+    o = f.ontology
+    o.tables.add("ref_site_envo_feature")
+    o.site_envo = {"siteCode": SITE, "envoCurie": "ENVO:03605008", "envoLabel": "freshwater stream biome",
+                   "typeEco": None, "method": "curated", "status": "curated"}
+    o.site_feature = {"siteCode": SITE, "envoCurie": "ENVO:00000023", "envoLabel": "stream",
+                      "habitat": "Aquatic Wadeable Stream", "method": "curated", "status": "curated"}
+    return f
+
+
+def test_aquatic_site_habitat_feature_and_no_type_eco(site_env: Path) -> None:  # noqa: F811
+    f = _aquatic_facts()
+    write_local_files(f)
+    _b, by = build(f)
+    site = by[f"/zone/home/u/proj/sites/{SITE}"]
+    a = attrs(site)
+    assert a["neon.habitat"] == [("Aquatic Wadeable Stream", "")]
+    assert "neon.typeEco" not in a  # NEON's aquatic TypeEco is a copy-paste: never used
+    assert a["envo.freshwater_stream_biome"] == [("Aquatic Wadeable Stream", "ENVO:03605008")]
+    assert a["envo.stream"] == [("Test Creek NEON", "ENVO:00000023")]
+    assert not any(k.startswith("envo.area_of") for k in a)  # NLCD AVUs: terrestrial sites only
+    assert not any("grassland" in k or "steppe" in v for k, vs in a.items() for v, _u in vs)
+    subjects = {v for k, v, _u in site["avus"] if k.startswith("datacite.subject.") and k.endswith(".value")}
+    assert "Aquatic Wadeable Stream" in subjects and "stream (ENVO:00000023)" in subjects
+    assert not any("steppe" in s for s in subjects)
+
+
+def test_site_feature_only_when_curated_and_aquatic(site_env: Path) -> None:  # noqa: F811
+    f = _aquatic_facts()
+    f.ontology.site_feature = dict(f.ontology.site_feature, method="heuristic", status="proposed")
+    f.ontology.site_envo = dict(f.ontology.site_envo, method="heuristic", status="proposed")
+    write_local_files(f)
+    _b, by = build(f)
+    a = attrs(by[f"/zone/home/u/proj/sites/{SITE}"])
+    assert not any(k.startswith("envo.") for k in a)  # proposals are never AVUs
+    t = make_facts()  # terrestrial: a stray feature row is ignored; the biome value stays TypeEco
+    t.ontology.site_feature = _aquatic_facts().ontology.site_feature
+    t.site_info["habitat"] = "Terrestrial"
+    write_local_files(t)
+    _b, by = build(t)
+    a = attrs(by[f"/zone/home/u/proj/sites/{SITE}"])
+    assert "envo.stream" not in a and a["neon.habitat"] == [("Terrestrial", "")]
+    assert a["envo.xeric_shrubland_biome"] == [("Desert shrubland", "ENVO:01000218")]
+    assert a["neon.typeEco"] == [("Desert shrubland", "")] and "envo.area_of_scrub" in a
+
+
+def test_neon_md5_mismatch_and_lab_objects(site_env: Path) -> None:  # noqa: F811
+    f = make_facts()
+    var = next(r for r in f.files if r["kind"] == "variables" and r["month"] == "2024-06")
+    var.update(md5Verified=False, transferVerified=True, neonMd5="d9cab7b4d9cab7b4d9cab7b4d9cab7b4",
+               storageMd5=var["dlMd5"])
+    readme = next(r for r in f.files if r["kind"] == "readme" and r["month"] == "2026-08")
+    readme.update(md5Verified=False)  # an old lake without the contract (b) columns: the journal fills in
+    f.downloads[(readme["productCode"], readme["month"], readme["name"])].update(
+        transfer_verified=1, neon_md5="0123456789abcdef0123456789abcdef")
+    lab = dict(next(r for r in f.files if r["productCode"] == P_OS), kind="other", tableName=None, hor=None,
+               name="NEON.Univ_of_Wyoming.swc_externalLabSummaryData.20250102T000000Z.csv")
+    lab["localRelPath"] = lab["localRelPath"].rsplit("/", 1)[0] + "/" + lab["name"]
+    f.files.append(lab)
+    write_local_files(f)
+    _b, by = build(f)
+    S = f"/zone/home/u/proj/sites/{SITE}"
+    a = attrs(by[f"{S}/raw/{P_IS}/2024-06/{var['name']}"])
+    assert a["neon.md5Verified"] == [("false", "")]
+    assert a["neon.neonMd5Mismatch"] == [("d9cab7b4d9cab7b4d9cab7b4d9cab7b4", "")]
+    a = attrs(by[f"{S}/raw/{P_IS}/2026-08/{readme['name']}"])
+    assert a["neon.neonMd5Mismatch"] == [("0123456789abcdef0123456789abcdef", "")]
+    _p, eml = _obj(by, S, P_IS, "2024-06", lambda p: ".EML." in p)
+    assert "neon.neonMd5Mismatch" not in attrs(eml)  # md5 false without a verified transfer: flag only
+    a = attrs(by[f"{S}/raw/{P_OS}/2024-05/{lab['name']}"])
+    assert a["neon.fileKind"] == [("lab", "")] and a["neon.labName"] == [("Univ_of_Wyoming", "")]
+    assert a["neon.table"] == [("swc_externalLabSummaryData", "")]
+    assert avus.md5_state({"md5Verified": None}, {"md5_verified": 0, "transfer_verified": 1, "neon_md5": "n"}) == \
+        (False, True, "n")

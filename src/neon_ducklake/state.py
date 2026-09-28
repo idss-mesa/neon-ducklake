@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS site_files (
   site TEXT NOT NULL, product TEXT NOT NULL, month TEXT NOT NULL, name TEXT NOT NULL,
   release TEXT, release_only INTEGER DEFAULT 0, kind TEXT, size INTEGER, md5 TEXT, crc32c TEXT,
   url TEXT, listed_at TEXT, local_path TEXT,
+  storage_md5 TEXT, neon_md5 TEXT, transfer_verified INTEGER,
   dl_status TEXT, dl_attempts INTEGER DEFAULT 0, dl_error TEXT, dl_md5 TEXT, dl_bytes INTEGER, md5_verified INTEGER,
   downloaded_at TEXT,
   irods_path TEXT, up_status TEXT, up_attempts INTEGER DEFAULT 0, up_error TEXT, irods_size INTEGER,

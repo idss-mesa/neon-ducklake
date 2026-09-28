@@ -106,3 +106,30 @@ def test_moved_root_reattaches(site_env: Path, monkeypatch: pytest.MonkeyPatch) 
     ro = site_lake.open_site_lake(SITE, read_only=True)
     assert ro.execute("SELECT v FROM lake.t").fetchall() == [(1,)]
     ro.close()
+
+
+def test_files_integrity_columns_are_added_to_old_lakes(site_env: Path) -> None:  # noqa: F811
+    """Contract (b): storageMd5/neonMd5/transferVerified are nullable; an old files table gains them on upsert."""
+    assert site_lake.FILES_COLUMNS["storageMd5"] == "VARCHAR" and site_lake.FILES_COLUMNS["neonMd5"] == "VARCHAR"
+    assert site_lake.FILES_COLUMNS["transferVerified"] == "BOOLEAN"
+    assert site_lake.FILES_COLUMNS["md5Verified"] == "BOOLEAN"
+    old = {c: t for c, t in site_lake.FILES_COLUMNS.items()
+           if c not in ("storageMd5", "neonMd5", "transferVerified")}
+    row = {"productCode": "DP1.00002.001", "month": "2024-06", "name": "a.csv", "md5": "x", "md5Verified": True}
+    con = site_lake.open_site_lake(SITE)
+    con.register("src_old", site_lake.arrow_table([row], old))
+    with site_lake.commit(con, "old files"):
+        site_lake.upsert(con, "files", "src_old", site_lake.FILES_KEYS, old)
+    assert "storageMd5" not in site_lake.table_columns(con, "files")
+    # a writer that does not know the new columns yet (NULLs) and one that does
+    con.register("src_new", site_lake.arrow_table([row, {**row, "name": "b.csv", "storageMd5": "y", "neonMd5": "x",
+                                                         "transferVerified": True, "md5Verified": False}],
+                                                  site_lake.FILES_COLUMNS))
+    with site_lake.commit(con, "new files"):
+        r = site_lake.upsert(con, "files", "src_new", site_lake.FILES_KEYS, site_lake.FILES_COLUMNS)
+    assert r == {"changed": 1, "source": 2}
+    cols = site_lake.table_columns(con, "files")
+    assert cols["transferVerified"] == "BOOLEAN" and cols["storageMd5"] == "VARCHAR"
+    assert con.execute("SELECT name, storageMd5, neonMd5, transferVerified, md5Verified FROM lake.files "
+                       "ORDER BY name").fetchall() == [("a.csv", None, None, None, True), ("b.csv", "y", "x", True, False)]
+    con.close()

@@ -2,6 +2,7 @@
 
 Order (the site-lake lock is held throughout, so nothing rewrites the lake mid-upload):
   1. raw files from the journal (``site_files.dl_status='ok'``, not superseded) with their local MD5;
+     evicted rows (``local_evicted = 1``: verified in iRODS, deleted locally) are skipped quietly;
   2. ``sites/<SITE>/{cards,curation,reports}/**`` and ``ref/ontology_maps/**``;
   3. the site lake after ``checkpoint_detach`` (no ``.wal``): ``ducklake/data/**``;
   4. the ``.ducklake`` catalog file LAST, in its own ``push_tree`` call.
@@ -43,6 +44,8 @@ def raw_items(site: str, products: list[str] | None = None, months: list[str] | 
     try:
         con.executescript(SUPERSEDED_SCHEMA)
         where, args = "f.site=? AND f.dl_status='ok' AND s.name IS NULL", [site]
+        if any(r[1] == "local_evicted" for r in con.execute("PRAGMA table_info(site_files)")):
+            where += " AND coalesce(f.local_evicted, 0) = 0"  # already in iRODS, deleted locally
         if products:
             where += f" AND f.product IN ({','.join('?' * len(products))})"
             args += list(products)

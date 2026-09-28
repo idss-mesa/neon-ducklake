@@ -33,12 +33,15 @@ LAKE_OPTIONS: dict[str, Any] = {"parquet_compression": "zstd", "data_inlining_ro
                                 "require_commit_message": True}
 
 # Contracted site-lake tables written by site/fetch.py (column -> DuckDB type).
+# Download integrity (contract (b), nullable): storageMd5 = md5 hex from the GCS GET ``x-goog-hash``,
+# neonMd5 = the md5 NEON lists, transferVerified = local md5 == storageMd5, md5Verified = local md5 == neonMd5.
 FILES_COLUMNS: dict[str, str] = {
     "productCode": "VARCHAR", "siteCode": "VARCHAR", "domainCode": "VARCHAR", "month": "VARCHAR",
     "release": "VARCHAR", "isProvisional": "BOOLEAN", "isReleaseOnly": "BOOLEAN", "name": "VARCHAR",
     "size": "BIGINT", "md5": "VARCHAR", "crc32c": "VARCHAR", "kind": "VARCHAR", "tableName": "VARCHAR",
     "hor": "VARCHAR", "ver": "VARCHAR", "tmi": "VARCHAR", "publicationTimestamp": "TIMESTAMP", "ext": "VARCHAR",
     "localRelPath": "VARCHAR", "irodsPath": "VARCHAR", "dlMd5": "VARCHAR", "md5Verified": "BOOLEAN",
+    "storageMd5": "VARCHAR", "neonMd5": "VARCHAR", "transferVerified": "BOOLEAN",
 }
 FILES_KEYS = ("productCode", "month", "name")
 SITE_MONTHS_COLUMNS: dict[str, str] = {
@@ -67,10 +70,13 @@ STACK_SCHEMAS: dict[str, dict[str, str]] = {
         "productCode": "VARCHAR", "tableName": "VARCHAR", "neonTable": "VARCHAR", "columnName": "VARCHAR",
         "targetType": "VARCHAR", "nonNull": "BIGINT", "failures": "BIGINT", "failPct": "DOUBLE", "action": "VARCHAR",
         "samples": "VARCHAR[]", "builtAt": "TIMESTAMPTZ"},
+    # one row per header group of a data / lab table, and of sensor_positions (tableName='sensor_positions',
+    # unknownColumns = columns outside the stacker's known sensor_positions schema, accepted and unioned)
     "schema_drift": {
         "productCode": "VARCHAR", "tableName": "VARCHAR", "lakeTable": "VARCHAR", "headerSha1": "VARCHAR",
         "nColumns": "BIGINT", "nFiles": "BIGINT", "firstMonth": "VARCHAR", "lastMonth": "VARCHAR",
-        "columns": "VARCHAR[]", "missingVsUnion": "VARCHAR[]", "notInVariables": "VARCHAR[]", "builtAt": "TIMESTAMPTZ"},
+        "columns": "VARCHAR[]", "missingVsUnion": "VARCHAR[]", "notInVariables": "VARCHAR[]", "builtAt": "TIMESTAMPTZ",
+        "unknownColumns": "VARCHAR[]", "firstPublication": "TIMESTAMPTZ", "lastPublication": "TIMESTAMPTZ"},
     "table_catalog": {
         "tableName": "VARCHAR", "productCode": "VARCHAR", "neonTable": "VARCHAR", "kind": "VARCHAR",
         "nFiles": "BIGINT", "nRows": "BIGINT", "nColumns": "BIGINT", "firstMonth": "VARCHAR", "lastMonth": "VARCHAR",
@@ -84,7 +90,8 @@ def arrow_type(duck_type: str) -> Any:
 
     if duck_type.endswith("[]"):
         return pa.list_(arrow_type(duck_type[:-2]))
-    return {"VARCHAR": pa.string(), "BIGINT": pa.int64(), "BOOLEAN": pa.bool_(), "DOUBLE": pa.float64(),
+    return {"VARCHAR": pa.string(), "BIGINT": pa.int64(), "INTEGER": pa.int32(), "BOOLEAN": pa.bool_(),
+            "DOUBLE": pa.float64(),
             "TIMESTAMP": pa.timestamp("us"), "TIMESTAMPTZ": pa.timestamp("us", tz="UTC"), "DATE": pa.date32()}[duck_type]
 
 

@@ -266,3 +266,36 @@ def test_transient_irods_errors_are_retried_and_persistent_ones_fail(world, monk
     r = run(con, data, FlakyStore(store, MONTH, 100))
     assert r["irods objects"]["status"] == "fail" and "unreadable" in r["irods objects"]["summary"]
     assert r["irods objects"]["details"]["unreadable"][0].startswith(f"{P_IS}/2024-06: ConnectionError")
+
+
+def test_local_evicted_and_storage_verified_stale_md5(world) -> None:
+    """Evicted rows count as evicted (not missing); a storage-verified NEON-stale data file is flagged, not hard."""
+    _f, con, data, store = world
+    rows = [r for r in data.journal if r["month"] == "2024-06" and r["product"] == P_IS]
+    ev = next(r for r in rows if r["kind"] == "data")
+    (env.ROOT / ev["local_path"]).unlink()
+    ev["local_evicted"] = 1
+    r = run(con, data, store)
+    assert r["local files"]["status"] == "pass", r["local files"]["summary"]
+    assert r["local files"]["details"]["n_evicted"] == 1 and r["local files"]["details"]["missing"] == []
+    stale = next(x for x in rows if x["kind"] == "data" and x is not ev)
+    stale["md5"] = "d" * 32  # NEON lists a stale md5; our bytes matched the storage md5
+    stale["storage_md5"], stale["transfer_verified"] = stale["dl_md5"], 1
+    r = run(con, data, store)
+    assert r["local files"]["status"] == "pass" and r["local files"]["details"]["neon_stale"] == [stale["name"]]
+    stale["transfer_verified"], stale["storage_md5"] = None, None  # no storage evidence: a hard mismatch
+    r = run(con, data, store)
+    assert r["local files"]["status"] == "fail" and r["local files"]["details"]["hard"] == [stale["name"]]
+
+
+def test_journal_columns_tolerate_missing_optional_columns(site_env) -> None:  # noqa: F811
+    import sqlite3 as _sqlite3
+
+    from neon_ducklake import verify_site as vs
+
+    sc = _sqlite3.connect(":memory:")
+    sc.execute("CREATE TABLE site_files (product, month, name, kind, size, md5, dl_status, dl_md5, dl_bytes, "
+               "md5_verified, local_path, irods_path, up_status, irods_checksum, local_evicted)")
+    cols = vs.journal_columns(sc)
+    assert "local_evicted" in cols and "NULL AS storage_md5" in cols and "NULL AS local_evicted" not in cols
+    sc.execute(f"SELECT {cols} FROM site_files").fetchall()

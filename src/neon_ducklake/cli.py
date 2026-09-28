@@ -55,6 +55,11 @@ def main(argv: list[str] | None = None) -> int:
     st.add_argument("--threads", type=int, default=8)
     st.add_argument("--accept", default="", help="curation: extra proposal ids or 'proposed'")
     st.add_argument("--force", action="store_true")
+    lvl = st.add_mutually_exclusive_group()
+    lvl.add_argument("--site-level", dest="site_level", action="store_true", default=None,
+                     help="curate/validate: only the site-level (biome/feature) pass")
+    lvl.add_argument("--no-site-level", dest="site_level", action="store_false",
+                     help="curate/validate: only product curation")
     st.add_argument("--dry-run", action="store_true", help="evict: report what would be deleted, delete nothing")
 
     r = sub.add_parser("run", help="multi-site orchestrator: every Phase-2 stage per site, resumable")

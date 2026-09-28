@@ -281,3 +281,19 @@ Until the listed changes land in the modules owned by other stages, these limits
   A refresh run of an evicted site therefore stops at verify, and no further eviction happens until
   verify accepts evicted files.
 - **Upload.** `site upload` logs one "missing local file" warning per evicted file. This is harmless.
+
+
+## Addendum (2026-09-27, heterogeneity round)
+
+**Downloads**
+- Integrity is checked against the storage provider's MD5.
+- Stale NEON MD5s no longer fail a download. Such files are kept, flagged (`neon.md5Verified=false`) and reported, not re-listed.
+- Evicted files are never re-downloaded unless NEON republishes them.
+
+**Verify and upload with evicted files**
+- Evicted raw files count as "evicted", not missing.
+- Upload skips them quietly.
+
+**Site biome and feature**
+- Run `site curate <SITE> --site-level`, then `site validate <SITE> --site-level`.
+- Two Opus replicates must agree. Anything else goes to `sites/<SITE>/curation/review_site.md`; accept it by ticking the box or with `--accept`.

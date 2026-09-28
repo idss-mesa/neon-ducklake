@@ -20,6 +20,17 @@ Deciding whether terms are valid, and what is accepted, proposed or rejected, is
 The units pass: when ``ref_unit_map`` has ``unmapped`` NEON units, one run of ``prompt_units.md`` proposes UO
 terms. :func:`site.validate.apply_unit_proposal` checks them, and the ones that pass are written back with
 ``method='curated'``.
+
+The site pass (docs/SCALING.md, "Site biome"): two replicates of ``prompt_site.md`` on the site card
+``sites/<SITE>/cards/_site.md`` (written by ``site cards``) each choose one ENVO biome and, for an aquatic
+site, one ENVO water-body feature. Same isolated child, tools ``mesa_ols_search_terms`` + ``mesa_ols_get_term``.
+Traces and proposals go to ``sites/<SITE>/curation/site/`` (``_site.rep<N>.jsonl`` / ``.json``), apart from the
+product proposals. :func:`site.validate.validate_site` applies the agreement rule.
+
+``main(site, products=None, force=False, site_level=None)``:
+- ``site_level=None`` (the default, and the ``site curate`` stage): the products as before, plus the site pass
+  when no product filter is given, the site card exists and the site has no proposals yet;
+- ``site_level=True``: only the site pass (``curate_site``); ``site_level=False``: only the products.
 """
 
 from __future__ import annotations
@@ -78,6 +89,12 @@ PRODUCT_REPAIR = ("Your previous reply was not the required JSON object. Reply n
                   "mesa_avu_from_term. No prose and no code fence.")
 UNITS_REPAIR = ("Your previous reply was not the required JSON object. Reply now with ONLY the JSON object "
                 '{"units": [...]} described in the task. No prose and no code fence.')
+SITE_REPAIR = ("Your previous reply was not the required JSON object. Reply now with ONLY the JSON object "
+               '{"terms": [...]} described in the task (one biome, plus one feature for an aquatic site). '
+               "No prose and no code fence.")
+SITE_KEY = "_site"
+SITE_TOOLS = ("mesa_ols_search_terms", "mesa_ols_get_term")
+SITE_MAX_TURNS = 20
 
 _OBO_IRI = re.compile(r"/obo/([A-Za-z][A-Za-z0-9]*)_([A-Za-z0-9]+)\b")
 _CURIE_FIELD = re.compile(r'"(?:curie|obo_id|oboId)"\s*:\s*"([A-Za-z][A-Za-z0-9]*:[A-Za-z0-9_]+)"')
@@ -123,6 +140,24 @@ class CurationPaths:
     def run_cwd(self) -> Path:
         """An empty working directory for the child, so it finds no project CLAUDE.md or settings."""
         return env.WORK_DIR / "curate-cwd"
+
+    @property
+    def site_dir_curation(self) -> Path:
+        """``curation/site/``: the site-level pass (kept apart from the product proposals)."""
+        return self.curation_dir / "site"
+
+    @property
+    def site_card(self) -> Path:
+        return self.cards_dir / f"{SITE_KEY}.md"
+
+    def site_proposal(self, rep: int) -> Path:
+        return self.site_dir_curation / f"{SITE_KEY}.rep{rep}.json"
+
+    def site_failed(self, rep: int) -> Path:
+        return self.site_dir_curation / f"{SITE_KEY}.rep{rep}.failed.json"
+
+    def site_trace(self, rep: int) -> Path:
+        return self.site_dir_curation / f"{SITE_KEY}.rep{rep}.jsonl"
 
     def card(self, product: str) -> Path:
         return self.cards_dir / f"{product}.md"
@@ -211,7 +246,7 @@ def tool_names(tools: Iterable[str]) -> list[str]:
 def claude_argv(tools: Iterable[str], *, max_turns: int = MAX_TURNS, resume: str | None = None,
                 model: str = MODEL) -> list[str]:
     tools = list(tools)
-    hidden = [t for t in (*HIDDEN_TOOLS, *PRODUCT_TOOLS) if t not in tools]
+    hidden = list(dict.fromkeys(t for t in (*HIDDEN_TOOLS, *PRODUCT_TOOLS) if t not in tools))
     argv = [str(CLAUDE_BIN), "-p", "--model", model,
             "--strict-mcp-config", "--mcp-config", str(mcp_config_path()),
             "--tools", "",
@@ -363,19 +398,20 @@ def extract_json(text: str | None, key: str) -> dict[str, Any] | None:
 
 @dataclass
 class Job:
-    kind: str  # 'product' | 'units'
-    key: str  # product code, or 'units.<sha12>'
+    kind: str  # 'product' | 'units' | 'site'
+    key: str  # product code, 'units.<sha12>' or '_site'
     rep: int | None
     prompt: str
     prompt_sha256: str
-    input_sha256: str  # card sha (product) or the unit list sha (units)
+    input_sha256: str  # card sha (product, site) or the unit list sha (units)
     trace: Path
     proposal: Path
     failed: Path
     tools: tuple[str, ...]
-    result_key: str  # 'avus' | 'units'
+    result_key: str  # 'avus' | 'units' | 'terms'
     repair: str
     extra: dict[str, Any] = field(default_factory=dict)
+    max_turns: int = MAX_TURNS
 
     @property
     def label(self) -> str:
@@ -385,7 +421,7 @@ class Job:
 def run_job(job: Job, cwd: Path) -> dict[str, Any]:
     """Run one replicate (plus at most one retry) and write its proposal, or a ``.failed.json``."""
     t0 = time.monotonic()
-    attempts = [run_claude(job.prompt, job.trace, job.tools, cwd)]
+    attempts = [run_claude(job.prompt, job.trace, job.tools, cwd, max_turns=job.max_turns)]
     summary = parse_stream(job.trace.read_text("utf-8", "replace").splitlines())
     parsed = extract_json(summary.result_text, job.result_key)
     if parsed is None:
@@ -397,7 +433,7 @@ def run_job(job: Job, cwd: Path) -> dict[str, Any]:
         else:
             log.warning("%s: no session (rc=%s); retrying once from scratch", job.label,
                         attempts[0].returncode)
-            attempts.append(run_claude(job.prompt, job.trace, job.tools, cwd, append=True))
+            attempts.append(run_claude(job.prompt, job.trace, job.tools, cwd, max_turns=job.max_turns, append=True))
         summary = parse_stream(job.trace.read_text("utf-8", "replace").splitlines())
         parsed = extract_json(summary.result_text, job.result_key)
     seconds = round(time.monotonic() - t0, 1)
@@ -467,7 +503,8 @@ def external_only_products(site: str) -> set[str]:
 def select_products(site: str, products: list[str] | None, force: bool) -> tuple[list[str], dict[str, str]]:
     """(product codes to curate, {skipped code: reason}) from the site's cards."""
     p = curation_paths(site)
-    cards = sorted(c.stem for c in p.cards_dir.glob("*.md")) if p.cards_dir.exists() else []
+    cards = sorted(c.stem for c in p.cards_dir.glob("*.md") if not c.name.startswith("_")) \
+        if p.cards_dir.exists() else []
     if products:
         missing = [c for c in products if c not in cards]
         for c in missing:
@@ -601,6 +638,70 @@ def apply_units(site: str, units: list[str]) -> dict[str, Any]:
     return validate.apply_unit_proposal(site, proposal, set(units), p.proposals_dir / f"{key}.validated.json")
 
 
+# ---------------------------------------------------------------- site pass
+
+def site_jobs(site: str, force: bool) -> tuple[list[Job], list[str]]:
+    """The two replicate jobs of the site pass ([] when the card is missing or proposals exist)."""
+    p = curation_paths(site)
+    if not p.site_card.exists():
+        log.warning("site pass %s: no site card %s (run `site cards %s` first)", site, rel(p.site_card), site)
+        return [], []
+    template, prompt_sha = read_prompt("prompt_site.md")
+    card = p.site_card.read_bytes()
+    prompt = template.rstrip("\n") + "\n\n" + card.decode("utf-8", "replace")
+    jobs: list[Job] = []
+    existing: list[str] = []
+    for rep in range(1, REPLICATES + 1):
+        if p.site_proposal(rep).exists() and not force:
+            existing.append(f"{SITE_KEY}.rep{rep}")
+            continue
+        jobs.append(Job(kind="site", key=SITE_KEY, rep=rep, prompt=prompt, prompt_sha256=prompt_sha,
+                        input_sha256=sha256_bytes(card), trace=p.site_trace(rep), proposal=p.site_proposal(rep),
+                        failed=p.site_failed(rep), tools=SITE_TOOLS, result_key="terms", repair=SITE_REPAIR,
+                        extra={"site": site, "card": rel(p.site_card), "card_sha256": sha256_bytes(card)},
+                        max_turns=SITE_MAX_TURNS))
+    return jobs, existing
+
+
+def has_site_proposals(site: str) -> bool:
+    p = curation_paths(site)
+    return all(p.site_proposal(rep).exists() for rep in range(1, REPLICATES + 1))
+
+
+def _run_summary(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [{k: r.get(k) for k in ("key", "rep", "seconds", "attempts", "tool_calls", "tool_call_counts",
+                                   "total_cost_usd", "usage", "stop", "error")}
+            | {"n": len(r.get("avus") or r.get("units") or r.get("terms") or [])} for r in results]
+
+
+def curate_site(site: str, force: bool = False) -> dict[str, Any]:
+    """Run the site pass (2 replicates of ``prompt_site.md`` on ``cards/_site.md``); returns its summary.
+
+    Writes ``reports/curate_site_summary.json``. ``status`` is ok, partial (a replicate failed) or
+    missing_card; existing proposals are kept unless ``force``.
+    """
+    site = site.upper()
+    t0 = time.monotonic()
+    p = curation_paths(site)
+    jobs, existing = site_jobs(site, force)
+    if not jobs and not existing:
+        summary = {"site": site, "status": "missing_card", "card": rel(p.site_card), "runs": []}
+        env.write_json(p.site_dir / "reports" / "curate_site_summary.json", summary)
+        return summary
+    results = run_jobs(jobs, p.run_cwd, parallel=REPLICATES)
+    failed = [r for r in results if r.get("error")]
+    summary = {"site": site, "status": "ok" if not failed else "partial", "model": MODEL, "replicates": REPLICATES,
+               "card": rel(p.site_card), "existing": existing, "runs": _run_summary(results),
+               "seconds": round(time.monotonic() - t0, 1),
+               "total_cost_usd": round(sum(r.get("total_cost_usd") or 0 for r in results), 4),
+               "terms": {f"rep{r.get('rep')}": [(t.get("role"), t.get("curie"), t.get("label"))
+                                                for t in r.get("terms") or [] if isinstance(t, dict)]
+                         for r in results if not r.get("error")}}
+    env.write_json(p.site_dir / "reports" / "curate_site_summary.json", summary)
+    log.info("site pass %s: %d run(s), %d failed, $%.2f", site, len(results), len(failed), summary["total_cost_usd"])
+    return summary
+
+
 # ---------------------------------------------------------------- main
 
 def run_jobs(jobs: list[Job], cwd: Path, parallel: int = PARALLEL) -> list[dict[str, Any]]:
@@ -619,7 +720,9 @@ def run_jobs(jobs: list[Job], cwd: Path, parallel: int = PARALLEL) -> list[dict[
     return results
 
 
-def main(site: str, products: list[str] | None = None, force: bool = False) -> int:
+def main(site: str, products: list[str] | None = None, force: bool = False,
+         site_level: bool | None = None) -> int:
+    """``site curate <SITE>``: product replicates + the units pass, and the site pass (see the module docstring)."""
     site = site.upper()
     t0 = time.monotonic()
     p = curation_paths(site)
@@ -629,6 +732,19 @@ def main(site: str, products: list[str] | None = None, force: bool = False) -> i
     if not mcp_config_path().exists():
         log.error("MCP config missing: %s", mcp_config_path())
         return 1
+    if site_level:
+        rid = env.run_id()
+        scon = state.connect(state.DB_PATH)
+        state.start_run(scon, rid, "site-curate", site, [site, "site-level", "force" if force else ""])
+        summary: dict[str, Any] = {"status": "failed"}
+        try:
+            summary = curate_site(site, force)
+        finally:
+            state.finish_run(scon, rid, "site-curate", site, summary.get("status", "failed"),
+                             {"runs": len(summary.get("runs") or []),
+                              "errors": sum(1 for r in summary.get("runs") or [] if r.get("error"))})
+            scon.close()
+        return {"ok": 0, "missing_card": 1}.get(summary["status"], 2)
     codes, skipped = select_products(site, products, force)
     for code, why in sorted(skipped.items()):
         log.info("%s: skipped (%s)", code, why)
@@ -642,6 +758,10 @@ def main(site: str, products: list[str] | None = None, force: bool = False) -> i
     uj = units_job(site, units, force)
     if uj:
         jobs.append(uj)
+    site_pass = site_level is None and not products and p.site_card.exists() and (force or not has_site_proposals(site))
+    if site_pass:
+        sj, _existing = site_jobs(site, force)
+        jobs += sj
     rid = env.run_id()
     scon = state.connect(state.DB_PATH)
     state.start_run(scon, rid, "site-curate", site, [site, ",".join(products or []), "force" if force else ""])
@@ -649,21 +769,23 @@ def main(site: str, products: list[str] | None = None, force: bool = False) -> i
     results: list[dict[str, Any]] = []
     units_result: dict[str, Any] = {}
     try:
-        log.info("curate %s: %d product(s), %d run(s) (%s, %d replicates, %d in parallel)%s", site, len(codes),
-                 len(jobs), MODEL, REPLICATES, PARALLEL, f", units pass for {len(units)} unit(s)" if uj else "")
+        log.info("curate %s: %d product(s), %d run(s) (%s, %d replicates, %d in parallel)%s%s", site, len(codes),
+                 len(jobs), MODEL, REPLICATES, PARALLEL, f", units pass for {len(units)} unit(s)" if uj else "",
+                 ", site pass" if site_pass else "")
         results = run_jobs(jobs, p.run_cwd)
         if units:
             units_result = apply_units(site, units)
         failed = [r for r in results if r.get("error")]
         status = "ok" if not failed else "partial"
     finally:
-        runs = [{k: r.get(k) for k in ("key", "rep", "seconds", "attempts", "tool_calls", "tool_call_counts",
-                                         "total_cost_usd", "usage", "stop", "error")}
-                | {"n": len(r.get("avus") or r.get("units") or [])} for r in results]
+        product_results = [r for r in results if r.get("key") != SITE_KEY]
+        site_results = [r for r in results if r.get("key") == SITE_KEY]
         summary = {"site": site, "runId": rid, "status": status, "model": MODEL, "replicates": REPLICATES,
-                   "products": codes, "skipped": skipped, "existing": existing, "runs": runs,
+                   "products": codes, "skipped": skipped, "existing": existing, "runs": _run_summary(product_results),
                    "units": units_result, "seconds": round(time.monotonic() - t0, 1),
                    "total_cost_usd": round(sum(r.get("total_cost_usd") or 0 for r in results), 4)}
+        if site_pass:
+            summary["siteRuns"] = _run_summary(site_results)
         env.write_json(p.site_dir / "reports" / "curate_summary.json", summary)
         state.finish_run(scon, rid, "site-curate", site, status,
                          {"runs": len(results), "errors": sum(1 for r in results if r.get("error"))})

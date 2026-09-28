@@ -195,3 +195,35 @@ DuckDB file `work/ontology_cache.duckdb` (shared by all sites; exported to `ref/
 
 Generic per-product results go in `curation/generic/<productCode>.validated.json`, so a product curated for SRER is reused for HARV.
 Site AVU building reads these tables. It uses curated rows only where `status in ('accepted','human_accepted')`.
+
+## Amendments after the heterogeneity round (2026-09-27)
+
+**`filenames.py`**
+- `classify(name, product_hint=None) -> Classified` is the single file classifier, used by catalog flatten, site fetch, stack and avus.
+- It adds kind `lab` for `NEON.<Lab>.<table>.<ts>.csv`.
+- `REGENERATED_KINDS` = variables, sensor_positions, readme, eml, categorical_codes, validation, science_review_flags.
+
+**Download integrity**
+- Every download is verified against the storage MD5 (the GCS `x-goog-hash` header).
+- A storage mismatch counts as corruption and fails after 3 retries.
+- NEON's listed MD5 can be stale. When it differs but storage matches, the file is kept with `md5_verified=0` for every kind.
+- `site_files` gains `storage_md5`, `neon_md5`, `transfer_verified`. The site lake `files` table gains `storageMd5`, `neonMd5`, `transferVerified`.
+- AVUs on such files: `neon.md5Verified=false` and `neon.neonMd5Mismatch=<neon md5>`.
+- A re-list reuses the product's recorded `listings` windows; it never lists the full availability window.
+
+**Stack**
+- `STACK_VERSION=2`.
+- Timestamp parsing comes from the pubFormat of each column: `yyyy` becomes INTEGER, `yyyy-MM` becomes DATE of the first of the month.
+- `sensor_positions` accepts additive columns, recorded in `schema_drift` with `unknownColumns` and `firstPublication`/`lastPublication`. A unit fails only when required columns are missing.
+- Lab tables are stacked as `<dp>__lab_<table>`, with `table_catalog.kind='lab'`.
+
+**Ontology store additions**
+- New tables: `ref_site_envo_feature` (the aquatic water-body feature), `site_envo_proposals`, `ols_term_synonyms`.
+- `ref_unit_map` gains method `synonym` and method/status `not_applicable` (variance units).
+- `ref_ncbitaxon_map` gains methods `synonym` and `species_fallback`.
+- `ref_site_envo` gains `heuristic`/`proposed` and `curated`/`curated`.
+
+**Site level**
+- `sites.siteProperties['HABITAT']` drives biome and feature choice. `TypeEco` is ignored at aquatic sites.
+- Site collections carry `neon.habitat`. Aquatic sites get `envo.<feature>` (value = site name) and a freshwater biome.
+- `site curate|validate --site-level` runs the Opus two-replicate site pass. It uses the card `cards/_site.md` and writes disagreements to `curation/review_site.md`.

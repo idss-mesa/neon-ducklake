@@ -44,10 +44,10 @@ def dispatch(a: Any) -> int:
         return main(site, products=products)
     if a.step == "curate":
         from .curate import main
-        return main(site, products=products, force=a.force)
+        return main(site, products=products, force=a.force, site_level=getattr(a, "site_level", None))
     if a.step == "validate":
         from .validate import main
-        return main(site, accept=a.accept)
+        return main(site, accept=a.accept, site_level=getattr(a, "site_level", None))
     if a.step == "upload":
         from .upload import main
         return main(site, products=products, months=months, threads=a.threads)

@@ -37,6 +37,21 @@ Public API (keep it small; everything else in this module is private):
     Search hits whose label equals ``label``, ignoring case and surrounding whitespace.
     ``prefix`` optionally keeps only one CURIE prefix.
 
+``search_exact_many(queries, ontology_id, size=25, *, fields=("label", "synonym"), within=None, con=None)``
+    OLS v1 ``/search`` with ``exact=true`` over ``fields`` (label and/or synonym), optionally restricted
+    to the descendants of ``within``. Returns ``{query: [{curie, label, iri, ontologyId, synonyms}]}``;
+    ``synonyms`` lists every synonym OLS indexes for the term (exact and related). Cached in
+    ``ols_search_cache`` under ``within = 'exact:<fields>[|<parent IRI>]'``. A query whose search failed is
+    left out. ``search_exact(query, …)`` is the single form and raises ``OLSUnavailable``.
+
+``synonym_matches(results, name, prefix=None) -> list[dict]``
+    Hits (from ``search_exact_many``) that carry ``name`` among their synonyms (case-insensitive).
+
+``term_synonyms(curies, *, con=None) -> dict[str, list[dict]]``
+    ``{curie: [{name, scope, type}]}`` from the OLS v1 term record (``obo_synonym``: scope such as
+    ``hasExactSynonym`` / ``hasRelatedSynonym`` and the OBO synonym type such as ``synonym``,
+    ``scientific name``, ``in-part``). Cached in ``ols_term_synonyms``; a CURIE whose fetch failed is left out.
+
 ``obo_foundry_prefixes(refresh=False) -> set[str]``
     Lower-case ids of the active, non-obsolete OBO Foundry ontologies. They are read from
     ``ref/obofoundry_ontologies.jsonld``, which is downloaded once and then reused.
@@ -48,9 +63,17 @@ Public API (keep it small; everything else in this module is private):
 ``norm_curie(value) -> str | None``, ``iri_for(curie) -> str``
     CURIE helpers, the same as neon-avu-eval ``validate_load.py``.
 
-Beyond the contract, the store has two more tables:
+Beyond the contract, the store has these tables:
 - ``ols_search_cache`` (ontologyId, query, size, within, results JSON, fetchedAt)
+- ``ols_term_synonyms`` (curie PK, synonyms JSON, fetchedAt): see ``term_synonyms``
 - ``terms_taxon_types``: the taxonTypeCode chosen per (site, product, table) by site/terms.py
+- ``ref_site_envo_feature`` (siteCode PK, envoCurie, envoLabel, habitat, method, status): the ENVO
+  environmental feature (a water body: stream, river, lake) of an aquatic site. It mirrors
+  ``ref_site_envo`` (the biome) and follows the same method/status rules: ``heuristic``/``proposed``
+  from ``site terms``, ``curated``/``curated`` after two agreeing Opus replicates (``site validate``).
+- ``site_envo_proposals`` (siteCode, role, source, envoCurie, envoLabel, rule, detail, createdAt;
+  PK siteCode, role, source): every biome/feature proposal of a site by source (``heuristic``, ``rep1``,
+  ``rep2``, ``human``), so the heuristic survives curation and can be compared with it.
 
 Network use is polite: at most 4 concurrent requests, retries with backoff, and everything is
 cached. No secrets are involved.
@@ -113,14 +136,24 @@ SCHEMAS: dict[str, dict[str, str]] = {
         "siteCode": "VARCHAR NOT NULL", "productCode": "VARCHAR NOT NULL", "tableName": "VARCHAR NOT NULL",
         "taxonTypeCode": "VARCHAR", "nTaxa": "BIGINT", "nMatched": "BIGINT", "matchRate": "DOUBLE",
         "tiedWith": "VARCHAR[]", "chosenAt": "TIMESTAMPTZ"},
+    "ols_term_synonyms": {"curie": "VARCHAR PRIMARY KEY", "synonyms": "JSON", "fetchedAt": "TIMESTAMPTZ"},
+    "ref_site_envo_feature": {
+        "siteCode": "VARCHAR PRIMARY KEY", "envoCurie": "VARCHAR", "envoLabel": "VARCHAR", "habitat": "VARCHAR",
+        "method": "VARCHAR", "status": "VARCHAR"},
+    "site_envo_proposals": {
+        "siteCode": "VARCHAR NOT NULL", "role": "VARCHAR NOT NULL", "source": "VARCHAR NOT NULL",
+        "envoCurie": "VARCHAR", "envoLabel": "VARCHAR", "rule": "VARCHAR", "detail": "JSON",
+        "createdAt": "TIMESTAMPTZ"},
 }
 COMPOSITE_KEYS: dict[str, tuple[str, ...]] = {
     "ref_ncbitaxon_map": ("taxonTypeCode", "taxonID"),
     "ols_search_cache": ("ontologyId", "query", "size", "within"),
     "terms_taxon_types": ("siteCode", "productCode", "tableName"),
+    "site_envo_proposals": ("siteCode", "role", "source"),
 }
 EXPORT_TABLES: tuple[str, ...] = ("ols_term_cache", "ref_ncbitaxon_map", "ref_unit_map", "ref_nlcd_envo",
-                                  "ref_site_envo", "curation_avus", "terms_taxon_types")
+                                  "ref_site_envo", "curation_avus", "terms_taxon_types", "ref_site_envo_feature",
+                                  "site_envo_proposals")
 
 
 class OLSUnavailable(RuntimeError):
@@ -321,7 +354,25 @@ def _fetch_term(curie: str) -> dict[str, Any] | None:
         label = label[0] if label else None
     obsolete = bool(d.get("is_obsolete")) or str(label or "").lower().startswith("obsolete")
     return {"curie": curie, "iri": d.get("iri") or iri_for(curie), "label": label,
-            "ontologyId": d.get("ontology_name") or ont, "isObsolete": obsolete}
+            "ontologyId": d.get("ontology_name") or ont, "isObsolete": obsolete, "synonyms": _term_synonyms(d)}
+
+
+def _term_synonyms(d: dict[str, Any]) -> list[dict[str, Any]]:
+    """``[{name, scope, type}]`` from an OLS v1 term record (``obo_synonym``, else the bare ``synonyms``)."""
+    out: list[dict[str, Any]] = []
+    seen: set[tuple[str, str | None]] = set()
+    for s in d.get("obo_synonym") or []:
+        if isinstance(s, dict) and s.get("name"):
+            key = (str(s["name"]), s.get("scope"))
+            if key not in seen:
+                seen.add(key)
+                out.append({"name": str(s["name"]), "scope": s.get("scope"), "type": s.get("type")})
+    names = {o["name"] for o in out}
+    for s in d.get("synonyms") or []:
+        if isinstance(s, str) and s and s not in names:
+            names.add(s)
+            out.append({"name": s, "scope": None, "type": None})
+    return out
 
 
 _TLS = threading.local()
@@ -485,6 +536,39 @@ def ols_terms(curies: Iterable[str], *, con: duckdb.DuckDBPyConnection | None = 
     if new:
         with _use(con) as c:
             _store_terms(c, new)
+            _store_synonyms(c, new)
+    return out
+
+
+def _store_synonyms(con: duckdb.DuckDBPyConnection, terms: list[dict[str, Any]]) -> None:
+    rows = [[t["curie"], json.dumps(t["synonyms"], ensure_ascii=False), env.utcnow()]
+            for t in terms if isinstance(t.get("synonyms"), list)]
+    if rows:
+        con.executemany("INSERT OR REPLACE INTO ols_term_synonyms (curie, synonyms, fetchedAt) VALUES (?, ?, ?)",
+                        rows)
+
+
+def term_synonyms(curies: Iterable[str], *, con: duckdb.DuckDBPyConnection | None = None
+                  ) -> dict[str, list[dict[str, Any]]]:
+    """``{curie: [{name, scope, type}]}`` (cached). CURIEs that could not be fetched are left out; a term
+    that does not exist maps to ``[]``."""
+    wanted = list(dict.fromkeys(c for raw in curies if (c := norm_curie(raw))))
+    if not wanted:
+        return {}
+    with _use(con) as c:
+        rows = c.execute("SELECT curie, synonyms FROM ols_term_synonyms WHERE curie IN "
+                         "(SELECT unnest(?::VARCHAR[]))", [wanted]).fetchall()
+    out = {r[0]: json.loads(r[1]) if r[1] else [] for r in rows}
+    missing = [x for x in wanted if x not in out]
+    if missing:
+        got = ols_terms(missing, con=con, refresh=True)  # the term fetch stores the synonyms as well
+        with _use(con) as c:
+            rows = c.execute("SELECT curie, synonyms FROM ols_term_synonyms WHERE curie IN "
+                             "(SELECT unnest(?::VARCHAR[]))", [missing]).fetchall()
+        out.update({r[0]: json.loads(r[1]) if r[1] else [] for r in rows})
+        for x in missing:
+            if x not in out and x in got and got[x] is None:
+                out[x] = []  # no such term
     return out
 
 
@@ -576,6 +660,122 @@ def exact_matches(results: Iterable[dict[str, Any]], label: str, prefix: str | N
         seen.add(curie)
         out.append(h)
     return out
+
+
+def _fold(text: Any) -> str:
+    return " ".join(str(text or "").split()).casefold()
+
+
+def synonym_matches(results: Iterable[dict[str, Any]], name: str, prefix: str | None = None) -> list[dict[str, Any]]:
+    """Hits whose ``synonyms`` contain ``name`` (case-insensitive, whitespace-normalised), deduplicated."""
+    want = _fold(name)
+    pre = prefix.lower() if prefix else None
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for h in results:
+        curie = h.get("curie") or ""
+        if curie in seen or not any(_fold(s) == want for s in h.get("synonyms") or []):
+            continue
+        if pre and curie.split(":", 1)[0].lower() != pre:
+            continue
+        seen.add(curie)
+        out.append(h)
+    return out
+
+
+EXACT_FIELDS = ("label", "synonym")
+
+
+def _exact_within(fields: tuple[str, ...], parent: str) -> str:
+    return "exact:" + ",".join(fields) + (f"|{parent}" if parent else "")
+
+
+def _fetch_exact(query: str, ontology_id: str, size: int, fields: tuple[str, ...], parent: str
+                 ) -> list[dict[str, Any]]:
+    """OLS v1 ``/search`` with ``exact=true`` on ``fields`` (raw HTTP; keeps each hit's synonyms)."""
+    params: dict[str, Any] = {"q": query, "ontology": ontology_id, "exact": "true", "queryFields": ",".join(fields),
+                              "rows": int(size), "fieldList": "iri,label,obo_id,synonym,ontology_name"}
+    if parent:
+        params["allChildrenOf"] = parent
+    status, body = _get(f"{OLS_API}/search?{urllib.parse.urlencode(params)}")
+    if status != 200:
+        log.warning("OLS exact search %r in %s rejected (HTTP %s)", query, ontology_id, status)
+        return []
+    docs = (json.loads(body).get("response") or {}).get("docs") or []
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for d in docs:
+        curie = norm_curie(d.get("obo_id") or "") or norm_curie(d.get("iri") or "")
+        if not curie or curie in seen:
+            continue
+        seen.add(curie)
+        label = d.get("label")
+        if isinstance(label, list):
+            label = label[0] if label else ""
+        syn = d.get("synonym") or []
+        out.append({"curie": curie, "label": label or "", "iri": d.get("iri") or iri_for(curie),
+                    "ontologyId": d.get("ontology_name") or ontology_id,
+                    "synonyms": [str(x) for x in (syn if isinstance(syn, list) else [syn]) if x]})
+    return out
+
+
+def search_exact_many(queries: Iterable[str], ontology_id: str, size: int = 25, *,
+                      fields: tuple[str, ...] = EXACT_FIELDS, within: str | None = None,
+                      con: duckdb.DuckDBPyConnection | None = None,
+                      refresh: bool = False) -> dict[str, list[dict[str, Any]]]:
+    """Cached exact OLS v1 searches on label and/or synonym (<= 4 concurrent). Failed queries are omitted."""
+    fields = tuple(fields)
+    parent = _ensure_iri(within) if within else ""
+    tag = _exact_within(fields, parent)
+    qs = list(dict.fromkeys(q for q in queries if q and q.strip()))
+    keys = {q: _search_key(q, ontology_id, size, tag) for q in qs}
+    out: dict[str, list[dict[str, Any]]] = {}
+    if not qs:
+        return out
+    cached: dict[tuple[str, str, int, str], list[dict[str, Any]]] = {}
+    if not refresh:
+        with _use(con) as c:
+            rows = c.execute("SELECT ontologyId, query, size, within, results FROM ols_search_cache "
+                             "WHERE ontologyId = ? AND size = ? AND within = ? AND query IN "
+                             "(SELECT unnest(?::VARCHAR[]))",
+                             [ontology_id.lower(), int(size), tag, [k[1] for k in keys.values()]]).fetchall()
+        cached = {(r[0], r[1], r[2], r[3]): json.loads(r[4]) for r in rows}
+    todo: list[str] = []
+    for q in qs:
+        if keys[q] in cached:
+            out[q] = cached[keys[q]]
+        elif keys[q][1] not in {keys[t][1] for t in todo}:
+            todo.append(q)
+    fetched = _parallel(lambda q: _fetch_exact(keys[q][1], ontology_id.lower(), size, fields, parent), todo)
+    new: list[list[Any]] = []
+    now = env.utcnow()
+    for q in todo:
+        res = fetched.get(q)
+        if isinstance(res, Exception):
+            log.warning("OLS exact search %r (%s) unavailable: %s", q, ontology_id, res)
+            continue
+        new.append([*keys[q], json.dumps(res, ensure_ascii=False), now])
+        cached[keys[q]] = res
+    for q in qs:
+        if q not in out and keys[q] in cached:
+            out[q] = cached[keys[q]]
+    if new:
+        with _use(con) as c:
+            c.executemany("INSERT OR REPLACE INTO ols_search_cache (ontologyId, query, size, within, results, "
+                          "fetchedAt) VALUES (?, ?, ?, ?, ?, ?)", new)
+    return out
+
+
+def search_exact(query: str, ontology_id: str, size: int = 25, *, fields: tuple[str, ...] = EXACT_FIELDS,
+                 within: str | None = None, con: duckdb.DuckDBPyConnection | None = None,
+                 refresh: bool = False) -> list[dict[str, Any]]:
+    """One cached exact search (see ``search_exact_many``). Raises OLSUnavailable when unreachable."""
+    if not query or not query.strip():
+        return []
+    res = search_exact_many([query], ontology_id, size, fields=fields, within=within, con=con, refresh=refresh)
+    if query not in res:
+        raise OLSUnavailable(f"OLS exact search {query!r} in {ontology_id} failed")
+    return res[query]
 
 
 # ---------------------------------------------------------------- export

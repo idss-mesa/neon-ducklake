@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 from pathlib import Path
 
 import duckdb
@@ -301,16 +302,72 @@ def test_stack_end_to_end(site_env: Path) -> None:  # noqa: F811
     assert [r[0] for r in new] == [f"stack {SITE} {OS} supporting", f"stack {SITE} {OS} brd_countdata"]
 
 
-def test_unknown_sensor_header_is_a_hard_error(site_env: Path) -> None:  # noqa: F811
+EVOLVED_SP = [*MODERN_SP[:3], "effectiveStartDateTime", "effectiveEndDateTime", *MODERN_SP[3:]]
+
+
+def _evolved_row(hv: str, loc: str, eff_start: str, eff_end: str) -> list:
+    r = _sp_row(hv, loc)
+    return [*r[:3], eff_start, eff_end, *r[3:]]
+
+
+def test_sensor_positions_accepts_additional_columns(site_env: Path) -> None:  # noqa: F811
+    """F4: new columns (effectiveStart/EndDateTime, 2026-09) are unioned by name and recorded as drift."""
     s = build_fixture(site_env)
-    s.add(IS, "2024-07", f"NEON.D99.{SITE}.{IS}.sensor_positions.20240806T000000Z.csv",
-          _csv([*MODERN_SP, "mysteryColumn"], [[*_sp_row("000.010", "CFGLOC1"), "?"]]), "sensor_positions")
+    reports = site_lake.site_paths(SITE).reports_dir
+    reports.mkdir(parents=True, exist_ok=True)
+    stale = reports / f"sensor_positions_unknown_headers_{IS}.json"
+    stale.write_text("{}")  # left by an older stacker; removed once the unit builds
+    s.add(IS, "2024-07", f"NEON.D99.{SITE}.{IS}.sensor_positions.20260915T213331Z.csv",
+          _csv([*EVOLVED_SP, "mysteryColumn"],
+               [[*_evolved_row("000.010", "CFGLOC1", "2010-01-01T00:00:00Z", "2019-01-02T23:59:59Z"), "?"],
+                [*_evolved_row("000.010", "CFGLOC1", "2019-01-03T00:00:00Z", ""), ""]]), "sensor_positions")
+    assert stack.main(SITE) == 0
+    t = _types("sensor_positions")
+    assert t["effectiveStartDateTime"] == "TIMESTAMP WITH TIME ZONE"
+    assert t["effectiveEndDateTime"] == "TIMESTAMP WITH TIME ZONE" and t["mysteryColumn"] == "VARCHAR"
+    rows = _q('SELECT month, effectiveStartDateTime, effectiveEndDateTime, mysteryColumn, sensorLatitude '
+              'FROM lake.sensor_positions ORDER BY month, effectiveStartDateTime NULLS FIRST')
+    assert len(rows) == 5  # 1 legacy + 2 modern + 2 evolved (both evolved rows kept: same position start)
+    assert [r[0] for r in rows] == ["2019-05", "2024-06", "2024-06", "2024-07", "2024-07"]
+    assert rows[0][1] is None and rows[3][1].year == 2010 and rows[3][2].year == 2019 and rows[4][2] is None
+    assert rows[3][3] == "?" and rows[4][3] is None and rows[3][4] == pytest.approx(31.9 - 4.0 / 111320)
+    drift = _q("SELECT nFiles, unknownColumns, missingVsUnion, firstMonth, lastMonth, firstPublication, "
+               "lastPublication FROM lake.schema_drift WHERE productCode = ? AND tableName = 'sensor_positions' "
+               "ORDER BY nColumns", [IS])
+    assert len(drift) == 3  # legacy, modern and evolved header groups
+    assert drift[-1][:2] == (1, ["effectiveStartDateTime", "effectiveEndDateTime", "mysteryColumn"])
+    assert drift[-1][3:5] == ("2024-07", "2024-07") and drift[-1][5].year == 2026 == drift[-1][6].year
+    assert drift[0][1] == [] and "effectiveStartDateTime" in drift[0][2]  # legacy group lacks the new ones
+    assert not stale.exists()
+    totals = json.loads((reports / "stack_summary.json").read_text())["totals"]
+    assert totals["sensorPositionsExtraColumns"][IS] == ["effectiveStartDateTime", "effectiveEndDateTime",
+                                                         "mysteryColumn"]
+    assert totals["unitErrors"] == 0 and totals["unitsBuilt"] > 0
+
+
+def test_sensor_positions_missing_required_is_a_hard_error(site_env: Path) -> None:  # noqa: F811
+    s = build_fixture(site_env)
+    cols = [c for c in MODERN_SP if c != "locationReferenceLatitude"]
+    row = [v for c, v in zip(MODERN_SP, _sp_row("000.010", "CFGLOC1"), strict=True) if c != "locationReferenceLatitude"]
+    s.add(IS, "2024-07", f"NEON.D99.{SITE}.{IS}.sensor_positions.20240806T000000Z.csv", _csv(cols, [row]),
+          "sensor_positions")
     assert stack.main(SITE) == 2
-    report = site_lake.site_paths(SITE).reports_dir / f"sensor_positions_unknown_headers_{IS}.json"
-    assert "mysteryColumn" in report.read_text()
-    # the data tables were still built
+    report = site_lake.site_paths(SITE).reports_dir / f"sensor_positions_missing_required_{IS}.json"
+    assert "locationReferenceLatitude" in report.read_text()
+    # the data tables were still built; the supporting unit was not
     assert _q("SELECT count(*) FROM lake.dp1_00002_001__saat_30min") == [(2004,)]
     assert not _q("SELECT * FROM lake.table_catalog WHERE tableName='sensor_positions'")
+
+
+def test_sensor_positions_name_collisions(site_env: Path) -> None:  # noqa: F811
+    """A legacy alias next to its modern name, and a NEON column named like a derived one, both survive."""
+    s = Site(site_env)
+    cols = [*MODERN_SP, "name", "sensorLatitude"]
+    s.add(IS, "2024-06", f"NEON.D99.{SITE}.{IS}.sensor_positions.20240706T162340Z.csv",
+          _csv(cols, [[*_sp_row("000.010", "CFGLOC1"), "legacy-name", "12.5"]]), "sensor_positions")
+    assert stack.main(SITE) == 0
+    got = _q('SELECT sensorLocationID, "name", sensorLatitude_neon, sensorLatitude FROM lake.sensor_positions')
+    assert got[0][:3] == ("CFGLOC1", "legacy-name", "12.5") and got[0][3] == pytest.approx(31.9 - 4.0 / 111320)
 
 
 def test_changed_input_rebuilds_only_that_table(site_env: Path) -> None:  # noqa: F811

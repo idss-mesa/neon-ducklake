@@ -11,6 +11,14 @@ Outputs, for each site product:
     ``- name | description | dataType | units | profile``.
   - The ten taxa with the most records, with their NCBITaxon resolution status.
   - An external product (for example phenocam) gets a short card with the link instead.
+  - Lab tables (``<dp>__lab_<table>``, stacked from ``NEON.<Lab>.<table>.<ts>.csv`` files) get their own
+    column section, and the product's lab files are listed by lab and table.
+- ``sites/<SITE>/cards/_site.md``, the site card: the input of the site-level Opus curation
+  (``site curate``, ``curation/prompt_site.md``). It holds the site name, HABITAT, domain, state,
+  lat/lon/elevation, NEON's description, TypeEco and the NLCD shares (terrestrial sites only: NEON copied
+  a shortgrass-steppe TypeEco to every aquatic site), the site's products, and the heuristic biome /
+  water-body proposal of ``site terms`` as a hint. Card files whose name starts with ``_`` are not
+  product cards.
 - ``sites/<SITE>/cards/anyjev/<productCode>.<table>.md``, one card per stacked data or HDF5 table.
   - It uses the mesa-anyjev ``DatasetCard`` grammar (see ``mesa_anyjev.cards.parse_card`` and
     ``neon-avu-eval/cards``).
@@ -41,7 +49,7 @@ import duckdb
 
 from .. import env
 from . import ontology_store as store
-from . import site_lake
+from . import site_lake, terms
 
 log = logging.getLogger("neon_ducklake.site.cards")
 
@@ -149,17 +157,21 @@ def neon_dtype(duck_type: str) -> str:
 # ---------------------------------------------------------------- site / product context
 
 def site_line(con: duckdb.DuckDBPyConnection, site: str, has_catalog: bool) -> str:
-    """'SRER (Santa Rita Experimental Range NEON, AZ, domain D14 Desert Southwest; <TypeEco>)'."""
+    """'SRER (Santa Rita Experimental Range NEON, AZ, domain D14 Desert Southwest; <TypeEco>)'.
+
+    The habitat part is TypeEco for a terrestrial site and HABITAT for an aquatic one (never its TypeEco).
+    """
     row = None
     if has_catalog:
-        row = con.execute("SELECT siteName, stateCode, domainCode, domainName, siteProperties['TypeEco'] "
-                          "FROM neon.sites WHERE siteCode = ?", [site]).fetchone()
-    name, state, dom, dname, eco = row or (site, "?", "D00", "", None)
+        row = con.execute("SELECT siteName, stateCode, domainCode, domainName, siteProperties['TypeEco'], "
+                          "siteProperties['HABITAT'] FROM neon.sites WHERE siteCode = ?", [site]).fetchone()
+    name, state, dom, dname, eco, hab = row or (site, "?", "D00", "", None, None)
 
     def part(s: Any, bad: str) -> str:
         return " ".join(re.sub(f"[{re.escape(bad)}]", " ", clean(s)).split()) or "?"
 
-    habitat = part(eco or "habitat not recorded", ";()")
+    desc = hab if terms.is_aquatic(hab) else (eco or hab)
+    habitat = part(desc or "habitat not recorded", ";()")
     return f"{site} ({part(name, ',()')}, {part(state, ',()')}, domain {dom} {part(dname, ';()')}; {habitat})"
 
 
@@ -199,6 +211,50 @@ def data_tables(con: duckdb.DuckDBPyConnection, product: str) -> list[dict[str, 
                        "AND kind IN ('data', 'h5') ORDER BY neonTable, tableName", [product]).fetchall()
     out = [dict(zip(cols, r, strict=True)) for r in rows]
     return [t for t in out if site_lake.table_exists(con, t["tableName"])]
+
+
+def lab_tables(con: duckdb.DuckDBPyConnection, product: str) -> list[dict[str, Any]]:
+    """Stacked lab tables (``<dp>__lab_<table>``, table_catalog kind 'lab') of one product."""
+    cols = ("tableName", "neonTable", "kind", "nFiles", "nRows", "firstMonth", "lastMonth", "timeColumn")
+    rows = con.execute(f"SELECT {', '.join(cols)} FROM lake.table_catalog WHERE productCode = ? AND kind = 'lab' "
+                       "ORDER BY neonTable, tableName", [product]).fetchall()
+    out = [dict(zip(cols, r, strict=True)) for r in rows]
+    return [t for t in out if site_lake.table_exists(con, t["tableName"])]
+
+
+def lab_parts(name: str, product: str | None = None) -> tuple[str | None, str | None] | None:
+    """(lab name, table) of a ``NEON.<Lab>.<table>.<ts>.csv`` file, else None (the shared classifier)."""
+    try:
+        from .. import filenames
+
+        c = filenames.classify(name, product)
+    except Exception:  # noqa: BLE001 - the classifier never raises by contract; be safe anyway
+        return None
+    return (c.lab_name, c.table) if c.kind == "lab" else None
+
+
+def lab_file_lines(con: duckdb.DuckDBPyConnection, product: str) -> list[str]:
+    """'- <Lab>: <table> (<n> files, published a to b)' for the product's lab files in ``files``."""
+    if not site_lake.table_exists(con, "files"):
+        return []
+    have = site_lake.table_columns(con, "files")
+    if "kind" not in have:
+        return []
+    rows = con.execute("SELECT name, publicationTimestamp FROM lake.files WHERE productCode = ? "
+                       "AND (kind = 'lab' OR (kind = 'other' AND name LIKE 'NEON.%'))" if "publicationTimestamp" in have
+                       else "SELECT name, NULL FROM lake.files WHERE productCode = ? AND (kind = 'lab' OR "
+                       "(kind = 'other' AND name LIKE 'NEON.%'))", [product]).fetchall()
+    groups: dict[tuple[str, str], list[Any]] = {}
+    for name, pub in rows:
+        lp = lab_parts(name, product)
+        if lp:
+            groups.setdefault((lp[0] or "?", lp[1] or "?"), []).append(pub)
+    out = []
+    for (lab, table), pubs in sorted(groups.items()):
+        ts = sorted(str(fmt_time(p))[:10] for p in pubs if p is not None)
+        span = f", published {ts[0]} to {ts[-1]}" if ts else ""
+        out.append(f"- {clean(lab)}: {clean(table)} ({len(pubs)} files{span})")
+    return out
 
 
 def card_table_name(t: dict[str, Any]) -> str:
@@ -465,7 +521,9 @@ def anyjev_card(p: dict[str, Any], t: dict[str, Any], site_ln: str, n_rows: int,
 
 def product_card(p: dict[str, Any], sp: dict[str, Any], site_ln: str, units: dict[str, str],
                  tables: list[tuple[dict[str, Any], int, tuple[str, str, int], list[str], str]],
-                 taxa: list[str], external: list[dict[str, Any]], onto: dict[str, Any]) -> str:
+                 taxa: list[str], external: list[dict[str, Any]], onto: dict[str, Any],
+                 labs: list[tuple[dict[str, Any], int, list[str]]] | None = None,
+                 lab_files: list[str] | None = None) -> str:
     code = p["productCode"]
     team = clean(p.get("productScienceTeam") or p.get("productScienceTeamAbbr") or "?")
     rel = ", ".join(sp["releases"]) or "-"
@@ -511,6 +569,12 @@ def product_card(p: dict[str, Any], sp: dict[str, Any], site_ln: str, units: dic
         if extra:
             lines.append(extra)
         lines += ["", "### Columns (name | NEON description | type | unit | profile)", *cols]
+    if lab_files:
+        lines += ["", "## Lab files (external laboratory results: NEON.<Lab>.<table>.<timestamp>.csv)", *lab_files]
+    for t, n_rows, cols in labs or []:
+        lines += ["", f"## Lab table {t['neonTable']} (lake table {t['tableName']}; lab)",
+                  f"Rows: {n_rows} (distinct lab records); files: {t['nFiles']}",
+                  "", "### Columns (name | NEON description | type | unit | profile)", *cols]
     if taxa:
         lines += ["", "## Taxa (top 10 by records)", *taxa]
     return "\n".join(lines) + "\n"
@@ -608,13 +672,110 @@ def build_cards(con: duckdb.DuckDBPyConnection, site: str, products: list[str] |
                 summary["problems"][str(path.relative_to(env.ROOT))] = probs
             summary["anyjev"].append({"path": str(path), "product": code, "table": card_table_name(t),
                                       "rows": n_rows, "columns": len(cols), "months": list(months[:2])})
+        labs = []
+        for t in lab_tables(con, code):
+            n_rows, profiles, _months = profile_table(con, t["tableName"])
+            cols, used = column_lines(con, t, code, site, profiles)
+            for u, src in used.items():
+                units.setdefault(u, src)
+            labs.append((t, n_rows, cols))
         taxa = taxa_lines(con, code, onto)
-        text = product_card(p, sp, site_ln, units, tables, taxa, external, onto)
+        text = product_card(p, sp, site_ln, units, tables, taxa, external, onto, labs, lab_file_lines(con, code))
         path = out_dir / f"{code}.md"
         _write(path, text)
         summary["products"].append({"product": code, "path": str(path), "tables": len(tables),
-                                    "external": bool(external) and not tables, "chars": len(text)})
+                                    "labTables": len(labs), "external": bool(external) and not tables,
+                                    "chars": len(text)})
     return summary
+
+
+# ---------------------------------------------------------------- the site card
+
+SITE_CARD = "_site.md"
+MAX_CARD_PRODUCTS = 80
+
+
+def site_card_path(site: str) -> Path:
+    return site_lake.site_paths(site.upper()).site_dir / "cards" / SITE_CARD
+
+
+def heuristic_proposals(site: str) -> dict[str, dict[str, Any]]:
+    """{role: {envoCurie, envoLabel, rule}} of the ``site terms`` heuristic (read-only; {} when unavailable)."""
+    out: dict[str, dict[str, Any]] = {}
+    if not store.store_path().exists():
+        return out
+    try:
+        with store.store(read_only=True, wait_s=30) as sc:
+            for role, curie, label, rule in sc.execute(
+                    "SELECT role, envoCurie, envoLabel, rule FROM site_envo_proposals WHERE siteCode = ? "
+                    "AND source = 'heuristic'", [site]).fetchall():
+                out[role] = {"envoCurie": curie, "envoLabel": label, "rule": rule}
+    except duckdb.Error as exc:
+        log.warning("ontology store unreadable (%s); the site card carries no heuristic proposal",
+                    str(exc).splitlines()[0])
+    return out
+
+
+def site_card(con: duckdb.DuckDBPyConnection, site: str, has_catalog: bool,
+              heuristic: dict[str, dict[str, Any]] | None = None) -> str:
+    """The text of ``cards/_site.md`` (see the module docstring)."""
+    ctx = terms.site_context(con, site, has_catalog)
+    aquatic = terms.is_aquatic(ctx.get("habitat"))
+    name = ctx.get("siteName") or site
+    lines = [f"# Site: {site} — {clean(name)}", "",
+             f"Code: {site}", f"Name: {clean(name)}",
+             f"HABITAT: {clean(ctx.get('habitat') or 'not recorded')}"]
+    if ctx.get("siteType"):
+        lines.append(f"Site type: {clean(ctx['siteType'])}")
+    if ctx.get("domainCode"):
+        lines.append(f"Domain: {ctx['domainCode']} {clean(ctx.get('domainName') or '')}".rstrip())
+    if ctx.get("stateCode"):
+        lines.append(f"State: {ctx['stateCode']}" + (f" ({clean(ctx['stateName'])})" if ctx.get("stateName") else ""))
+    lat, lon, elev = ctx.get("siteLatitude"), ctx.get("siteLongitude"), ctx.get("siteElevation")
+    if lat is not None and lon is not None:
+        lines.append(f"Location: latitude {fmt_num(lat)}, longitude {fmt_num(lon)}"
+                     + (f"; elevation {fmt_num(round(float(elev), 1))} m" if elev is not None else ""))
+    desc = excerpt(ctx.get("siteDescription"))
+    if desc and desc.lower() != clean(name).lower():
+        lines.append(f"Description: {desc}")
+    if not aquatic:
+        lines += ["", "## Terrestrial ecosystem",
+                  f"TypeEco (NEON's ecosystem type): {clean(ctx.get('typeEco') or 'not recorded')}"]
+        if ctx.get("nlcd"):
+            shares = "; ".join(f"{x['nlcdClass']} {100 * (x['share'] or 0):.1f}%" for x in ctx["nlcd"]
+                               if (x.get("share") or 0) >= 0.01)
+            lines.append(f"NLCD land cover ({ctx.get('nlcdYear') or '?'}, NEON TOS site area): {shares or '-'}")
+        else:
+            lines.append("NLCD land cover: not available")
+    prods = site_products(con, None)
+    teams: Counter[str] = Counter()
+    plines = []
+    for sp in prods:
+        rec = product_record(con, sp["productCode"], has_catalog)
+        if rec.get("productScienceTeamAbbr"):
+            teams[rec["productScienceTeamAbbr"]] += 1
+        plines.append(f"- {sp['productCode']} {clean(rec.get('productName') or '')}".rstrip())
+    lines += ["", "## Data at this site",
+              f"Products: {len(prods)} (non-AOP, basic package)"
+              + (f"; science teams: {', '.join(f'{k} {v}' for k, v in sorted(teams.items()))}" if teams else "")]
+    lines += plines[:MAX_CARD_PRODUCTS]
+    if len(plines) > MAX_CARD_PRODUCTS:
+        lines.append(f"- … {len(plines) - MAX_CARD_PRODUCTS} more")
+    heuristic = heuristic if heuristic is not None else heuristic_proposals(site)
+    lines += ["", "## Heuristic proposal (a deterministic hint from `site terms`; verify it, do not copy it)"]
+    for role, title in (("biome", "biome"), ("feature", "environmental feature (water body)")):
+        if role == "feature" and not aquatic:
+            continue
+        h = heuristic.get(role) or {}
+        what = f"{h['envoCurie']} {h['envoLabel']}" if h.get("envoCurie") else "no proposal"
+        lines.append(f"- {title}: {what}" + (f" (rule {h['rule']})" if h.get("rule") else ""))
+    return "\n".join(lines) + "\n"
+
+
+def write_site_card(con: duckdb.DuckDBPyConnection, site: str, has_catalog: bool) -> Path:
+    path = site_card_path(site)
+    _write(path, site_card(con, site, has_catalog))
+    return path
 
 
 def _write(path: Path, text: str) -> None:
@@ -632,6 +793,7 @@ def main(site: str, products: list[str] | None = None) -> int:
     try:
         has_catalog = site_lake.attach_catalog(con)
         summary = build_cards(con, site, products, has_catalog)
+        summary["siteCard"] = str(write_site_card(con, site, has_catalog))
     finally:
         con.close()
     parsed = anyjev_parse([Path(a["path"]) for a in summary["anyjev"]])
@@ -651,8 +813,8 @@ def main(site: str, products: list[str] | None = None) -> int:
         if a["path"] in bad or str(Path(a["path"]).relative_to(env.ROOT)) in bad:
             ok = "PROBLEM"
         print(f"  anyjev {a['product']}.{a['table']:<22} rows={a['rows']:<8} cols={a['columns']:<3} {ok}")
-    print(f"cards {site}: {len(summary['products'])} product cards, {len(summary['anyjev'])} anyjev table cards"
-          + (f"; {len(bad)} with problems" if bad else ""))
+    print(f"cards {site}: {len(summary['products'])} product cards, {len(summary['anyjev'])} anyjev table cards, "
+          f"site card {summary['siteCard']}" + (f"; {len(bad)} with problems" if bad else ""))
     for k, v in bad.items():
         print(f"  problem {k}: {v}")
     env.write_json(site_lake.site_paths(site).reports_dir / "cards.json",

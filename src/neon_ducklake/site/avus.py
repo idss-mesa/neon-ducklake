@@ -2,15 +2,21 @@
 
 Levels (plan § AVU vocabulary + Data-object profiles; ``neon.<lowerCamelCase>`` only):
 
-- ``site``       ``sites/<SITE>``: identity, location, counts, coverage, provenance, ``mesa.ducklake.catalog``,
-                 ENVO biome (curated) and NLCD classes >= 1 % area, canonical ``datacite.*``.
+- ``site``       ``sites/<SITE>``: identity, ``neon.habitat`` (catalog HABITAT), location, counts, coverage,
+                 provenance, ``mesa.ducklake.catalog``, the curated ENVO biome and, at an aquatic site, the curated
+                 ENVO water-body feature (``envo.<label> = site name``); NLCD classes >= 1 % area at terrestrial
+                 sites only; canonical ``datacite.*``. TypeEco is never used for an aquatic site (NEON copied a
+                 shortgrass-steppe TypeEco to all of them): no ``neon.typeEco``, and the biome value is HABITAT.
 - ``container``  ``sites/<SITE>/{raw,ducklake,cards,curation,reports}`` and ``ref/`` (if uploaded).
 - ``lake-dir`` / ``side-dir``  sub-collections of ``ducklake/data/**`` and of cards/curation/reports, so that
                  every collection of the subtree carries a ``neon.*``/``mesa.*`` AVU (verify rule).
 - ``product``    ``raw/<DP>``: record, releases (DOI units), month ranges, counts, tables, ``uo.*``,
                  ``ncbitaxon.*`` (union of resolved taxa), accepted curated terms, canonical ``datacite.*``.
 - ``month``      ``raw/<DP>/<YYYY-MM>``: release, generation date, counts, coverage, IS/OS summaries.
-- ``object``     every site-lake ``files`` row, profile by kind: IS data, OS data, HDF5, supporting, lab.
+- ``object``     every site-lake ``files`` row, profile by kind: IS data, OS data, HDF5, supporting, lab
+                 (``neon.table`` + ``neon.labName``). A file whose bytes match the storage md5 but not NEON's
+                 listed md5 (``transferVerified`` and not ``md5Verified``, contract (b)) gets ``neon.md5Verified =
+                 false`` and ``neon.neonMd5Mismatch = <NEON md5>``.
 - ``lake-file`` / ``lake-catalog`` / ``side-file`` / ``ref-file``: site-lake Parquet, the ``.ducklake``
                  catalog, cards/curation/reports files and ``ref/ontology_maps`` exports.
 
@@ -69,6 +75,8 @@ MIME = {"csv": "text/csv", "xml": "application/xml", "txt": "text/plain", "h5": 
         "md": "text/markdown", "parquet": "application/vnd.apache.parquet", "ducklake": "application/vnd.duckdb",
         "duckdb": "application/vnd.duckdb", "html": "text/html", "pdf": "application/pdf", "gz": "application/gzip"}
 FETCH_TABLES = frozenset({"files", "site_months", "external_links"})
+# contract (b) download-integrity columns of the site lake ``files`` (absent in lakes built before them)
+INTEGRITY_COLUMNS = ("storageMd5", "neonMd5", "transferVerified")
 CONTAINER_TEXT = {
     "raw": (("NEON basic-package files of site {site} exactly as published by the NEON Data API: "
              "raw/<productCode>/<YYYY-MM>/<NEON file name> for every non-AOP product and month (current, "
@@ -177,6 +185,39 @@ def ontology_avu(ontology_id: str, label: str | None, value: Any, curie: str | N
     return (out[0]["attribute"], out[0]["value"], out[0]["unit"]) if out else None
 
 
+def is_aquatic(habitat: str | None) -> bool:
+    """HABITAT 'Aquatic Wadeable Stream' / 'Aquatic Lake' / 'Aquatic Non-wadeable Stream' (or bare 'Aquatic')."""
+    return (habitat or "").strip().lower().startswith("aquatic")
+
+
+def lab_name_of(name: str, product: str | None = None) -> tuple[str | None, str | None] | None:
+    """(lab name, table) of a ``NEON.<Lab>.<table>.<ts>.csv`` file via the shared classifier, else None."""
+    try:
+        from .. import filenames
+
+        c = filenames.classify(name, product)
+    except Exception:  # noqa: BLE001 - never raises by contract; stay safe for odd names
+        return None
+    return (c.lab_name, c.table) if c.kind == "lab" else None
+
+
+def md5_state(r: dict[str, Any], download: dict[str, Any] | None = None) -> tuple[bool | None, bool | None, str | None]:
+    """(md5Verified, transferVerified, NEON md5) of a files row; journal columns fill what the lake lacks."""
+    d = download or {}
+
+    def flag(v: Any) -> bool | None:
+        return None if v is None else bool(v)
+
+    md5_ok = r.get("md5Verified")
+    if md5_ok is None:
+        md5_ok = flag(d.get("md5_verified"))
+    transfer = r.get("transferVerified") if "transferVerified" in r else None
+    if transfer is None:
+        transfer = flag(d.get("transfer_verified"))
+    neon_md5 = r.get("neonMd5") or d.get("neon_md5") or r.get("md5")
+    return md5_ok, transfer, neon_md5
+
+
 def norm_key(s: str | None) -> str:
     return re.sub(r"[^a-z0-9]", "", (s or "").lower())
 
@@ -207,6 +248,7 @@ class Ontology:
     units: dict[str, dict[str, Any]] = field(default_factory=dict)
     nlcd: dict[str, dict[str, Any]] = field(default_factory=dict)
     site_envo: dict[str, Any] | None = None
+    site_feature: dict[str, Any] | None = None
     curated: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
 
@@ -261,7 +303,8 @@ def _lake_rows(con: Any, table: str, want: Iterable[str], where: str = "", param
 
 def _load_site_lake(con: Any, f: Facts) -> None:
     site = f.site
-    f.files = _lake_rows(con, "files", site_lake.FILES_COLUMNS, "ORDER BY productCode, month, name")
+    f.files = _lake_rows(con, "files", list(dict.fromkeys([*site_lake.FILES_COLUMNS, *INTEGRITY_COLUMNS])),
+                         "ORDER BY productCode, month, name")
     f.site_months = _lake_rows(con, "site_months", site_lake.SITE_MONTHS_COLUMNS, "ORDER BY productCode, month")
     f.external_links = _lake_rows(con, "external_links", site_lake.EXTERNAL_LINKS_COLUMNS,
                                   "ORDER BY productCode, url")
@@ -304,7 +347,9 @@ def _load_catalog(con: Any, f: Facts, codes: list[str], taxon_ids: list[str]) ->
         if not isinstance(props, dict):  # DuckDB MAP comes back as dict; be tolerant of key/value lists
             props = dict(zip(props.get("key", []), props.get("value", []), strict=False)) if props else {}
         info["siteProperties"] = props
-        info["typeEco"] = props.get("TypeEco")
+        info["habitat"] = props.get("HABITAT")
+        # NEON copied one shortgrass-steppe TypeEco to every aquatic site: never use it there.
+        info["typeEco"] = None if is_aquatic(info["habitat"]) else props.get("TypeEco")
         f.site_info = info
     if codes:
         cols = ("productCode, productName, productDescription, productAbstract, productDesignDescription, "
@@ -335,8 +380,11 @@ def _load_state(f: Facts) -> None:
     con = sqlite3.connect(f"file:{state.DB_PATH}?mode=ro", uri=True, timeout=60)
     con.row_factory = sqlite3.Row
     try:
-        for r in con.execute("SELECT product, month, name, dl_status, dl_bytes, dl_md5, md5_verified, downloaded_at "
-                             "FROM site_files WHERE site=?", (f.site,)):
+        have = {r[1] for r in con.execute("PRAGMA table_info(site_files)")}
+        extra = [c for c in ("storage_md5", "neon_md5", "transfer_verified") if c in have]  # contract (b)
+        cols = ", ".join(["product", "month", "name", "dl_status", "dl_bytes", "dl_md5", "md5_verified",
+                          "downloaded_at", *extra])
+        for r in con.execute(f"SELECT {cols} FROM site_files WHERE site=?", (f.site,)):
             f.downloads[(r["product"], r["month"], r["name"])] = dict(r)
         try:
             f.uploaded_ref = {r[0] for r in con.execute(
@@ -409,6 +457,9 @@ def load_ontology(site: str, store: Any | None = None) -> Ontology:
             o.nlcd[norm_key(r.get("nlcdClass"))] = r
         got = rows("ref_site_envo", "SELECT * FROM ref_site_envo WHERE siteCode = ?", [site])
         o.site_envo = got[0] if got else None
+        if "ref_site_envo_feature" in o.tables:  # newer store table: its absence is not worth a warning
+            got = rows("ref_site_envo_feature", "SELECT * FROM ref_site_envo_feature WHERE siteCode = ?", [site])
+            o.site_feature = got[0] if got else None
         for r in rows("curation_avus", "SELECT * FROM curation_avus ORDER BY productCode, attribute, value"):
             if (r.get("status") or "") in CURATED_OK and r.get("productCode"):
                 o.curated.setdefault(r["productCode"], []).append(r)
@@ -621,7 +672,8 @@ class Builder:
             ("neon.siteElevation", num(info["siteElevation"], 3) if info.get("siteElevation") is not None else None,
              "meter"),
             ("neon.deimsId", info.get("deimsId"), "URL"),
-            ("neon.typeEco", info.get("typeEco")),
+            ("neon.habitat", info.get("habitat")),
+            ("neon.typeEco", None if is_aquatic(info.get("habitat")) else info.get("typeEco")),
             ("neon.package", PACKAGE),
             ("neon.excludedTeam", "AOP"),
             ("neon.productCount", str(len(products)), "count"),
@@ -646,20 +698,33 @@ class Builder:
             self._envo = self._envo_avus()
         return self._envo
 
+    @staticmethod
+    def _curated(row: dict[str, Any] | None) -> bool:
+        if not row or not row.get("envoCurie"):
+            return False
+        status, method = (row.get("status") or "").lower(), (row.get("method") or "").lower()
+        return "curated" in (status, method) and status not in ("pending", "rejected", "obsolete", "unresolved",
+                                                                  "proposed")
+
     def _envo_avus(self) -> list[tuple[Avu, str]]:
+        """Curated biome (value: TypeEco, or HABITAT at an aquatic site), the curated water-body feature of an
+        aquatic site (value: the site name), and NLCD classes >= 1 % (terrestrial sites only)."""
         o, info = self.f.ontology, self.f.site_info
         out: list[tuple[Avu, str]] = []
+        aquatic = is_aquatic(info.get("habitat"))
         se = o.site_envo
-        if o.has("ref_site_envo") and se:
-            status, method = (se.get("status") or "").lower(), (se.get("method") or "").lower()
-            curated = "curated" in (status, method) and status not in ("pending", "rejected", "obsolete",
-                                                                          "unresolved")
-            if curated:
-                avu = ontology_avu("envo", se.get("envoLabel"), se.get("typeEco") or info.get("typeEco")
-                                   or se.get("envoLabel"), se.get("envoCurie"))
-                if avu:
-                    out.append(((*avu, GENERATOR + ".envo"), se.get("envoLabel")))
-        if o.has("ref_nlcd_envo") and self.f.nlcd:
+        if o.has("ref_site_envo") and self._curated(se):
+            value = (info.get("habitat") if aquatic else (se.get("typeEco") or info.get("typeEco"))) \
+                or se.get("envoLabel")
+            avu = ontology_avu("envo", se.get("envoLabel"), value, se.get("envoCurie"))
+            if avu:
+                out.append(((*avu, GENERATOR + ".envo"), se.get("envoLabel")))
+        sf = o.site_feature
+        if aquatic and self._curated(sf):
+            avu = ontology_avu("envo", sf.get("envoLabel"), info.get("siteName") or self.site, sf.get("envoCurie"))
+            if avu:
+                out.append(((*avu, GENERATOR + ".envo"), sf.get("envoLabel")))
+        if o.has("ref_nlcd_envo") and self.f.nlcd and not aquatic:
             total = sum(float(r["area_km2"] or 0) for r in self.f.nlcd)
             for r in self.f.nlcd:
                 area = float(r["area_km2"] or 0)
@@ -684,7 +749,8 @@ class Builder:
         months = sorted(r["month"] for r in f.site_months)
         years = f"{months[0][:4]}-{months[-1][:4]}" if months else ""
         subjects: list[dict[str, str]] = [{"value": "NEON"}]
-        for v in (info.get("domainName"), info.get("siteType"), info.get("typeEco"), info.get("stateName")):
+        eco = None if is_aquatic(info.get("habitat")) else info.get("typeEco")
+        for v in (info.get("domainName"), info.get("siteType"), info.get("habitat"), eco, info.get("stateName")):
             if v:
                 subjects.append({"value": str(v)})
         seen_curies: set[str] = set()
@@ -735,6 +801,9 @@ class Builder:
         kind = f"{info['siteType'].lower()} " if info.get("siteType") else ""
         text = f"All non-AOP NEON data (basic package) of the {kind}NEON field site {name} ({s})"
         text += f" in the {where}" if where else ""
+        if is_aquatic(info.get("habitat")):
+            return text + f". Habitat: {info['habitat']}."
+        text += f". Habitat: {info['habitat']}" if info.get("habitat") else ""
         return text + (f". Ecosystem: {info['typeEco']}." if info.get("typeEco") else ".")
 
     @staticmethod
@@ -1149,6 +1218,9 @@ class Builder:
     def object_avus(self, r: dict[str, Any]) -> tuple[str, list[Avu | None]]:
         f, s = self.f, self.site
         p, m, name, kind = r["productCode"], r["month"], r["name"], r.get("kind") or "other"
+        lab = lab_name_of(name, p) if kind in ("lab", "other") else None
+        if lab and kind == "other":  # lakes listed before the shared classifier knew lab files
+            kind = "lab"
         ext = (r.get("ext") or (name.rsplit(".", 1)[-1] if "." in name else "")).lower()
         release = r.get("release")
         avus: list[Avu | None] = [
@@ -1161,8 +1233,11 @@ class Builder:
         ]
         if r.get("isReleaseOnly"):
             avus.append(("neon.releaseOnly", "true"))
-        if r.get("md5Verified") is False:
+        md5_ok, transfer, neon_md5 = md5_state(r, f.downloads.get((p, m, name)))
+        if md5_ok is False:
             avus.append(("neon.md5Verified", "false"))
+            if transfer:  # intact transfer, stale NEON md5 (probe finding F1): record what NEON lists
+                avus.append(("neon.neonMd5Mismatch", neon_md5, ""))
         st = f.file_stats.get(name) or {}
         rows_avu = ("neon.rowCount", str(st["rowCount"]), "count") if st.get("rowCount") is not None else None
         cov = ("neon.temporalCoverage", interval(st.get("timeMin"), st.get("timeMax")), "ISO8601 interval")
@@ -1206,7 +1281,8 @@ class Builder:
             avus += self.taxon_avus(taxa, unresolved=True)
             return "os", avus
         if kind == "lab":
-            avus.append(("neon.table", r.get("tableName")))
+            avus += [("neon.table", r.get("tableName") or (lab[1] if lab else None)),
+                     ("neon.labName", lab[0] if lab else None)]
             return "lab", avus
         if kind in SUPPORT_TABLE_KINDS:
             avus.append(("neon.table", r.get("tableName")))

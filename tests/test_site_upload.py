@@ -91,3 +91,16 @@ def test_upload_filters_and_failure_holds_back_catalog(site_env: Path, monkeypat
     assert upload.main(SITE, months=["2024-06"]) == 2
     assert len(calls) == 1  # catalog not pushed after a failure
     assert [p.name for p, _d, _m in calls[0] if "/raw/" in _d] == ["b.csv"]
+
+
+def test_evicted_rows_are_skipped_quietly(site_env: Path, pushed: list, caplog: pytest.LogCaptureFixture) -> None:  # noqa: F811
+    _journal(site_env)
+    con = state.connect(state.DB_PATH)
+    con.execute("ALTER TABLE site_files ADD COLUMN local_evicted INTEGER DEFAULT 0")  # the evict step's column
+    con.execute("UPDATE site_files SET local_evicted=1 WHERE name='a.csv'")
+    con.close()
+    (site_env / f"sites/{SITE}/raw/DP1.00002.001/2024-05/a.csv").unlink()  # evicted: deleted locally
+    with caplog.at_level("WARNING", logger="neon_ducklake.site.upload"):
+        items = upload.raw_items(SITE)
+    assert [p.name for p, _d, _m in items] == ["b.csv"]
+    assert not [r for r in caplog.records if "a.csv" in r.getMessage()]

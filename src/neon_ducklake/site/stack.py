@@ -1,13 +1,21 @@
 """`site stack <SITE>` — neonUtilities ``stackByTable`` semantics into the site lake.
 
-Inputs are the journal's downloaded files (``site_files.dl_status='ok'``, minus ``fetch_superseded``).
-Per product:
+Inputs are the journal's downloaded files (``site_files.dl_status='ok'``, minus ``fetch_superseded``), named by
+the shared classifier :func:`neon_ducklake.filenames.classify` (the journal kind wins unless it is missing or
+``other``; a ``NEON.<Lab>.<table>.<ts>.csv`` name is always kind ``lab``). Per product:
 
 * supporting tables in one snapshot: ``variables`` (latest definition per table/field by publication
   timestamp) + ``variables_history`` (distinct definitions), ``sensor_positions`` (legacy headers aliased,
   sensor lat/lon/elevation from reference + offsets, catalog ``locations``/``location_history`` joins when
   the catalog lake is attachable), ``categorical_codes``/``validation``/``science_review_flags`` (distinct
   rows), ``eml_index``, ``readme_index``;
+* ``sensor_positions`` schema evolution: columns outside the known schema (e.g. ``effectiveStartDateTime``)
+  are accepted and unioned by name (``*DateTime`` -> TIMESTAMPTZ like the other timestamps, else VARCHAR; a
+  name that collides with a derived column gets a ``_neon`` suffix); every header group is recorded in
+  ``schema_drift`` (``tableName='sensor_positions'``, ``unknownColumns``, first/last publication). The
+  supporting unit fails only when a header group lacks a REQUIRED column (``SENSOR_REQUIRED``: HOR.VER,
+  sensorLocationID, reference latitude/longitude/elevation, or their legacy aliases); the report is
+  ``reports/sensor_positions_missing_required_<product>.json``;
 * one snapshot per data table: CSVs grouped by header line, one ``read_csv`` per group (all VARCHAR,
   ``auto_detect=false``, ``filename=true``) ``UNION ALL BY NAME`` into an on-disk staging table; cast
   failure rates computed on staging; ``CREATE OR REPLACE TABLE`` with ``TRY_CAST`` types from
@@ -15,10 +23,22 @@ Per product:
   siteID/domainID/month/release/publicationDate/sourceFile (+ horizontalPosition/verticalPosition/tmi for
   IS); ``uid`` tables keep the newest publication per uid; ``file_stats``/``file_taxa`` computed before
   dedup; ``schema_drift`` per header group; ``table_catalog`` with the input fingerprint;
+* dateTime typing follows each column's NEON ``pubFormat`` (:func:`java_to_strptime`): the Java pattern is
+  converted to a strptime pattern (``yyyy``->%Y, ``MM``->%m, ``dd``->%d, ``HH``->%H, ``mm``->%M, ``ss``->%S,
+  quoted literals kept, a ``(floor)``/``(round)``/``(ceil)`` suffix dropped) and tried first, the generic
+  list (``GENERIC_DT``) after it per value; pubFormat ``yyyy`` -> INTEGER year, ``yyyy-MM`` -> DATE of the
+  first day of the month, a date-only pattern -> DATE, a pattern with hours -> TIMESTAMPTZ (UTC); NA or an
+  unknown pattern -> the generic list (TIMESTAMPTZ). ``file_stats.timeMin/timeMax`` use the same pattern;
+* one snapshot per lab table: a product's ``lab`` files (``NEON.<Lab>.<table>.<ts>.csv``) stacked into
+  ``<dp>__lab_<table>``: the file columns (typed from the product's ``variables`` when they describe that
+  table, with the same 0.1% rule and ``cast_errors``; otherwise auto-typed: BIGINT, DOUBLE, DATE or
+  TIMESTAMPTZ when every value casts, else VARCHAR) + ``labName``, ``publicationDate``, ``sourceFile``,
+  deduplicated to distinct rows (ignoring sourceFile/publicationDate) keeping the newest publication;
+  ``table_catalog.kind='lab'``, ``schema_drift`` per header group (no ``file_stats`` rows);
 * DP4.00200.001 HDF5 via :mod:`site.h5`.
 
-A unit whose input fingerprint (sorted name + md5, plus the variables files for data tables) matches
-``table_catalog.inputSha256`` is skipped unless ``--force``.
+A unit whose input fingerprint (sorted name + md5, plus the variables files for data tables, plus
+``STACK_VERSION``) matches ``table_catalog.inputSha256`` is skipped unless ``--force``.
 """
 
 from __future__ import annotations
@@ -42,9 +62,15 @@ from .site_lake import ident, sql_str
 
 log = logging.getLogger("neon_ducklake.site.stack")
 
-STACK_VERSION = "1"
+STACK_VERSION = "2"  # 2: pubFormat-derived dateTime parsing, sensor_positions schema evolution, lab tables
 TIME_COLUMNS = ("startDateTime", "collectDate", "startDate", "eventDate", "date", "setDate", "endDateTime")
-DT_FORMATS = "['%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%MZ', '%Y-%m-%d']"
+# generic dateTime formats: the fallback when pubFormat is NA/unknown, and tried after the pubFormat pattern
+GENERIC_DT = ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%MZ", "%Y-%m-%dT%HZ", "%Y-%m-%dT%H:%M:%S.%gZ", "%Y-%m-%d")
+DT_FORMATS = "[" + ", ".join(sql_str(f) for f in GENERIC_DT) + "]"
+# Java SimpleDateFormat fields used by NEON pubFormat -> strptime
+JAVA_FIELDS = {"yyyy": "%Y", "yy": "%y", "MM": "%m", "dd": "%d", "HH": "%H", "mm": "%M", "ss": "%S", "SSS": "%g"}
+PUB_SUFFIX_RE = re.compile(r"\s*\([^()']*\)\s*$")  # '(floor)', '(round)', '(ceil)' …
+NO_PATTERN = frozenset({"", "NA", "ASIS"})
 NULLSTR = "['', 'NA']"
 CAST_FAIL_MAX = 0.001
 SUPPORT_KINDS = ("variables", "sensor_positions", "categorical_codes", "validation", "science_review_flags",
@@ -63,6 +89,14 @@ SENSOR_ALIASES = {
     "referenceDescription": "referenceLocationIDDescription", "referenceStart": "referenceLocationIDStartDateTime",
     "referenceEnd": "referenceLocationIDEndDateTime", "referenceLatitude": "locationReferenceLatitude",
     "referenceLongitude": "locationReferenceLongitude", "referenceElevation": "locationReferenceElevation"}
+SENSOR_REQUIRED = ("HOR.VER", "sensorLocationID", "locationReferenceLatitude", "locationReferenceLongitude",
+                   "locationReferenceElevation")  # after legacy aliasing
+# output columns stack_sensor_positions derives itself: a NEON column with one of these names gets '_neon'
+SENSOR_DERIVED = frozenset({
+    "productCode", "month", "release", "publicationDate", "sourceFile", "horizontalPosition", "verticalPosition",
+    "monthStart", "sensorLatitude", "sensorLongitude", "sensorElevation", "locationType", "locationLatitude",
+    "locationLongitude", "locationElevationCatalog", "historyLatitude", "historyLongitude", "historyElevation",
+    "filename", "__rid"})
 SENSOR_TIMES = ("positionStartDateTime", "positionEndDateTime", "referenceLocationIDStartDateTime",
                 "referenceLocationIDEndDateTime")
 SENSOR_DOUBLES = ("xOffset", "yOffset", "zOffset", "pitch", "roll", "azimuth", "locationReferenceLatitude",
@@ -74,7 +108,7 @@ EML_RANGE_RE = re.compile(r"\.EML\.(\d{8})-(\d{8})\.")
 
 
 class StackError(RuntimeError):
-    """A unit that cannot be stacked (e.g. unknown sensor_positions headers)."""
+    """A unit that cannot be stacked (e.g. sensor_positions headers without a required column)."""
 
 
 @dataclass
@@ -96,6 +130,7 @@ class SrcFile:
     size: int | None
     md5_verified: bool | None
     local_path: str
+    lab_name: str | None = None  # kind 'lab' only: <Lab> of NEON.<Lab>.<table>.<ts>.csv
 
 
 @dataclass
@@ -115,9 +150,8 @@ class Ctx:
 # ---------------------------------------------------------------- inputs
 
 def input_files(site: str, products: list[str] | None = None) -> dict[str, list[SrcFile]]:
-    """Downloaded, non-superseded files per product (from the journal)."""
-    from neon_mcp.neon.filenames import parse_neon_filename
-
+    """Downloaded, non-superseded files per product (from the journal), classified by the shared classifier."""
+    from ..filenames import classify
     from .fetch import SUPERSEDED_SCHEMA
 
     con = state.connect(state.DB_PATH)
@@ -138,15 +172,19 @@ def input_files(site: str, products: list[str] | None = None) -> dict[str, list[
         if not path.exists():
             log.warning("missing local file %s (journal says ok); skipped", r["local_path"])
             continue
-        p = parse_neon_filename(r["name"])
+        p = classify(r["name"], product_hint=r["product"])
         pub = None
         if p.timestamp:
             pub = datetime.strptime(p.timestamp + "+0000", "%Y%m%dT%H%M%SZ%z")
+        kind = r["kind"]
+        if p.kind == "lab" or kind in (None, "", "other"):  # journals written before the shared classifier
+            kind = p.kind
         out[r["product"]].append(SrcFile(
-            product=r["product"], month=r["month"], name=r["name"], release=r["release"], kind=r["kind"] or p.kind,
+            product=r["product"], month=r["month"], name=r["name"], release=r["release"], kind=kind,
             table=p.table, hor=p.hor, ver=p.ver, tmi=p.tmi, ext=p.ext, domain=p.domain, path=path, pub_ts=pub,
             md5=r["dl_md5"] or r["md5"], size=r["dl_bytes"] or r["size"],
-            md5_verified=None if r["md5_verified"] is None else bool(r["md5_verified"]), local_path=r["local_path"]))
+            md5_verified=None if r["md5_verified"] is None else bool(r["md5_verified"]), local_path=r["local_path"],
+            lab_name=p.lab_name))
     return out
 
 
@@ -193,6 +231,15 @@ def group_by_header(files: list[SrcFile]) -> list[tuple[str, list[str], list[Src
     return [(h, parse_header(h), fs) for h, fs in sorted(groups.items(), key=lambda kv: (-len(kv[1]), kv[0]))]
 
 
+def group_rename(cols: list[str], rename: dict[str, str]) -> dict[str, str]:
+    """Source column -> output name for one header group; an alias whose target the group already has is kept."""
+    out = {}
+    for c in cols:
+        tgt = rename.get(c, c)
+        out[c] = c if tgt != c and tgt in cols else tgt
+    return out
+
+
 def read_groups_sql(groups: list[tuple[str, list[str], list[SrcFile]]],
                     rename: dict[str, str] | None = None, lenient: bool = False) -> tuple[str, list[list[str]]]:
     """``SELECT … FROM read_csv($n …) UNION ALL BY NAME …`` over header groups (all VARCHAR + filename).
@@ -203,7 +250,8 @@ def read_groups_sql(groups: list[tuple[str, list[str], list[SrcFile]]],
     parts, params = [], []
     for i, (_h, cols, fs) in enumerate(groups, start=1):
         spec = "{" + ", ".join(f"{sql_str(c)}: 'VARCHAR'" for c in cols) + "}"
-        sel = ", ".join(f"{ident(c)} AS {ident((rename or {}).get(c, c))}" for c in cols)
+        names = group_rename(cols, rename or {})
+        sel = ", ".join(f"{ident(c)} AS {ident(names[c])}" for c in cols)
         parts.append(f"SELECT {sel}, filename FROM read_csv(${i}, auto_detect=false, header=true, delim=',', "
                      f"quote='\"', escape='\"', columns={spec}, filename=true, nullstr={NULLSTR}{extra})")
         params.append([str(f.path) for f in fs])
@@ -234,8 +282,76 @@ def register_fmeta(con: duckdb.DuckDBPyConnection, site: str, domain: str | None
 
 # ---------------------------------------------------------------- typing
 
-def ts_expr(x: str) -> str:
-    return f"timezone('UTC', try_strptime({x}, {DT_FORMATS}))"
+@dataclass(frozen=True)
+class PubFormat:
+    """A NEON dateTime ``pubFormat`` as a strptime pattern plus the lake type it maps to.
+
+    ``kind``: ``year`` (INTEGER), ``month`` (DATE, first day), ``date`` (DATE), ``timestamp`` (TIMESTAMPTZ)
+    or ``unknown`` (NA / unparseable pattern: the generic format list decides, as TIMESTAMPTZ).
+    """
+
+    kind: str
+    pattern: str | None = None
+
+
+def java_to_strptime(pub_format: str | None) -> PubFormat:
+    """``yyyy-MM-dd'T'HH'Z'(floor)`` -> PubFormat('timestamp', '%Y-%m-%dT%HZ').
+
+    Java fields map through ``JAVA_FIELDS``; quoted literals are kept (``''`` is a quote); other characters are
+    literal; trailing rounding suffixes such as ``(floor)``/``(round)``/``(ceil)`` are dropped. Any other letter
+    field (e.g. ``D``, ``X``, ``YYYY``) makes the pattern ``unknown``.
+    """
+    s = (pub_format or "").strip()
+    prev = None
+    while prev != s:
+        prev, s = s, PUB_SUFFIX_RE.sub("", s).strip()
+    if s.upper() in NO_PATTERN:
+        return PubFormat("unknown")
+    out: list[str] = []
+    fields: set[str] = set()
+    i = 0
+    while i < len(s):
+        ch = s[i]
+        if ch == "'":
+            j = s.find("'", i + 1)
+            if j < 0:
+                return PubFormat("unknown")
+            out.append((s[i + 1:j] or "'").replace("%", "%%"))
+            i = j + 1
+        elif ch.isalpha():
+            j = i
+            while j < len(s) and s[j] == ch:
+                j += 1
+            spec = JAVA_FIELDS.get(s[i:j])
+            if spec is None:
+                return PubFormat("unknown")
+            out.append(spec)
+            fields.add(spec)
+            i = j
+        else:
+            out.append("%%" if ch == "%" else ch)
+            i += 1
+    if not fields & {"%Y", "%y"}:
+        return PubFormat("unknown")
+    if fields & {"%H", "%M", "%S", "%g"}:
+        kind = "timestamp"
+    elif "%d" in fields:
+        kind = "date"
+    elif "%m" in fields:
+        kind = "month"
+    else:
+        kind = "year"
+    return PubFormat(kind, "".join(out))
+
+
+def dt_formats(first: str | None = None) -> str:
+    """SQL list literal: ``first`` (a pubFormat-derived pattern) then the generic formats."""
+    fmts = ([first] if first else []) + [f for f in GENERIC_DT if f != first]
+    return "[" + ", ".join(sql_str(f) for f in fmts) + "]"
+
+
+def ts_expr(x: str, pattern: str | None = None) -> str:
+    return f"timezone('UTC', try_strptime({x}, {dt_formats(pattern)}))"
 
 
 def cast_for(col: str, data_type: str | None, pub_format: str | None, qual: str = "s.") -> tuple[str, str]:
@@ -251,10 +367,88 @@ def cast_for(col: str, data_type: str | None, pub_format: str | None, qual: str 
                 f"THEN coalesce(TRY_CAST({x} AS BIGINT), CAST({d} AS BIGINT)) END")
         return expr, "BIGINT"
     if dt == "datetime":
-        if pub_format and "HH" not in pub_format:
-            return f"CAST(try_strptime({x}, {DT_FORMATS}) AS DATE)", "DATE"
+        pf = java_to_strptime(pub_format)
+        if pf.kind == "year":  # '2021' -> 2021 (a full generic date/time value still yields its year)
+            return (f"CAST(coalesce(CASE WHEN regexp_full_match(trim({x}), '[0-9]{{4}}') THEN "
+                    f"TRY_CAST(trim({x}) AS INTEGER) END, year(try_strptime({x}, {DT_FORMATS}))) AS INTEGER)"
+                    ), "INTEGER"
+        if pf.kind == "month":  # '2024-06' -> DATE '2024-06-01'
+            return f"CAST(date_trunc('month', try_strptime({x}, {dt_formats(pf.pattern)})) AS DATE)", "DATE"
+        if pf.kind == "date":
+            return f"CAST(try_strptime({x}, {dt_formats(pf.pattern)}) AS DATE)", "DATE"
+        if pf.kind == "timestamp":
+            return ts_expr(x, pf.pattern), "TIMESTAMPTZ"
+        if pub_format and pub_format.strip().upper() not in NO_PATTERN and "HH" not in pub_format:
+            return f"CAST(try_strptime({x}, {DT_FORMATS}) AS DATE)", "DATE"  # unknown date-only pattern
         return ts_expr(x), "TIMESTAMPTZ"
     return x, "VARCHAR"
+
+
+def time_expr(col: str, data_type: str | None, pub_format: str | None, qual: str = "s.") -> str:
+    """TIMESTAMPTZ expression for file_stats timeMin/timeMax (pubFormat pattern first, then generic)."""
+    dt = (data_type or "").strip().lower()
+    pattern = java_to_strptime(pub_format).pattern if dt == "datetime" else None
+    return ts_expr(qual + ident(col), pattern)
+
+
+def auto_candidates(x: str) -> list[tuple[str, str]]:
+    """(type, expression) tried in order by :func:`auto_types` (tables no variables file describes)."""
+    integral = f"CASE WHEN regexp_full_match(trim({x}), '[+-]?[0-9]{{1,18}}') THEN TRY_CAST(trim({x}) AS BIGINT) END"
+    return [("BIGINT", integral),
+            ("DOUBLE", f"TRY_CAST({x} AS DOUBLE)"),
+            ("DATE", f"CAST(try_strptime({x}, '%Y-%m-%d') AS DATE)"),
+            ("TIMESTAMPTZ", ts_expr(x))]
+
+
+def auto_types(con: duckdb.DuckDBPyConnection, source: str, cols: list[str]) -> dict[str, tuple[str, str]]:
+    """{col: (expression over ``s.col``, type)}: the first candidate every non-NULL value casts to, else VARCHAR."""
+    if not cols:
+        return {}
+    cands = {c: auto_candidates("s." + ident(c)) for c in cols}
+    aggs: list[str] = []
+    for c in cols:
+        aggs.append(f"count(s.{ident(c)})")
+        aggs += [f"count(s.{ident(c)}) FILTER (WHERE ({e}) IS NULL)" for _t, e in cands[c]]
+    row = con.execute(f"SELECT {', '.join(aggs)} FROM {source} s").fetchone()
+    k = 1 + len(cands[cols[0]])
+    out: dict[str, tuple[str, str]] = {}
+    for i, c in enumerate(cols):
+        nn, fails = int(row[i * k]), row[i * k + 1:(i + 1) * k]
+        pick = next(((e, t) for (t, e), bad in zip(cands[c], fails, strict=True) if nn and not bad), None)
+        out[c] = pick or (f"s.{ident(c)}", "VARCHAR")
+    return out
+
+
+def decide_types(con: duckdb.DuckDBPyConnection, product: str, lake_table: str, neon_table: str,
+                 data_cols: list[str], exprs: dict[str, tuple[str, str]], source: str = "stage.stg"
+                 ) -> tuple[dict[str, tuple[str, str]], list[dict[str, Any]], list[str]]:
+    """Apply the 0.1% cast-failure rule on staging: (decided exprs, cast_errors rows, typed columns)."""
+    typed = [c for c in data_cols if exprs[c][1] != "VARCHAR"]
+    fail_rows: list[dict[str, Any]] = []
+    decided: dict[str, tuple[str, str]] = {}
+    if typed:
+        aggs = ", ".join(f"count(s.{ident(c)}), count(s.{ident(c)}) FILTER (WHERE {exprs[c][0]} IS NULL)"
+                         for c in typed)
+        counts = con.execute(f"SELECT {aggs} FROM {source} s").fetchone()
+        for i, c in enumerate(typed):
+            nn, bad = int(counts[2 * i]), int(counts[2 * i + 1])
+            pct = bad / nn if nn else 0.0
+            keep_varchar = pct > CAST_FAIL_MAX
+            decided[c] = (f"s.{ident(c)}", "VARCHAR") if keep_varchar else exprs[c]
+            if bad:
+                samples = [r[0] for r in con.execute(
+                    f"SELECT DISTINCT s.{ident(c)} FROM {source} s WHERE s.{ident(c)} IS NOT NULL AND "
+                    f"{exprs[c][0]} IS NULL LIMIT 5").fetchall()]
+                fail_rows.append({"productCode": product, "tableName": lake_table, "neonTable": neon_table,
+                                  "columnName": c, "targetType": exprs[c][1], "nonNull": nn, "failures": bad,
+                                  "failPct": round(100.0 * pct, 6),
+                                  "action": "kept VARCHAR" if keep_varchar else "cast; failures set NULL",
+                                  "samples": samples, "builtAt": env.utcnow()})
+                log.warning("cast_errors %s.%s -> %s: %d/%d (%.4f%%) %s", lake_table, c, exprs[c][1], bad, nn,
+                            100 * pct, "kept VARCHAR" if keep_varchar else "nulled")
+    for c in data_cols:
+        decided.setdefault(c, exprs[c])
+    return decided, fail_rows, typed
 
 
 # ---------------------------------------------------------------- lake helpers
@@ -293,6 +487,33 @@ def unchanged(ctx: Ctx, table: str, product: str, fp: str) -> bool:
     return not ctx.force and ctx.fingerprints.get((table, product)) == fp
 
 
+def drift_row(product: str, neon_table: str, lake_table: str, header: str, cols: list[str], files: list[SrcFile],
+              missing: list[str], not_in_variables: list[str], unknown: list[str] | None = None) -> dict[str, Any]:
+    """One ``schema_drift`` row for a header group (months and publication range of its files)."""
+    months = sorted({f.month for f in files})
+    pubs = [f.pub_ts for f in files if f.pub_ts is not None]
+    return {"productCode": product, "tableName": neon_table, "lakeTable": lake_table,
+            "headerSha1": hashlib.sha1(header.encode(), usedforsecurity=False).hexdigest(),
+            "nColumns": len(cols), "nFiles": len(files), "firstMonth": months[0] if months else None,
+            "lastMonth": months[-1] if months else None, "columns": cols, "missingVsUnion": missing,
+            "notInVariables": not_in_variables, "unknownColumns": unknown,
+            "firstPublication": min(pubs) if pubs else None, "lastPublication": max(pubs) if pubs else None,
+            "builtAt": env.utcnow()}
+
+
+def _stage_read(con: duckdb.DuckDBPyConnection, product: str, table: str,
+                groups: list[tuple[str, list[str], list[SrcFile]]]) -> tuple[int, bool]:
+    """Stage ``stage.stg`` from header groups; strict read first, lenient retry. Returns (rows, lenient)."""
+    sql, params = read_groups_sql(groups)
+    try:
+        return _stage_from(con, "stg", sql, params), False
+    except duckdb.Error as exc:
+        log.warning("stack %s %s: strict CSV read failed (%s); retrying leniently", product, table,
+                    str(exc).splitlines()[0][:200])
+    sql, params = read_groups_sql(groups, lenient=True)
+    return _stage_from(con, "stg", sql, params), True
+
+
 # ---------------------------------------------------------------- supporting tables
 
 def stage_variables(ctx: Ctx, product: str, files: list[SrcFile]) -> dict[tuple[str, str], tuple[str, str]]:
@@ -328,23 +549,38 @@ def stage_variables(ctx: Ctx, product: str, files: list[SrcFile]) -> dict[tuple[
     return types
 
 
-def stage_sensor_positions(ctx: Ctx, product: str, files: list[SrcFile]) -> int:
+def stage_sensor_positions(ctx: Ctx, product: str, files: list[SrcFile]
+                           ) -> tuple[int, list[dict[str, Any]], list[str]]:
+    """Stage ``stage.sensor_positions``; returns (rows, schema_drift rows, accepted extra columns).
+
+    Header groups are unioned by name after legacy aliasing. Columns outside ``SENSOR_COLUMNS`` are kept
+    (``*DateTime`` -> TIMESTAMPTZ, else VARCHAR). Raises :class:`StackError` only when a group lacks one of
+    ``SENSOR_REQUIRED``.
+    """
     con = ctx.con
     groups = group_by_header(files)
-    unknown = {}
+    known = set(SENSOR_COLUMNS)
+    canon_by_group: list[list[str]] = []
+    extras: list[str] = []
+    missing_req: dict[str, Any] = {}
     for header, cols, fs in groups:
-        bad = [c for c in cols if c not in SENSOR_COLUMNS and c not in SENSOR_ALIASES]
-        if bad:
-            unknown[header] = {"unknownColumns": bad, "files": [f.name for f in fs][:20], "nFiles": len(fs)}
-    if unknown:
-        report = site_lake.site_paths(ctx.site).reports_dir / f"sensor_positions_unknown_headers_{product}.json"
-        env.write_json(report, {"site": ctx.site, "productCode": product, "headers": unknown})
-        raise StackError(f"{product}: unknown sensor_positions header set(s); see {report}")
+        canon = list(group_rename(cols, SENSOR_ALIASES).values())
+        canon_by_group.append(canon)
+        miss = [c for c in SENSOR_REQUIRED if c not in canon]
+        if miss:
+            missing_req[header] = {"missingRequired": miss, "files": [f.name for f in fs][:20], "nFiles": len(fs)}
+        extras += [c for c in canon if c not in known and c not in extras]
+    reports = site_lake.site_paths(ctx.site).reports_dir
+    if missing_req:
+        report = reports / f"sensor_positions_missing_required_{product}.json"
+        env.write_json(report, {"site": ctx.site, "productCode": product, "required": list(SENSOR_REQUIRED),
+                                "headers": missing_req})
+        raise StackError(f"{product}: sensor_positions header set(s) without required column(s); see {report}")
+    out_name = {c: f"{c}_neon" if c in SENSOR_DERIVED else c for c in extras}
+    rename = {**SENSOR_ALIASES, **{c: o for c, o in out_name.items() if o != c}}
     register_fmeta(con, ctx.site, ctx.domain, files, "fmeta_sp")
-    sql, params = read_groups_sql(groups, rename=SENSOR_ALIASES)
-    present = set()
-    for _h, cols, _fs in groups:
-        present.update(SENSOR_ALIASES.get(c, c) for c in cols)
+    sql, params = read_groups_sql(groups, rename=rename)
+    present = {c for canon in canon_by_group for c in canon}
     sel = []
     for c in SENSOR_COLUMNS:
         if c not in present:
@@ -356,6 +592,9 @@ def stage_sensor_positions(ctx: Ctx, product: str, files: list[SrcFile]) -> int:
             sel.append(f"TRY_CAST(r.{ident(c)} AS DOUBLE) AS {ident(c)}")
         else:
             sel.append(f"r.{ident(c)}")
+    for c in extras:  # schema evolution (e.g. effectiveStartDateTime/effectiveEndDateTime, 2026-09)
+        o = out_name[c]
+        sel.append(f"{ts_expr('r.' + ident(o))} AS {ident(o)}" if c.endswith("DateTime") else f"r.{ident(o)}")
     loc = ("l.locationType, l.locationDecimalLatitude AS locationLatitude, "
            "l.locationDecimalLongitude AS locationLongitude, l.locationElevation AS locationElevationCatalog"
            if "locations" in ctx.catalog_tables else
@@ -373,19 +612,32 @@ def stage_sensor_positions(ctx: Ctx, product: str, files: list[SrcFile]) -> int:
         joins += (f" LEFT JOIN {site_lake.CATALOG_ALIAS}.location_history h ON h.locationName = s.sensorLocationID"
                   " AND h.locationStartDate <= s.monthStart AND (h.locationEndDate IS NULL OR "
                   "h.locationEndDate > s.monthStart)")
+    # __rid numbers the source rows, so the QUALIFY only undoes the fan-out of the history join
     inner = (f"SELECT {sql_str(product)} AS productCode, m.month, m.release, m.publicationDate, m.sourceFile, "
              f"{', '.join(sel)}, split_part(r.\"HOR.VER\", '.', 1) AS horizontalPosition, "
              f"split_part(r.\"HOR.VER\", '.', 2) AS verticalPosition, "
-             f"timezone('UTC', strptime(m.month || '-01', '%Y-%m-%d')) AS monthStart "
+             f"timezone('UTC', strptime(m.month || '-01', '%Y-%m-%d')) AS monthStart, "
+             f"row_number() OVER () AS __rid "
              f"FROM ({sql}) r JOIN fmeta_sp m USING (filename)")
-    q = (f"SELECT s.* EXCLUDE (monthStart), "
+    q = (f"SELECT s.* EXCLUDE (monthStart, __rid), "
          f"s.locationReferenceLatitude + s.northOffset / 111320.0 AS sensorLatitude, "
          f"s.locationReferenceLongitude + s.eastOffset / (111320.0 * cos(radians(s.locationReferenceLatitude))) "
          f"AS sensorLongitude, s.locationReferenceElevation + s.zOffset AS sensorElevation, {loc}, {hist} "
          f"FROM ({inner}) s{joins} "
-         f"QUALIFY row_number() OVER (PARTITION BY s.sourceFile, s.\"HOR.VER\", s.sensorLocationID, "
-         f"s.positionStartDateTime ORDER BY {'h.locationStartDate DESC' if 'location_history' in ctx.catalog_tables else '1'}) = 1")
-    return _stage_from(con, "sensor_positions", q, params)
+         f"QUALIFY row_number() OVER (PARTITION BY s.__rid ORDER BY "
+         f"{'h.locationStartDate DESC' if 'location_history' in ctx.catalog_tables else '1'}) = 1")
+    n = _stage_from(con, "sensor_positions", q, params)
+    union = list(dict.fromkeys(c for canon in canon_by_group for c in canon))
+    drift = [drift_row(product, "sensor_positions", "sensor_positions", h, cols, fs,
+                       missing=[c for c in union if c not in canon], not_in_variables=[],
+                       unknown=[c for c in canon if c not in known])
+             for (h, cols, fs), canon in zip(groups, canon_by_group, strict=True)]
+    if extras:
+        log.info("stack %s %s sensor_positions: accepted additional column(s) %s", ctx.site, product, extras)
+    for stale in (f"sensor_positions_unknown_headers_{product}.json",
+                  f"sensor_positions_missing_required_{product}.json"):
+        (reports / stale).unlink(missing_ok=True)
+    return n, drift, [out_name[c] for c in extras]
 
 
 def stage_distinct(ctx: Ctx, name: str, product: str, files: list[SrcFile]) -> int:
@@ -457,9 +709,12 @@ def stack_support(ctx: Ctx, product: str, by_kind: dict[str, list[SrcFile]]) -> 
         stats["variables"] = int(con.execute("SELECT count(*) FROM stage.variables_latest").fetchone()[0])
         stats["variables_history"] = int(con.execute("SELECT count(*) FROM stage.variables_history").fetchone()[0])
         sources += [("variables", "stage.variables_latest"), ("variables_history", "stage.variables_history")]
+    sp_extra: list[str] = []
     if by_kind.get("sensor_positions"):
-        stats["sensor_positions"] = stage_sensor_positions(ctx, product, by_kind["sensor_positions"])
+        stats["sensor_positions"], sp_drift, sp_extra = stage_sensor_positions(ctx, product,
+                                                                              by_kind["sensor_positions"])
         sources.append(("sensor_positions", "stage.sensor_positions"))
+        con.register("src_sp_drift", site_lake.arrow_table(sp_drift, site_lake.STACK_SCHEMAS["schema_drift"]))
     for kind, table in DISTINCT_SUPPORT.items():
         if by_kind.get(kind):
             stats[table] = stage_distinct(ctx, table, product, by_kind[kind])
@@ -479,9 +734,14 @@ def stack_support(ctx: Ctx, product: str, by_kind: dict[str, list[SrcFile]]) -> 
                           {"product": product, "rows": stats, "inputSha256": fp}):
         for table, src in sources:
             site_lake.replace_where(con, table, src, "productCode = ?", [product])
+        if by_kind.get("sensor_positions"):
+            site_lake.replace_where(con, "schema_drift", "src_sp_drift", "productCode = ? AND tableName = ?",
+                                    [product, "sensor_positions"])
         for table, src in catalog:
             _write_catalog(ctx, src, table, product)
     res = {"product": product, "unit": "supporting", "rows": stats, "seconds": round(time.monotonic() - t0, 2)}
+    if sp_extra:
+        res["sensorPositionsExtraColumns"] = sp_extra
     log.info("stack %s %s supporting: %s (%.1fs)", ctx.site, product, stats, res["seconds"])
     return res
 
@@ -500,50 +760,18 @@ def stack_table(ctx: Ctx, product: str, neon_table: str, files: list[SrcFile],
     if not groups:
         return {"product": product, "table": lake_table, "skipped": True, "reason": "no non-empty files"}
     register_fmeta(con, ctx.site, ctx.domain, [f for _h, _c, fs in groups for f in fs])
-    sql, params = read_groups_sql(groups)
-    lenient = False
-    try:
-        n_raw = _stage_from(con, "stg", sql, params)
-    except duckdb.Error as exc:
-        log.warning("stack %s %s: strict CSV read failed (%s); retrying leniently", product, neon_table,
-                    str(exc).splitlines()[0][:200])
-        lenient = True
-        sql, params = read_groups_sql(groups, lenient=True)
-        n_raw = _stage_from(con, "stg", sql, params)
+    n_raw, lenient = _stage_read(con, product, neon_table, groups)
     data_cols: list[str] = []
     for _h, cols, _fs in groups:
         data_cols += [c for c in cols if c not in data_cols]
     is_table = any(f.hor for f in files)
     # ---- cast-failure rates on staging
     exprs = {c: cast_for(c, *types.get((neon_table, c), (None, None))) for c in data_cols}
-    typed = [c for c in data_cols if exprs[c][1] != "VARCHAR"]
-    fail_rows = []
-    decided: dict[str, tuple[str, str]] = {}
-    if typed:
-        aggs = ", ".join(f"count(s.{ident(c)}), count(s.{ident(c)}) FILTER (WHERE {exprs[c][0]} IS NULL)"
-                         for c in typed)
-        counts = con.execute(f"SELECT {aggs} FROM stage.stg s").fetchone()
-        for i, c in enumerate(typed):
-            nn, bad = int(counts[2 * i]), int(counts[2 * i + 1])
-            pct = bad / nn if nn else 0.0
-            keep_varchar = pct > CAST_FAIL_MAX
-            decided[c] = (f"s.{ident(c)}", "VARCHAR") if keep_varchar else exprs[c]
-            if bad:
-                samples = [r[0] for r in con.execute(
-                    f"SELECT DISTINCT s.{ident(c)} FROM stage.stg s WHERE s.{ident(c)} IS NOT NULL AND "
-                    f"{exprs[c][0]} IS NULL LIMIT 5").fetchall()]
-                fail_rows.append({"productCode": product, "tableName": lake_table, "neonTable": neon_table,
-                                  "columnName": c, "targetType": exprs[c][1], "nonNull": nn, "failures": bad,
-                                  "failPct": round(100.0 * pct, 6),
-                                  "action": "kept VARCHAR" if keep_varchar else "cast; failures set NULL",
-                                  "samples": samples, "builtAt": env.utcnow()})
-                log.warning("cast_errors %s.%s -> %s: %d/%d (%.4f%%) %s", lake_table, c, exprs[c][1], bad, nn,
-                            100 * pct, "kept VARCHAR" if keep_varchar else "nulled")
-    for c in data_cols:
-        decided.setdefault(c, exprs[c])
+    decided, fail_rows, typed = decide_types(con, product, lake_table, neon_table, data_cols, exprs)
     # ---- file stats / taxa before dedup
     time_col = next((c for c in TIME_COLUMNS if c in data_cols), None)
-    t_expr = ts_expr(f"s.{ident(time_col)}") if time_col else "CAST(NULL AS TIMESTAMPTZ)"
+    t_expr = (time_expr(time_col, *types.get((neon_table, time_col), (None, None))) if time_col
+              else "CAST(NULL AS TIMESTAMPTZ)")
     qf_cols = [c for c in data_cols if c.lower().endswith("finalqf")]
     if qf_cols:
         num = " + ".join(f"count(*) FILTER (WHERE TRY_CAST(s.{ident(c)} AS DOUBLE) = 1)" for c in qf_cols)
@@ -577,15 +805,10 @@ def stack_table(ctx: Ctx, product: str, neon_table: str, files: list[SrcFile],
                     f"WHERE s.taxonID IS NOT NULL GROUP BY ALL")
     # ---- schema drift per header group
     var_fields = {f for (t, f) in types if t == neon_table}
-    drift = []
-    for h, cols, fs in groups:
-        months = sorted({f.month for f in fs})
-        drift.append({"productCode": product, "tableName": neon_table, "lakeTable": lake_table,
-                      "headerSha1": hashlib.sha1(h.encode(), usedforsecurity=False).hexdigest(),
-                      "nColumns": len(cols), "nFiles": len(fs), "firstMonth": months[0], "lastMonth": months[-1],
-                      "columns": cols, "missingVsUnion": [c for c in data_cols if c not in cols],
-                      "notInVariables": [c for c in cols if var_fields and c not in var_fields],
-                      "builtAt": env.utcnow()})
+    drift = [drift_row(product, neon_table, lake_table, h, cols, fs,
+                       missing=[c for c in data_cols if c not in cols],
+                       not_in_variables=[c for c in cols if var_fields and c not in var_fields])
+             for h, cols, fs in groups]
     con.register("src_drift", site_lake.arrow_table(drift, site_lake.STACK_SCHEMAS["schema_drift"]))
     # ---- final typed select (+ added columns, uid dedup)
     select = [f"{decided[c][0]} AS {ident(c)}" for c in data_cols]
@@ -630,6 +853,87 @@ def stack_table(ctx: Ctx, product: str, neon_table: str, files: list[SrcFile],
     log.info("stack %s %s: %d rows (%d staged, %d files, %d header group(s)), %d/%d typed, %d cast issue(s) "
              "(%.1fs)", ctx.site, lake_table, n_rows, n_raw, len(files), len(groups), n_typed, len(data_cols),
              len(fail_rows), res["seconds"])
+    return res
+
+
+def register_lab_meta(con: duckdb.DuckDBPyConnection, files: list[SrcFile], name: str = "fmeta_lab") -> None:
+    import pyarrow as pa
+
+    con.register(name, pa.table({
+        "filename": pa.array([str(f.path) for f in files]),
+        "sourceFile": pa.array([f.name for f in files]),
+        "labName": pa.array([f.lab_name for f in files], type=pa.string()),
+        "publicationDate": pa.array([f.pub_ts for f in files], type=pa.timestamp("us", tz="UTC")),
+    }))
+
+
+def stack_lab(ctx: Ctx, product: str, neon_table: str, files: list[SrcFile],
+              types: dict[tuple[str, str], tuple[str, str]], vars_fp: str) -> dict[str, Any]:
+    """A product's ``lab`` files of one table -> ``<dp>__lab_<table>`` (distinct rows, newest publication)."""
+    con = ctx.con
+    lake_table = lake_table_name(product, f"lab_{neon_table}")
+    fp = fingerprint(files, f"lab\n{vars_fp}")
+    if unchanged(ctx, lake_table, product, fp):
+        return {"product": product, "table": lake_table, "skipped": True}
+    t0 = time.monotonic()
+    groups = group_by_header(files)
+    if not groups:
+        return {"product": product, "table": lake_table, "skipped": True, "reason": "no non-empty files"}
+    register_lab_meta(con, [f for _h, _c, fs in groups for f in fs])
+    n_raw, lenient = _stage_read(con, product, f"lab {neon_table}", groups)
+    data_cols: list[str] = []
+    for _h, cols, _fs in groups:
+        data_cols += [c for c in cols if c not in data_cols]
+    var_fields = {f for (t, f) in types if t == neon_table}
+    fail_rows: list[dict[str, Any]] = []
+    if var_fields:  # the product's variables describe this lab table
+        exprs = {c: cast_for(c, *types.get((neon_table, c), (None, None))) for c in data_cols}
+        decided, fail_rows, _typed = decide_types(con, product, lake_table, neon_table, data_cols, exprs)
+        typing = "variables"
+    else:
+        decided = auto_types(con, "stage.stg", data_cols)
+        typing = "auto"
+    meta = [c for c in ("labName", "publicationDate", "sourceFile") if c not in data_cols]
+    select = [f"{decided[c][0]} AS {ident(c)}" for c in data_cols] + [f"m.{ident(c)}" for c in meta]
+    identity = ", ".join([f"s.{ident(c)}" for c in data_cols] + (["m.labName"] if "labName" in meta else []))
+    body = (f"SELECT {', '.join(select)} FROM stage.stg s JOIN fmeta_lab m ON s.filename = m.filename "
+            f"QUALIFY row_number() OVER (PARTITION BY {identity} ORDER BY m.publicationDate DESC NULLS LAST, "
+            f"m.sourceFile DESC) = 1")
+    drift = [drift_row(product, neon_table, lake_table, h, cols, fs,
+                       missing=[c for c in data_cols if c not in cols],
+                       not_in_variables=[c for c in cols if var_fields and c not in var_fields])
+             for h, cols, fs in groups]
+    con.register("src_lab_drift", site_lake.arrow_table(drift, site_lake.STACK_SCHEMAS["schema_drift"]))
+    if fail_rows:
+        con.register("src_lab_cast", site_lake.arrow_table(fail_rows, site_lake.STACK_SCHEMAS["cast_errors"]))
+    n_typed = sum(1 for c in data_cols if decided[c][1] != "VARCHAR")
+    months = sorted({f.month for f in files})
+    labs = sorted({f.lab_name for f in files if f.lab_name})
+    extra = {"product": product, "neonTable": neon_table, "kind": "lab", "labs": labs, "files": len(files),
+             "headerGroups": len(groups), "rowsStaged": n_raw, "typing": typing, "inputSha256": fp,
+             "lenientRead": lenient}
+    with site_lake.commit(con, f"stack {ctx.site} {product} lab {neon_table}", extra):
+        con.execute(f"CREATE OR REPLACE TABLE {site_lake.ALIAS}.{ident(lake_table)} AS {body}")
+        n_rows = int(con.execute(f"SELECT count(*) FROM {site_lake.ALIAS}.{ident(lake_table)}").fetchone()[0])
+        n_cols = len(site_lake.table_columns(con, lake_table))
+        where, args = "productCode = ? AND lakeTable = ?", [product, lake_table]
+        site_lake.replace_where(con, "schema_drift", "src_lab_drift", where, args)
+        if fail_rows:
+            site_lake.replace_where(con, "cast_errors", "src_lab_cast", "productCode = ? AND tableName = ?", args)
+        elif site_lake.table_exists(con, "cast_errors"):
+            con.execute(f"DELETE FROM {site_lake.ALIAS}.cast_errors WHERE productCode = ? AND tableName = ?", args)
+        tc = _catalog_row(ctx, lake_table, product, neon_table, "lab", len(files), n_rows, n_cols, months, None,
+                          fp, nTyped=n_typed, nVarchar=len(data_cols) - n_typed, rowsBeforeDedup=n_raw,
+                          dedupRemoved=n_raw - n_rows)
+        _write_catalog(ctx, tc, lake_table, product)
+    _stage_drop(con, "stg")
+    res = {"product": product, "table": lake_table, "kind": "lab", "labs": labs, "files": len(files),
+           "headerGroups": len(groups), "rows": n_rows, "rowsStaged": n_raw, "dedupRemoved": n_raw - n_rows,
+           "columns": n_cols, "typing": typing, "typedColumns": n_typed,
+           "castKeptVarchar": sum(1 for r in fail_rows if r["action"] == "kept VARCHAR"),
+           "castErrors": len(fail_rows), "lenientRead": lenient, "seconds": round(time.monotonic() - t0, 2)}
+    log.info("stack %s %s: %d distinct rows (%d staged, %d lab file(s)), %d/%d typed (%s) (%.1fs)", ctx.site,
+             lake_table, n_rows, n_raw, len(files), n_typed, len(data_cols), typing, res["seconds"])
     return res
 
 
@@ -719,9 +1023,32 @@ def stack_product(ctx: Ctx, product: str, files: list[SrcFile]) -> None:
         except Exception as exc:  # noqa: BLE001
             ctx.errors.append({"product": product, "unit": "h5", "error": str(exc)[:500]})
             log.error("stack %s %s h5 failed: %s", ctx.site, product, str(exc)[:300])
-    other = [f.name for k, fs in by_kind.items() if k not in SUPPORT_KINDS and k != "data" for f in fs]
+    labs: dict[str, list[SrcFile]] = defaultdict(list)
+    for f in by_kind.get("lab", []):
+        if f.ext == "csv" and f.table:
+            labs[f.table].append(f)
+        else:
+            log.info("stack %s: lab file %s is not a CSV table; registered only", product, f.name)
+    for table in sorted(labs):
+        try:
+            ctx.results.append(stack_lab(ctx, product, table, labs[table], types, vars_fp))
+        except Exception as exc:  # noqa: BLE001
+            ctx.errors.append({"product": product, "unit": f"lab_{table}", "error": str(exc)[:500]})
+            log.error("stack %s %s lab %s failed: %s", ctx.site, product, table, str(exc)[:300])
+            _stage_drop(ctx.con, "stg")
+    other = [f.name for k, fs in by_kind.items() if k not in SUPPORT_KINDS and k not in ("data", "lab") for f in fs]
     if other:
         log.info("stack %s: %d file(s) of other kinds not stacked", product, len(other))
+
+
+def _totals(results: list[dict[str, Any]], errors: list[dict[str, Any]]) -> dict[str, Any]:
+    built = [r for r in results if not r.get("skipped")]
+    return {"unitsBuilt": len(built), "unitsSkipped": len(results) - len(built), "unitErrors": len(errors),
+            "castErrorColumns": sum(int(r.get("castErrors") or 0) for r in built),
+            "castKeptVarchar": sum(int(r.get("castKeptVarchar") or 0) for r in built),
+            "labTables": sorted(r["table"] for r in built if r.get("kind") == "lab"),
+            "sensorPositionsExtraColumns": {r["product"]: r["sensorPositionsExtraColumns"] for r in built
+                                            if r.get("sensorPositionsExtraColumns")}}
 
 
 def main(site: str, products: list[str] | None = None, force: bool = False) -> int:
@@ -753,9 +1080,10 @@ def main(site: str, products: list[str] | None = None, force: bool = False) -> i
                     [site_lake.CATALOG_ALIAS]).fetchall()}
             else:
                 log.info("catalog lake not available: sensor location joins will be NULL")
-            missing = [t for t in site_lake.STACK_SCHEMAS if not site_lake.table_exists(con, t)]
+            missing = [t for t, cols in site_lake.STACK_SCHEMAS.items() if not site_lake.table_exists(con, t)
+                       or set(cols) - set(site_lake.table_columns(con, t))]
             if missing:
-                with site_lake.commit(con, f"stack {site} schema", {"created": missing}):
+                with site_lake.commit(con, f"stack {site} schema", {"createdOrExtended": missing}):
                     for t in missing:
                         site_lake.ensure_table(con, t, site_lake.STACK_SCHEMAS[t])
             fps: dict[tuple[str, str], str] = {}
@@ -776,9 +1104,11 @@ def main(site: str, products: list[str] | None = None, force: bool = False) -> i
     finally:
         for p in (stage_db, stage_db.with_name(stage_db.name + ".wal")):
             p.unlink(missing_ok=True)
+        results = ctx.results if ctx else []
         summary = {"site": site, "runId": rid, "status": status, "products": sorted(inputs),
                    "seconds": round(time.monotonic() - t0, 1), "catalogLake": bool(ctx and ctx.has_catalog),
-                   "results": ctx.results if ctx else [], "errors": ctx.errors if ctx else []}
+                   "totals": _totals(results, ctx.errors if ctx else []),
+                   "results": results, "errors": ctx.errors if ctx else []}
         env.write_json(paths.reports_dir / "stack_summary.json", summary)
         state.finish_run(scon, rid, "site-stack", site, status,
                          {"units": len(summary["results"]), "errors": len(summary["errors"])})

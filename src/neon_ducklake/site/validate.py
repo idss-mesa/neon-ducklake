@@ -48,6 +48,24 @@ At most 25 terms per product are kept, taking the both-replicate ones first. The
 - the label must match;
 - the CURIE must be grounded.
 Passing units are written to ``ref_unit_map`` with ``method='curated'``.
+
+**The site pass.** :func:`validate_site` checks the two replicates of ``site.curate``'s site pass
+(``sites/<SITE>/curation/site/_site.rep<N>.json``). Per role (``biome``; ``feature`` for aquatic sites only):
+- the CURIE must be ENVO, resolve in OLS, not be obsolete, and carry the model's label;
+- a biome must descend from ENVO:00000428 'biome'; at an aquatic site (catalog HABITAT 'Aquatic …') it must
+  descend from ENVO:00002030 'aquatic biome', at a terrestrial site it must not;
+- a feature must descend from ENVO:00000063 'water body' and not be a biome; a terrestrial site gets none.
+Agreement rule (as for products): both replicates valid with the same CURIE, grounded in at least one →
+**curated**: ``ref_site_envo`` (biome) / ``ref_site_envo_feature`` (feature) get ``method='curated'``,
+``status='curated'``. Otherwise the choices are **proposed** for review in
+``sites/<SITE>/curation/review_site.md`` (tick a box, or ``--accept <id>`` / ``--accept proposed``, then
+validate again → curated) and the heuristic row stays. Rows set by hand (status ``ok``/``human_accepted``)
+are never replaced. Every replicate choice is kept in ``site_envo_proposals`` (source ``rep1``/``rep2``/
+``human``), and ``curation/site/_site.validated.json`` records the outcome.
+
+``main(site, accept='', site_level=None)``: ``None`` validates the site pass (when it has proposals) and the
+products (when they have proposals); ``True`` only the site pass; ``False`` only the products.
+:func:`has_proposals` says whether there is anything to validate (for the orchestrator).
 """
 
 from __future__ import annotations
@@ -65,13 +83,16 @@ from typing import Any
 
 from .. import env, state
 from . import ontology_store, site_lake
-from .curate import MODEL, REPLICATES, curation_paths, generic_path, rel
+from .curate import MODEL, REPLICATES, SITE_KEY, curation_paths, generic_path, rel
 
 log = logging.getLogger("neon_ducklake.site.validate")
 
 MAX_PER_PRODUCT = 25
 MAX_VALUE_BYTES = 2000
 BIOME = "ENVO:00000428"
+AQUATIC_BIOME = "ENVO:00002030"
+WATER_BODY = "ENVO:00000063"
+SITE_ROLES = ("biome", "feature")
 SPECIES_RANKS = frozenset({"TAXRANK:0000006", "NCBITaxon:species"})
 FORBIDDEN_PREFIXES = {"uo": "forbidden_unit_term", "gaz": "forbidden_place_term"}
 ASPECTS = frozenset({"organism_group", "measured_property", "environmental_material", "method", "data_type",
@@ -252,6 +273,8 @@ def deterministic_curies() -> set[str]:
                "ref_unit_map": "SELECT uoCurie FROM ref_unit_map",
                "ref_nlcd_envo": "SELECT envoCurie FROM ref_nlcd_envo",
                "ref_site_envo": "SELECT envoCurie FROM ref_site_envo"}
+    # ref_site_envo_feature is left out on purpose: a site's water body (stream, lake …) is site-specific,
+    # while product terms are generic across sites, so a product may legitimately use 'stream'.
     out: set[str] = set()
     with ontology_store.store(read_only=True) as con:
         have = {r[0] for r in con.execute("SELECT table_name FROM duckdb_tables()").fetchall()}
@@ -702,6 +725,344 @@ def apply_unit_proposal(site: str, proposal: dict[str, Any], requested: set[str]
         "rejected": [{k: r[k] for k in ("neonUnit", "curie", "reason")} for r in results if not r["valid"]]}
 
 
+# ---------------------------------------------------------------- the site pass
+
+_SITE_PROPOSAL_RE = re.compile(rf"^{re.escape(SITE_KEY)}\.rep(?P<rep>\d+)\.json$")
+
+
+def load_site_replicates(site: str) -> list[Replicate]:
+    """The site pass proposals (``curation/site/_site.rep<N>.json``), sorted by rep."""
+    d = curation_paths(site).site_dir_curation
+    out: list[Replicate] = []
+    for f in sorted(d.glob(f"{SITE_KEY}.rep*.json")) if d.exists() else []:
+        m = _SITE_PROPOSAL_RE.match(f.name)
+        if not m:
+            continue
+        try:
+            out.append(Replicate(int(m.group("rep")), f, json.loads(f.read_text("utf-8"))))
+        except ValueError:
+            log.warning("unreadable site proposal %s", rel(f))
+    return sorted(out, key=lambda r: r.rep)
+
+
+def has_proposals(site: str) -> bool:
+    """Whether ``site validate`` has anything to check (product or site-pass proposals)."""
+    return bool(load_replicates(site)) or bool(load_site_replicates(site))
+
+
+def site_habitat(site: str) -> str | None:
+    """The catalog ``sites.siteProperties['HABITAT']`` of the site (None when unavailable)."""
+    con = site_lake.connect(site)
+    try:
+        if not site_lake.attach_catalog(con):
+            return None
+        row = con.execute(f"SELECT siteProperties['HABITAT'] FROM {site_lake.CATALOG_ALIAS}.sites WHERE siteCode = ?",
+                          [site.upper()]).fetchone()
+        return row[0] if row and row[0] else None
+    except Exception as exc:  # noqa: BLE001 - schema surprise: validate as terrestrial is unsafe, report it
+        log.warning("HABITAT of %s unreadable: %s", site, str(exc).splitlines()[0][:160])
+        return None
+    finally:
+        con.close()
+
+
+def is_aquatic(habitat: str | None) -> bool:
+    return (habitat or "").strip().lower().startswith("aquatic")
+
+
+def site_proposal_id(site: str, role: str, curie: str | None) -> str:
+    return hashlib.sha256(f"site|{site}|{role}|{curie or ''}".encode()).hexdigest()[:16]
+
+
+@dataclass
+class SiteCheck:
+    rep: int
+    role: str
+    raw: dict[str, Any]
+    curie: str | None = None
+    label: str | None = None
+    valid: bool = False
+    reason: str | None = None
+    grounded: bool | None = None
+
+    def fail(self, reason: str) -> SiteCheck:
+        self.valid, self.reason = False, reason
+        return self
+
+
+def check_site_term(rep: int, role: str, t: dict[str, Any], seen: set[str] | None, aquatic: bool,
+                    terms: dict[str, dict[str, Any] | None], facts: dict[str, dict[str, Any]]) -> SiteCheck:
+    """Validate one replicate's biome or feature choice (rules in the module docstring)."""
+    ch = SiteCheck(rep=rep, role=role, raw=t)
+    ch.curie = ontology_store.norm_curie(t) if isinstance(t, dict) else None
+    if not ch.curie:
+        return ch.fail("no_curie")
+    ch.grounded = (ch.curie.casefold() in seen) if seen is not None else None
+    if not ch.curie.startswith("ENVO:"):
+        return ch.fail("not_envo")
+    if role == "feature" and not aquatic:
+        return ch.fail("feature_for_terrestrial_site")
+    if ch.curie not in terms:
+        return ch.fail("ols_unavailable")
+    term = terms[ch.curie]
+    if term is None or not term.get("label"):
+        return ch.fail("unresolved")
+    ch.label = str(term["label"]).strip()
+    if term.get("isObsolete"):
+        return ch.fail("obsolete")
+    if fold(t.get("label")) != fold(ch.label):
+        return ch.fail("label_mismatch")
+    f = facts.get(ch.curie)
+    if f is None:
+        return ch.fail("ols_unavailable")
+    anc = set(f.get("ancestors") or []) | {ch.curie}
+    if role == "biome":
+        if not f.get("isBiome"):
+            return ch.fail("not_a_biome")
+        if aquatic and AQUATIC_BIOME not in anc:
+            return ch.fail("not_an_aquatic_biome")
+        if not aquatic and AQUATIC_BIOME in anc:
+            return ch.fail("aquatic_biome_at_terrestrial_site")
+    else:
+        if f.get("isBiome"):
+            return ch.fail("biome_as_feature")
+        if WATER_BODY not in anc:
+            return ch.fail("not_a_water_body")
+    ch.valid = True
+    return ch
+
+
+def _role_terms(rep: Replicate, role: str) -> list[dict[str, Any]]:
+    return [t for t in rep.data.get("terms") or [] if isinstance(t, dict)
+            and str(t.get("role") or "").strip().lower() == role]
+
+
+def evaluate_site(site: str, reps: list[Replicate], aquatic: bool, terms: dict[str, dict[str, Any] | None],
+                  facts: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """role -> {status curated|proposed|rejected, reason, curie, label, choices[…], options[…]}."""
+    out: dict[str, dict[str, Any]] = {}
+    for role in SITE_ROLES:
+        if role == "feature" and not aquatic:
+            extra = [t for r in reps for t in _role_terms(r, role)]
+            if extra:
+                log.warning("site %s: feature terms ignored at a terrestrial site: %s", site,
+                            [t.get("curie") for t in extra])
+            continue
+        checks: list[SiteCheck] = []
+        for r in reps:
+            ts = _role_terms(r, role)
+            if not ts:
+                checks.append(SiteCheck(rep=r.rep, role=role, raw={}).fail("missing"))
+                continue
+            if len(ts) > 1:
+                log.warning("site %s rep%d: %d %s terms; the first is used", site, r.rep, len(ts), role)
+            checks.append(check_site_term(r.rep, role, ts[0], r.seen, aquatic, terms, facts))
+        valid = [c for c in checks if c.valid]
+        curies = {c.curie for c in valid}
+        item: dict[str, Any] = {"role": role, "curie": None, "label": None,
+                                "choices": [{"rep": c.rep, "curie": c.curie, "label": c.label or c.raw.get("label"),
+                                             "valid": c.valid, "reason": c.reason, "grounded": c.grounded,
+                                             "rationale": c.raw.get("rationale")} for c in checks]}
+        if len(valid) == len(reps) >= REPLICATES and len(curies) == 1 and any(c.grounded for c in valid):
+            item.update(status="curated", reason=None, curie=valid[0].curie, label=valid[0].label)
+        elif valid:
+            why = ("replicates_disagree" if len(curies) > 1 else
+                   "single_replicate" if len(valid) < len(reps) or len(reps) < REPLICATES else "ungrounded")
+            item.update(status="proposed", reason=why)
+        else:
+            item.update(status="rejected", reason=",".join(sorted({c.reason or "invalid" for c in checks})))
+        opts: dict[str, dict[str, Any]] = {}
+        for c in valid:
+            o = opts.setdefault(c.curie, {"proposalId": site_proposal_id(site, role, c.curie), "curie": c.curie,
+                                          "label": c.label, "reps": [], "grounded": False})
+            o["reps"].append(c.rep)
+            o["grounded"] = o["grounded"] or bool(c.grounded)
+        item["options"] = list(opts.values())
+        item["proposalId"] = site_proposal_id(site, role, item["curie"]) if item["curie"] else None
+        out[role] = item
+    return out
+
+
+def apply_site_acceptance(items: dict[str, dict[str, Any]], accept: str, ticked: set[str]) -> set[str]:
+    """Promote a proposed role to curated when one of its options was accepted; returns the matched ids."""
+    tokens = {t.strip() for t in (accept or "").split(",") if t.strip()}
+    matched: set[str] = set()
+    for it in items.values():
+        if it["status"] != "proposed":
+            continue
+        chosen = [o for o in it["options"] if o["proposalId"] in (tokens | ticked)]
+        if not chosen and "proposed" in tokens and len(it["options"]) == 1:
+            chosen = it["options"]
+        if len(chosen) == 1:
+            o = chosen[0]
+            it.update(status="curated", curie=o["curie"], label=o["label"], proposalId=o["proposalId"],
+                      reason=(it["reason"] or "") + "; accepted by reviewer", human=True)
+            matched.add(o["proposalId"])
+        elif len(chosen) > 1:
+            log.warning("site %s: %d options accepted; choose one", it["role"], len(chosen))
+    return matched
+
+
+_MANUAL_STATES = ("ok", "human_accepted", "accepted")
+
+
+def store_site(site: str, items: dict[str, dict[str, Any]], reps: list[Replicate], habitat: str | None) -> dict[str, Any]:
+    """Write curated roles to ref_site_envo / ref_site_envo_feature and every replicate choice to site_envo_proposals."""
+    now = env.utcnow()
+    written: dict[str, Any] = {}
+    with ontology_store.store() as con:
+        con.execute("BEGIN")
+        try:
+            for r in reps:
+                for role in SITE_ROLES:
+                    ts = _role_terms(r, role)
+                    t = ts[0] if ts else {}
+                    item = items.get(role) or {}
+                    choice = next((c for c in item.get("choices", []) if c["rep"] == r.rep), {})
+                    con.execute("INSERT OR REPLACE INTO site_envo_proposals (siteCode, role, source, envoCurie, "
+                                "envoLabel, rule, detail, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                [site, role, f"rep{r.rep}", ontology_store.norm_curie(t) if t else None,
+                                 t.get("label"), r.data.get("model") or MODEL,
+                                 json.dumps({k: choice.get(k) for k in ("valid", "reason", "grounded", "rationale")}),
+                                 now])
+            for role, it in items.items():
+                table = "ref_site_envo" if role == "biome" else "ref_site_envo_feature"
+                cur = con.execute(f"SELECT envoCurie, method, status FROM {table} WHERE siteCode = ?",
+                                  [site]).fetchone()
+                if cur and (cur[2] or "") in _MANUAL_STATES:
+                    written[role] = {"kept": "manual", "curie": cur[0]}
+                    continue
+                if it["status"] == "curated":
+                    if it.get("human"):
+                        con.execute("INSERT OR REPLACE INTO site_envo_proposals (siteCode, role, source, envoCurie, "
+                                    "envoLabel, rule, detail, createdAt) VALUES (?, ?, 'human', ?, ?, 'review', "
+                                    "?, ?)", [site, role, it["curie"], it["label"],
+                                              json.dumps({"proposalId": it["proposalId"]}), now])
+                    if role == "biome":
+                        type_eco = con.execute("SELECT typeEco FROM ref_site_envo WHERE siteCode = ?",
+                                               [site]).fetchone()
+                        con.execute("INSERT OR REPLACE INTO ref_site_envo (siteCode, envoCurie, envoLabel, typeEco, "
+                                    "method, status) VALUES (?, ?, ?, ?, 'curated', 'curated')",
+                                    [site, it["curie"], it["label"],
+                                     None if is_aquatic(habitat) else (type_eco[0] if type_eco else None)])
+                    else:
+                        con.execute("INSERT OR REPLACE INTO ref_site_envo_feature (siteCode, envoCurie, envoLabel, "
+                                    "habitat, method, status) VALUES (?, ?, ?, ?, 'curated', 'curated')",
+                                    [site, it["curie"], it["label"], habitat])
+                    written[role] = {"curated": it["curie"]}
+                elif cur and cur[1] == "curated":
+                    # an earlier agreement no longer holds: back to the heuristic proposal
+                    h = con.execute("SELECT envoCurie, envoLabel FROM site_envo_proposals WHERE siteCode = ? AND "
+                                    "role = ? AND source = 'heuristic'", [site, role]).fetchone()
+                    con.execute(f"UPDATE {table} SET envoCurie = ?, envoLabel = ?, method = ?, status = ? "
+                                f"WHERE siteCode = ?", [h[0] if h else None, h[1] if h else None,
+                                                        "heuristic" if h and h[0] else "pending",
+                                                        "proposed" if h and h[0] else "pending", site])
+                    written[role] = {"reverted": True}
+            con.execute("COMMIT")
+        except BaseException:
+            con.execute("ROLLBACK")
+            raise
+        ontology_store.export_parquet(con)
+    return written
+
+
+def write_site_review(site: str, items: dict[str, dict[str, Any]], habitat: str | None) -> Path:
+    p = curation_paths(site)
+    path = p.curation_dir / "review_site.md"
+    out = [f"# Site curation review: {site}", "",
+           f"Generated {env.utcnow().isoformat(timespec='seconds')} by `neon-ducklake site validate {site}`.", "",
+           f"HABITAT: {habitat or 'not recorded'}. Terms both Opus replicates chose are curated automatically.",
+           f"To accept a proposed term, tick its box (`- [x]`) and run `neon-ducklake site validate {site}` again,",
+           "or pass `--accept <proposalId>`.", ""]
+    for role, it in items.items():
+        out += [f"## {role}: {it['status']}" + (f" ({it['reason']})" if it.get("reason") else ""), ""]
+        if it["status"] == "curated":
+            out.append(f"- `{it['proposalId']}` {it['curie']} {it['label']}")
+        for o in it["options"] if it["status"] != "curated" else []:
+            out.append(f"- [ ] `{o['proposalId']}` {o['curie']} {o['label']} (replicate(s) "
+                       f"{', '.join(str(r) for r in o['reps'])}{'' if o['grounded'] else ', ungrounded'})")
+        for c in it["choices"]:
+            why = f": {c['reason']}" if c["reason"] else ""
+            out.append(f"  - rep{c['rep']}: {c['curie'] or '-'} {c['label'] or ''}{why}. {c.get('rationale') or ''}"
+                       .rstrip())
+        out.append("")
+    text = "\n".join(out).rstrip() + "\n"
+    try:
+        old = path.read_text("utf-8")
+    except OSError:
+        old = ""
+    if _without_stamp(old) != _without_stamp(text):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_name(path.name + ".part")
+        tmp.write_text(text, encoding="utf-8")
+        tmp.replace(path)
+    return path
+
+
+def validate_site(site: str, accept: str = "") -> dict[str, Any]:
+    """Validate the site pass and store the result (see the module docstring). ``status``: ok, partial,
+    incomplete (fewer than two replicates), none (no proposals) or ols_unavailable."""
+    site = site.upper()
+    p = curation_paths(site)
+    reps = load_site_replicates(site)
+    if not reps:
+        return {"site": site, "status": "none"}
+    if len(reps) < REPLICATES:
+        log.warning("site %s: only replicate(s) %s of the site pass exist; run `site curate %s` again", site,
+                    [r.rep for r in reps], site)
+        return {"site": site, "status": "incomplete", "replicates": [r.rep for r in reps]}
+    habitat = site_habitat(site)
+    aquatic = is_aquatic(habitat)
+    curies = sorted({c for r in reps for t in r.data.get("terms") or []
+                     if isinstance(t, dict) and (c := ontology_store.norm_curie(t)) and c.startswith("ENVO:")})
+    terms = ontology_store.ols_terms(curies) if curies else {}
+    facts = term_facts([c for c in curies if terms.get(c)])
+    items = evaluate_site(site, reps, aquatic, terms, facts)
+    if any("ols_unavailable" in (it.get("reason") or "") for it in items.values()):
+        log.error("site %s: OLS lookups failed; nothing written (run validate again)", site)
+        return {"site": site, "status": "ols_unavailable", "items": items}
+    review = p.curation_dir / "review_site.md"
+    matched = apply_site_acceptance(items, accept, ticked_ids(review))
+    written = store_site(site, items, reps, habitat)
+    write_site_review(site, items, habitat)
+    doc = {"site": site, "validatedAt": env.utcnow().isoformat(), "habitat": habitat, "model": MODEL,
+           "rules": {"replicates": REPLICATES, "curated": "both replicates valid with the same CURIE, grounded in one",
+                     "biome": "descendant of ENVO:00000428; aquatic site: of ENVO:00002030, terrestrial: not",
+                     "feature": "aquatic sites: descendant of ENVO:00000063 water body, not a biome"},
+           "replicates": [{"rep": r.rep, "proposal": rel(r.path), "trace": r.data.get("trace"),
+                           "card_sha256": r.data.get("card_sha256"), "prompt_sha256": r.data.get("prompt_sha256"),
+                           "seconds": r.data.get("seconds"), "tool_call_counts": r.data.get("tool_call_counts"),
+                           "total_cost_usd": r.data.get("total_cost_usd")} for r in reps],
+           "items": items, "written": written, "acceptedIds": sorted(matched)}
+    write_json_stable(p.site_dir_curation / f"{SITE_KEY}.validated.json", doc)
+    status = "ok" if all(it["status"] == "curated" for it in items.values()) else "partial"
+    for role, it in items.items():
+        log.info("site %s %s: %s %s %s", site, role, it["status"], it.get("curie") or "-", it.get("reason") or "")
+    return {"site": site, "status": status, "habitat": habitat, "items": items, "written": written,
+            "matched": sorted(matched)}
+
+
+def main_site(site: str, accept: str = "") -> int:
+    """``site validate`` for the site pass alone (0 curated, 2 proposed/incomplete/outage, 1 no proposals)."""
+    rid = env.run_id()
+    scon = state.connect(state.DB_PATH)
+    state.start_run(scon, rid, "site-validate", site, [site, accept, "site-level"])
+    res: dict[str, Any] = {"status": "failed"}
+    try:
+        res = validate_site(site, accept)
+    finally:
+        env.write_json(curation_paths(site).site_dir / "reports" / "validate_site_summary.json",
+                       {**res, "runId": rid})
+        state.finish_run(scon, rid, "site-validate", site, res.get("status", "failed"),
+                         {k: (it.get("status"), it.get("curie")) for k, it in (res.get("items") or {}).items()})
+        scon.close()
+    if res["status"] == "none":
+        log.warning("validate %s: no site-pass proposals (run `site curate %s` first)", site, site)
+        return 1
+    return 0 if res["status"] == "ok" else 2
+
+
 # ---------------------------------------------------------------- main
 
 def build_context(site: str, reps: dict[str, list[Replicate]]) -> Context:
@@ -716,14 +1077,39 @@ def build_context(site: str, reps: dict[str, list[Replicate]]) -> Context:
                    site_codes=codes, site_names=names, columns=product_columns(site, reps))
 
 
-def main(site: str, accept: str = "") -> int:
+def main(site: str, accept: str = "", site_level: bool | None = None) -> int:
+    """``site validate <SITE>``: the site pass and/or the products (see the module docstring)."""
     site = site.upper()
+    rc_site = None
+    if site_level is not False and (site_level or load_site_replicates(site)):
+        rc_site = main_site(site, accept)
+    if site_level:
+        return rc_site if rc_site is not None else 1
+    site_ids = _site_option_ids(site) if rc_site is not None else set()
+    rc = _main_products(site, accept, site_ids, quiet=rc_site is not None)
+    if rc is None:
+        return rc_site if rc_site is not None else 1
+    return rc if rc_site is None else max(rc, rc_site)
+
+
+def _site_option_ids(site: str) -> set[str]:
+    try:
+        doc = json.loads((curation_paths(site).site_dir_curation / f"{SITE_KEY}.validated.json").read_text("utf-8"))
+    except (OSError, ValueError):
+        return set()
+    return {o["proposalId"] for it in (doc.get("items") or {}).values() for o in it.get("options") or []}
+
+
+def _main_products(site: str, accept: str, site_ids: set[str], quiet: bool) -> int | None:
+    """The product validation (None when there are no product proposals)."""
     t0 = time.monotonic()
     p = curation_paths(site)
     reps = load_replicates(site)
     if not reps:
-        log.warning("validate %s: no proposals in %s (run `site curate %s` first)", site, rel(p.proposals_dir), site)
-        return 1
+        if not quiet:
+            log.warning("validate %s: no proposals in %s (run `site curate %s` first)", site, rel(p.proposals_dir),
+                        site)
+        return None
     incomplete = {code: [r.rep for r in rs] for code, rs in reps.items() if len(rs) < REPLICATES}
     for code, have in incomplete.items():
         log.warning("%s: only replicate(s) %s have proposals; skipped until `site curate` completes it", code, have)
@@ -747,7 +1133,8 @@ def main(site: str, accept: str = "") -> int:
                 continue
             by_product[code] = its
         items = [it for its in by_product.values() for it in its]
-        unknown = apply_acceptance(items, accept, ticked_ids(p.review_file), prior_human_accepted(by_product))
+        unknown = [u for u in apply_acceptance(items, accept, ticked_ids(p.review_file),
+                                               prior_human_accepted(by_product)) if u not in site_ids]
         for u in unknown:
             log.warning("--accept %s matches no proposed item", u)
         n_rows = store_rows(by_product) if by_product else 0

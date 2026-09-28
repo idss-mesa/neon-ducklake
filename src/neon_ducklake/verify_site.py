@@ -7,7 +7,10 @@ ontology check goes through ``site/ontology_store.ols_terms`` (OLS, cached in th
 Checks (status pass / warn / fail / skip; any ``fail`` gives a non-zero exit):
 
 - listing          site-lake ``site_months`` vs catalog ``v_site_inventory`` (diffs reported, warn)
-- local files      journal ``dl_md5`` == NEON md5 except flagged soft kinds (EML/readme); files on disk
+- local files      journal ``dl_md5`` == NEON md5, except flagged soft kinds (regenerated supporting files)
+                   and storage-verified NEON-stale files (``transfer_verified`` = local md5 == the storage
+                   md5, NEON's listed md5 is stale); files on disk; evicted rows (``local_evicted = 1``)
+                   are counted as evicted, not missing
 - irods objects    per month collection: one good replica (status '1', size, checksum == dl_md5) per
                    object; objects not uploaded yet are counted, not failed; journal agreement
 - avu core         0 uploaded objects missing a core attribute
@@ -45,12 +48,13 @@ from typing import Any
 
 from . import env, state
 from .avu import bulk
+from .filenames import REGENERATED_KINDS
 from .site import avus as siteavus
 from .site import site_lake
 
 log = logging.getLogger("neon_ducklake.verify_site")
 
-SOFT_KINDS = frozenset({"eml", "readme"})
+SOFT_KINDS = REGENERATED_KINDS  # NEON regenerates these in place; their listed md5 is advisory
 STRING_TYPES = frozenset({"string", "str", "uri", "varchar", "text", ""})
 NON_ONTOLOGY_PREFIXES = frozenset({"neon", "mesa", "dc", "datacite", "provenance", "ducklake"})
 CURIE_RE = re.compile(r"^([A-Za-z][A-Za-z0-9_]*):([A-Za-z0-9_]+)$")
@@ -199,11 +203,29 @@ def load_site_data(site: str) -> SiteData:
         sc.row_factory = sqlite3.Row
         try:
             d.journal = [dict(r) for r in sc.execute(
-                "SELECT product, month, name, kind, size, md5, dl_status, dl_md5, dl_bytes, md5_verified, local_path,"
-                " irods_path, up_status, irods_checksum FROM site_files WHERE site=?", (site,))]
+                f"SELECT {journal_columns(sc)} FROM site_files WHERE site=?", (site,))]
         finally:
             sc.close()
     return d
+
+
+JOURNAL_COLUMNS = ("product", "month", "name", "kind", "size", "md5", "dl_status", "dl_md5", "dl_bytes", "md5_verified",
+                   "local_path", "irods_path", "up_status", "irods_checksum")
+# columns other stages add later (evict: local_evicted; fetch: download integrity); NULL when absent
+OPTIONAL_JOURNAL_COLUMNS = ("local_evicted", "storage_md5", "neon_md5", "transfer_verified")
+
+
+def journal_columns(sc: sqlite3.Connection) -> str:
+    have = {r[1] for r in sc.execute("PRAGMA table_info(site_files)")}
+    return ", ".join([*JOURNAL_COLUMNS, *(c if c in have else f"NULL AS {c}" for c in OPTIONAL_JOURNAL_COLUMNS)])
+
+
+def storage_verified(r: dict[str, Any]) -> bool:
+    """The local bytes equal what the storage provider holds (the download's transfer check passed)."""
+    if r.get("transfer_verified") is not None:
+        return bool(r["transfer_verified"])
+    s, local = r.get("storage_md5"), r.get("dl_md5")
+    return bool(s and local and str(s).lower() == str(local).lower())
 
 
 # ---------------------------------------------------------------- the verifier
@@ -290,12 +312,20 @@ class SiteVerifier:
             return
         ok = [r for r in rows if r["dl_status"] == "ok"]
         not_dl = [r for r in rows if r["dl_status"] not in ("ok", "superseded")]
-        hard, soft, no_md5, missing, size_bad = [], [], [], [], []
+        hard, soft, stale, no_md5, missing, size_bad, evicted = [], [], [], [], [], [], []
         for r in ok:
             if not r.get("md5"):
                 no_md5.append(r["name"])
             elif (r.get("dl_md5") or "").lower() != r["md5"].lower():
-                (soft if r.get("kind") in SOFT_KINDS else hard).append(r["name"])
+                if r.get("kind") in SOFT_KINDS:
+                    soft.append(r["name"])
+                elif storage_verified(r):
+                    stale.append(r["name"])  # bytes == storage, NEON's listed md5 is stale: flagged, kept
+                else:
+                    hard.append(r["name"])
+            if int(r.get("local_evicted") or 0) == 1:
+                evicted.append(r["name"])  # verified in iRODS and deleted locally (site evict)
+                continue
             local = env.ROOT / (r.get("local_path") or "")
             try:
                 if local.stat().st_size != int(r.get("dl_bytes") or -1):
@@ -306,12 +336,16 @@ class SiteVerifier:
         lake_bad = [r["name"] for r in ok if (r["product"], r["month"], r["name"]) in lake_md5
                     and lake_md5[(r["product"], r["month"], r["name"])] not in (None, r.get("dl_md5"))]
         status = "fail" if (hard or missing or size_bad or lake_bad) else ("warn" if not_dl else "pass")
+        n_match = len(ok) - len(hard) - len(soft) - len(stale) - len(no_md5)
         self.add("local files", status,
-                 f"{len(ok)}/{len(rows)} downloaded; md5 == NEON for {len(ok) - len(hard) - len(soft) - len(no_md5)}"
-                 f"; flagged soft (EML/readme) {len(soft)}; hard mismatches {len(hard)}; no NEON md5 {len(no_md5)};"
+                 f"{len(ok)}/{len(rows)} downloaded; md5 == NEON for {n_match}"
+                 f"; flagged soft (regenerated supporting files) {len(soft)}; NEON md5 stale (storage-verified)"
+                 f" {len(stale)}; hard mismatches {len(hard)}; no NEON md5 {len(no_md5)}; evicted {len(evicted)};"
                  f" missing on disk {len(missing)}; size != journal {len(size_bad)}; not downloaded {len(not_dl)}",
-                 hard=_sample(hard), soft=_sample(soft), missing=_sample(missing), size_mismatch=_sample(size_bad),
-                 lake_dlmd5_mismatch=_sample(lake_bad), not_downloaded=_sample(r["name"] for r in not_dl))
+                 hard=_sample(hard), soft=_sample(soft), neon_stale=_sample(stale), missing=_sample(missing),
+                 size_mismatch=_sample(size_bad), lake_dlmd5_mismatch=_sample(lake_bad),
+                 not_downloaded=_sample(r["name"] for r in not_dl), n_evicted=len(evicted), n_neon_stale=len(stale),
+                 n_soft=len(soft))
 
     # ------------------------------------------------------------ iRODS objects
     def month_colls(self) -> list[tuple[str, str]]:

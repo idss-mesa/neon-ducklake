@@ -231,3 +231,94 @@ def test_helpers():
     assert cards.fmt_time(datetime(2024, 6, 1, 0, 30, tzinfo=UTC)) == "2024-06-01T00:30Z"
     assert cards.neon_dtype("UBIGINT") == "unsigned integer" and cards.neon_dtype("BIGINT") == "signed integer"
     assert cards.clean("a |\n b") == "a / b"
+
+
+LAB = "DP1.20093.001"
+NAIVE_2025 = datetime(2025, 1, 2, tzinfo=UTC).replace(tzinfo=None)  # files.publicationTimestamp is TIMESTAMP
+
+
+def _add_lab(con: duckdb.DuckDBPyConnection) -> None:
+    """A product with a stacked lab table and its lab files (NEON.<Lab>.<table>.<ts>.csv)."""
+    con.execute("INSERT INTO lake.site_months VALUES (?, '2024-06', 'RELEASE-2026', false, false, false)", [LAB])
+    con.execute("INSERT INTO lake.table_catalog (tableName, productCode, neonTable, kind, nFiles, nRows) VALUES "
+                "('dp1_20093_001__lab_swc_externallabsummarydata', ?, 'swc_externalLabSummaryData', 'lab', 2, 3)",
+                [LAB])
+    con.execute("CREATE TABLE lake.dp1_20093_001__lab_swc_externallabsummarydata (analyte VARCHAR, "
+                "methodDetectionLimit DOUBLE, labName VARCHAR, publicationDate TIMESTAMPTZ, sourceFile VARCHAR)")
+    con.executemany("INSERT INTO lake.dp1_20093_001__lab_swc_externallabsummarydata VALUES (?, ?, ?, ?, ?)", [
+        ("Ca", 0.01, "Univ_of_Wyoming", datetime(2025, 1, 2, tzinfo=UTC), "f1"),
+        ("Mg", 0.02, "Univ_of_Wyoming", datetime(2025, 1, 2, tzinfo=UTC), "f1"),
+        ("Ca", 0.01, "Univ_of_Wyoming", datetime(2026, 1, 2, tzinfo=UTC), "f2")])
+    con.executemany("INSERT INTO lake.variables VALUES (?, 'swc_externalLabSummaryData', ?, ?, ?, ?)", [
+        (LAB, "analyte", "Chemical analyte", "string", None),
+        (LAB, "methodDetectionLimit", "Method detection limit", "real", "milligramsPerLiter")])
+    con.execute("ALTER TABLE lake.files ADD COLUMN kind VARCHAR")
+    con.execute("ALTER TABLE lake.files ADD COLUMN publicationTimestamp TIMESTAMP")
+    con.executemany("INSERT INTO lake.files VALUES (?, '2024-06', ?, NULL, ?, ?)", [
+        (LAB, "NEON.Univ_of_Wyoming.swc_externalLabSummaryData.20250102T000000Z.csv", "lab",
+         NAIVE_2025),
+        (LAB, "NEON.Univ_of_Wyoming.swc_externalLabSummaryData.20260102T000000Z.csv", "other",  # pre-classifier
+         NAIVE_2025.replace(year=2026)),
+        (LAB, "NEON.D10.TEST.DP1.20093.001.variables.20250102T000000Z.csv", "variables", NAIVE_2025)])
+
+
+def test_lab_tables_and_files_in_product_card(lakes):
+    _add_lab(lakes)
+    cards.build_cards(lakes, SITE, [LAB], True)
+    text = (env.SITES_DIR / SITE / "cards" / f"{LAB}.md").read_text()
+    assert ("## Lab table swc_externalLabSummaryData (lake table dp1_20093_001__lab_swc_externallabsummarydata; "
+            "lab)") in text
+    assert "Rows: 3 (distinct lab records); files: 2" in text
+    assert "- analyte | Chemical analyte | string | - | 2 distinct; top: Ca (2), Mg (1)" in text
+    assert "- labName | (no NEON description) | string | - | 1 distinct; top: Univ_of_Wyoming (3)" in text
+    assert "- Univ_of_Wyoming: swc_externalLabSummaryData (2 files, published 2025-01-02 to 2026-01-02)" in text
+    assert "- milligramsPerLiter -> [not mapped yet" in text
+    assert not list((env.SITES_DIR / SITE / "cards" / "anyjev").glob(f"{LAB}.*"))  # lab tables: product card only
+    assert cards.lab_parts("NEON.NEON_HQ.mct_taxonTableLabSummary.20251206T221502Z.csv") == \
+        ("NEON_HQ", "mct_taxonTableLabSummary")
+    assert cards.lab_parts("NEON.D10.TEST.DP1.20093.001.variables.20250102T000000Z.csv") is None
+
+
+def _heuristic(site: str, rows: list[tuple[str, str, str, str]]) -> None:
+    with store.store() as sc:
+        sc.executemany("INSERT OR REPLACE INTO site_envo_proposals (siteCode, role, source, envoCurie, envoLabel, "
+                       "rule) VALUES (?, ?, 'heuristic', ?, ?, ?)", [(site, *r) for r in rows])
+
+
+def test_site_card_terrestrial(lakes):
+    lakes.execute("CREATE TABLE neon.neon_tos_nlcdcoverbysite (siteID VARCHAR, nlcdYear VARCHAR, nlcdClass VARCHAR, "
+                  "area_km2 DOUBLE)")
+    lakes.executemany("INSERT INTO neon.neon_tos_nlcdcoverbysite VALUES ('TEST', '2019', ?, ?)",
+                      [("shrubScrub", 9.0), ("barrenLand", 0.95), ("openWater", 0.05)])
+    _heuristic(SITE, [("biome", "ENVO:01000218", "xeric shrubland biome", "desert+shrub")])
+    path = cards.write_site_card(lakes, SITE, True)
+    assert path == env.SITES_DIR / SITE / "cards" / "_site.md"
+    text = path.read_text()
+    assert text.startswith("# Site: TEST — Test Range, NEON\n")
+    assert "HABITAT: not recorded" in text and "Domain: D14 Desert Southwest" in text
+    assert "TypeEco (NEON's ecosystem type): Desert shrubland (creosote)" in text
+    assert "NLCD land cover (2019, NEON TOS site area): shrubScrub 90.0%; barrenLand 9.5%" in text  # < 1 % dropped
+    assert "Products: 4 (non-AOP, basic package); science teams: TIS 3, TOS 1" in text
+    assert "- DP1.10003.001 Breeding landbird point counts" in text
+    assert "- biome: ENVO:01000218 xeric shrubland biome (rule desert+shrub)" in text
+    assert "environmental feature" not in text  # terrestrial: biome only
+
+
+def test_site_card_aquatic_uses_habitat_never_type_eco(lakes):
+    lakes.execute("DELETE FROM neon.sites")
+    lakes.execute("INSERT INTO neon.sites VALUES ('TEST', 'Test Creek NEON', 'CO', 'D10', 'Central Plains', "
+                  "MAP {'TypeEco': 'lightly grazed North American natural shortgrass steppe', "
+                  "'HABITAT': 'Aquatic Wadeable Stream'})")
+    _heuristic(SITE, [("biome", "ENVO:03605008", "freshwater stream biome", "aquatic:wadeable stream"),
+                      ("feature", "ENVO:00000023", "stream", "aquatic:wadeable stream")])
+    text = cards.site_card(lakes, SITE, True)
+    assert "HABITAT: Aquatic Wadeable Stream" in text
+    assert "steppe" not in text and "TypeEco" not in text and "NLCD" not in text
+    assert "- biome: ENVO:03605008 freshwater stream biome (rule aquatic:wadeable stream)" in text
+    assert "- environmental feature (water body): ENVO:00000023 stream (rule aquatic:wadeable stream)" in text
+    assert cards.site_line(lakes, SITE, True) == "TEST (Test Creek NEON, CO, domain D10 Central Plains; " \
+                                                 "Aquatic Wadeable Stream)"
+    summary = cards.build_cards(lakes, SITE, [IS], True)
+    assert "_site" not in {p["product"] for p in summary["products"]}
+    anyjev = (env.SITES_DIR / SITE / "cards" / "anyjev" / f"{IS}.SAAT_30min.md").read_text()
+    assert cards.grammar_problems(anyjev, 7) == [] and "Aquatic Wadeable Stream)" in anyjev

@@ -204,3 +204,67 @@ def test_export_parquet_ordered_and_stable(ols_env: FakeOLS):  # noqa: F811
     store.export_parquet()
     assert {p.name: p.stat().st_mtime_ns for p in out.glob("*.parquet")} == before  # unchanged -> not rewritten
     assert not list(out.glob("*.part"))
+
+
+def test_module_tables_for_features_and_proposals(site_env):  # noqa: F811
+    with store.store() as con:
+        cols = {t: [r[0] for r in con.execute("SELECT column_name FROM duckdb_columns() WHERE table_name = ? "
+                                              "ORDER BY column_index", [t]).fetchall()]
+                for t in ("ref_site_envo_feature", "site_envo_proposals", "ols_term_synonyms")}
+        con.execute("INSERT INTO site_envo_proposals (siteCode, role, source) VALUES ('ARIK', 'biome', 'heuristic')")
+        with pytest.raises(duckdb.ConstraintException):
+            con.execute("INSERT INTO site_envo_proposals (siteCode, role, source) VALUES ('ARIK', 'biome', "
+                        "'heuristic')")
+    assert cols["ref_site_envo_feature"] == ["siteCode", "envoCurie", "envoLabel", "habitat", "method", "status"]
+    assert cols["site_envo_proposals"][:5] == ["siteCode", "role", "source", "envoCurie", "envoLabel"]
+    assert {"ref_site_envo_feature", "site_envo_proposals"} <= set(store.EXPORT_TABLES)
+    assert "ols_term_synonyms" not in store.EXPORT_TABLES
+
+
+def test_search_exact_label_and_synonym_cached(ols_env: FakeOLS):  # noqa: F811
+    ols_env.add("UO:0000077", "meter per second per second", synonyms=("metre per second per second", "m/s^[2]"))
+    ols_env.add("UO:0000064", "micromolar", synonyms=("uM",))
+    ols_env.add("UO:0000017", "micrometer", synonyms=("micrometre", "um"))
+    got = store.search_exact("Metre per second per second", "uo")
+    assert got == [{"curie": "UO:0000077", "label": "meter per second per second",
+                    "iri": "http://purl.obolibrary.org/obo/UO_0000077", "ontologyId": "uo",
+                    "synonyms": ["metre per second per second", "m/s^[2]"]}]
+    assert store.synonym_matches(got, "metre per SECOND per second", "uo") == got
+    assert store.synonym_matches(got, "meter per second per second") == []  # the label is not a synonym
+    # case-insensitive exact: 'uM' and 'um' both match; label-only searches ignore synonyms
+    assert {h["curie"] for h in store.search_exact("uM", "uo")} == {"UO:0000064", "UO:0000017"}
+    assert store.search_exact("uM", "uo", fields=("label",)) == []
+    assert store.search_exact("metre per second per second", "uo") == got
+    assert len(ols_env.exact_calls) == 3  # the repeated query (another case) came from the cache
+    assert ols_env.exact_calls[0] == {"q": "metre per second per second", "ontology": "uo",
+                                      "fields": ["label", "synonym"], "within": ""}
+    ols_env.add("ENVO:00000023", "stream", ancestors=("ENVO:00000063",))
+    assert store.search_exact("stream", "envo", within="ENVO:00000063")[0]["curie"] == "ENVO:00000023"
+    assert store.search_exact("stream", "envo", within="ENVO:00000428") == []
+    ols_env.fail_queries.add("broken")
+    with pytest.raises(store.OLSUnavailable):
+        store.search_exact("broken", "uo")
+    assert store.search_exact_many(["broken", "uM"], "uo").keys() == {"uM"}
+    with store.store(read_only=True) as con:
+        tags = {r[0] for r in con.execute("SELECT DISTINCT within FROM ols_search_cache").fetchall()}
+    assert tags == {"exact:label,synonym", "exact:label",
+                    "exact:label,synonym|http://purl.obolibrary.org/obo/ENVO_00000063",
+                    "exact:label,synonym|http://purl.obolibrary.org/obo/ENVO_00000428"}
+
+
+def test_term_synonyms_typed_and_cached(ols_env: FakeOLS):  # noqa: F811
+    ols_env.add("NCBITaxon:72368", "Vachellia farnesiana",
+                synonyms=("Acacia farnesiana", ("sweet acacia", "genbank common name")))
+    ols_env.add("NCBITaxon:9", "Plainus")
+    store.ols_term("NCBITaxon:9")  # cached before synonyms were asked for: refetched once for them
+    got = store.term_synonyms(["ncbitaxon:72368", "NCBITaxon:9", "NCBITaxon:404"])
+    assert got["NCBITaxon:72368"] == [
+        {"name": "Acacia farnesiana", "scope": "hasRelatedSynonym", "type": "synonym"},
+        {"name": "sweet acacia", "scope": "hasRelatedSynonym", "type": "genbank common name"}]
+    assert got["NCBITaxon:9"] == [] and got["NCBITaxon:404"] == []
+    n = len(ols_env.term_calls)
+    assert store.term_synonyms(["NCBITaxon:72368"]) == {"NCBITaxon:72368": got["NCBITaxon:72368"]}
+    assert len(ols_env.term_calls) == n  # cached in ols_term_synonyms
+    ols_env.add("NCBITaxon:5", "Failus", synonyms=("X",))
+    ols_env.fail_terms.add("NCBITaxon:5")
+    assert store.term_synonyms(["NCBITaxon:5"]) == {}  # unreachable -> omitted

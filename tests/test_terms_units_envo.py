@@ -42,13 +42,62 @@ def _uo(ols: FakeOLS) -> None:
 
 def test_resolve_units(ols_env: FakeOLS):  # noqa: F811
     _uo(ols_env)
-    res = terms.resolve_units(["celsius", "number", "kilometersPerHour", "percent", "celsiusSquared", "meter"])
+    res = terms.resolve_units(["celsius", "number", "kilometersPerHour", "percent", "celsiusSquared", "meter",
+                               "furlongsPerFortnight"])
     assert res["celsius"] == {"uoCurie": "UO:0000027", "uoLabel": "degree Celsius", "method": "seed", "status": "ok"}
     assert res["number"]["uoCurie"] == "UO:0000189" and res["number"]["method"] == "seed"
     assert res["kilometersPerHour"] == {"uoCurie": "UO:0010008", "uoLabel": "kilometer per hour", "method": "exact",
                                         "status": "ok"}
-    assert res["celsiusSquared"] == {"uoCurie": None, "uoLabel": None, "method": "unmapped", "status": "unmapped"}
+    assert res["celsiusSquared"] == {"uoCurie": None, "uoLabel": None, "method": "not_applicable",
+                                     "status": "not_applicable"}
+    assert res["furlongsPerFortnight"] == {"uoCurie": None, "uoLabel": None, "method": "unmapped",
+                                           "status": "unmapped"}
     assert all(c[1] == "uo" for c in ols_env.search_calls)
+    assert not any(c["q"].startswith("celsius") for c in ols_env.exact_calls)  # variance: never looked up
+
+
+@pytest.mark.parametrize(("unit", "variance"), [
+    ("celsiusSquared", True), ("degreesSquared", True), ("percentSquared", True), ("kilopascalsSquared", True),
+    ("metersPerSecondSquared", True),  # NEON: windSpeedVariance only
+    ("wattsPerSquareMeterSquared", True), ("partsPerMillionSquared", True),
+    ("micromolesPerSquareMeterPerSecondSquared", True), ("cubicCentimetersPerCubicCentimeterSquared", True),
+    ("metersSquared", False), ("centimetersSquared", False), ("wattsPerMeterSquared", False),
+    ("voltMetersSquaredPerWatt", False), ("celsius", False), ("Squared", False),
+])
+def test_is_variance_unit(unit, variance):
+    assert terms.is_variance_unit(unit) is variance
+
+
+def test_resolve_units_synonyms_spelling_and_seed_alternatives(ols_env: FakeOLS):  # noqa: F811
+    ols_env.add("UO:0000064", "micromolar", synonyms=("uM",))
+    ols_env.add("UO:0010003", "micromole per litre")
+    ols_env.add("UO:0000077", "meter per second per second", synonyms=("metre per second per second",))
+    ols_env.add("UO:0000168", "parts per thousand", synonyms=("ppth",))
+    ols_env.add("UO:0000063", "millimolar", synonyms=("mM",))
+    ols_env.add("UO:0000075", "normal", synonyms=("N",))
+    ols_env.add("UO:0000500", "gram per kilogram", synonyms=("gram per kilogramme", "g/kg"))
+    ols_env.add("UO:0000501", "fluffy unit", synonyms=("widget per litre",))
+    res = terms.resolve_units(["micromolesPerLiter", "millimolesPerLiter", "permill", "equivalentsPerLiter",
+                               "micromolePerLiter", "widgetsPerLiter", "cubicMicrometer", "metersPerSecondSquared"])
+    got = {u: (r["uoCurie"], r["method"], r["status"]) for u, r in res.items()}
+    assert got == {
+        "micromolesPerLiter": ("UO:0000064", "seed", "ok"),  # seed 'micromolar'
+        "millimolesPerLiter": ("UO:0000063", "seed", "ok"),
+        "permill": ("UO:0000168", "seed", "ok"),  # the first of the seed alternatives
+        "equivalentsPerLiter": ("UO:0000075", "seed", "ok"),
+        "micromolePerLiter": ("UO:0010003", "exact", "ok"),  # label 'micromole per litre': US/UK spelling
+        "widgetsPerLiter": ("UO:0000501", "synonym", "ok"),  # only a (UK-spelled) synonym matches
+        "cubicMicrometer": (None, "unmapped", "unmapped"),  # UO has no such term: stays unmapped
+        "metersPerSecondSquared": (None, "not_applicable", "not_applicable"),  # variance, not acceleration
+    }
+
+
+def test_unit_spelling_helpers():
+    assert terms.spellings("micromole per liter") == ["micromole per liter", "micromole per litre"]
+    assert terms.spellings("cubic centimeter") == ["cubic centimeter", "cubic centimetre"]
+    assert terms.unit_fold(" Millilitre  per Metre ") == "milliliter per meter"
+    assert terms.seed_labels("permill") == ["parts per thousand", "permil"]
+    assert terms.seed_labels("celsius") == ["degree Celsius"] and terms.seed_labels("nope") == []
 
 
 def test_resolve_units_seed_label_missing_falls_to_exact_then_unmapped(ols_env: FakeOLS):  # noqa: F811
@@ -60,10 +109,15 @@ def test_resolve_units_seed_label_missing_falls_to_exact_then_unmapped(ols_env: 
 
 def test_resolve_units_pending_on_outage(ols_env: FakeOLS):  # noqa: F811
     _uo(ols_env)
-    ols_env.fail_queries.add("square celsius")
-    res = terms.resolve_units(["celsiusSquared", "celsius"])
-    assert res["celsiusSquared"]["status"] == "pending"
+    ols_env.fail_queries.add("furlong per fortnight")
+    res = terms.resolve_units(["furlongsPerFortnight", "celsius", "celsiusSquared"])
+    assert res["furlongsPerFortnight"]["status"] == "pending"
     assert res["celsius"]["status"] == "ok"
+    assert res["celsiusSquared"]["status"] == "not_applicable"
+    ols_env.fail_queries.clear()
+    ols_env.fail_queries.add("furlong per fortnite")  # only the exact (synonym) search of another unit fails
+    res = terms.resolve_units(["furlongsPerFortnite", "celsius"])
+    assert res["furlongsPerFortnite"]["status"] == "pending" and res["celsius"]["status"] == "ok"
 
 
 def test_run_units_keeps_curated_rows(ols_env: FakeOLS):  # noqa: F811
@@ -78,16 +132,22 @@ def test_run_units_keeps_curated_rows(ols_env: FakeOLS):  # noqa: F811
     with store.store() as sc:
         sc.execute("INSERT INTO ref_unit_map VALUES ('furlongsPerFortnight', 'UO:0000999', 'furlong per fortnight', "
                    "'curated', 'ok', now())")
+    con.execute("INSERT INTO lake.variables VALUES ('P', 't', 'h', 'hogsheadsPerHour'), "
+                "('P', 't', 'specCondVariance', 'microsiemensPerCentimeterSquared'), "
+                "('P', 't', 'flux', 'wattsPerMeterSquared')")
+    ols_env.add("UO:0000155", "watt per square meter")
     out = terms.run_units(con, SITE)
-    assert out["distinct"] == 3 and out["mapped"] == 2 and out["unmapped"] == 1
-    assert out["counts"]["curated"] == 1 and out["counts"]["seed"] == 1
+    assert out["distinct"] == 6 and out["mapped"] == 3 and out["unmapped"] == 1 and out["notApplicable"] == 2
+    assert out["counts"]["curated"] == 1 and out["counts"]["seed"] == 2 and out["counts"]["not_applicable"] == 2
     with store.store(read_only=True) as sc:
         rows = dict(sc.execute("SELECT neonUnit, method FROM ref_unit_map").fetchall())
-    assert rows == {"celsius": "seed", "celsiusSquared": "unmapped", "furlongsPerFortnight": "curated"}
+    assert rows == {"celsius": "seed", "celsiusSquared": "not_applicable", "furlongsPerFortnight": "curated",
+                    "hogsheadsPerHour": "unmapped",
+                    "microsiemensPerCentimeterSquared": "not_applicable",  # its only field is a variance
+                    "wattsPerMeterSquared": "seed"}  # per-area, not a variance
     report = site_lake.site_paths(SITE).reports_dir / "unmapped_units.csv"
     got = list(csv.DictReader(report.open()))
-    assert [(r["neonUnit"], r["nFields"], r["fields"]) for r in got] == [
-        ("celsiusSquared", "2", "P/t.b; P/t2.f")]
+    assert [(r["neonUnit"], r["nFields"], r["fields"]) for r in got] == [("hogsheadsPerHour", "1", "P/t.h")]
 
 
 def test_resolve_nlcd_verifies_and_replaces(ols_env: FakeOLS):  # noqa: F811
@@ -132,6 +192,13 @@ def test_resolve_nlcd_verifies_and_replaces(ols_env: FakeOLS):  # noqa: F811
     (None, "deciduousForest", "TN", "Terrestrial", "x", "nlcd:deciduousForest", "temperate broadleaf forest biome"),
     (None, None, "TN", "Aquatic", "Lake Suggs NEON", "aquatic:lake", "freshwater lake biome"),
     (None, None, "VA", "Aquatic", "Posey Creek NEON", "aquatic:stream", "freshwater stream biome"),
+    # HABITAT decides for aquatic sites; the copied shortgrass-steppe TypeEco is never used
+    ("lightly grazed North American natural shortgrass steppe", None, "CO", "Aquatic Wadeable Stream",
+     "Arikaree River NEON", "aquatic:wadeable stream", "freshwater stream biome"),
+    ("lightly grazed North American natural shortgrass steppe", None, "GA", "Aquatic Non-wadeable Stream",
+     "Flint River NEON", "aquatic:non-wadeable stream", "freshwater river biome"),
+    ("lightly grazed North American natural shortgrass steppe", None, "FL", "Aquatic Lake", "Barco Lake NEON",
+     "aquatic:lake", "freshwater lake biome"),
 ])
 def test_biome_candidates(eco, nlcd, state, habitat, name, rule, first):
     got_rule, cands = terms.biome_candidates(eco, nlcd, state, habitat, name)
@@ -146,6 +213,18 @@ def test_biome_candidates(eco, nlcd, state, habitat, name, rule, first):
 ])
 def test_biome_candidates_no_guess(eco, nlcd, state, habitat, name):
     assert terms.biome_candidates(eco, nlcd, state, habitat, name)[1] == []
+
+
+@pytest.mark.parametrize(("habitat", "name", "rule", "labels"), [
+    ("Aquatic Wadeable Stream", "Arikaree River NEON", "aquatic:wadeable stream", ["stream"]),
+    ("Aquatic Non-wadeable Stream", "Flint River NEON", "aquatic:non-wadeable stream", ["river", "stream"]),
+    ("Aquatic Lake", "Toolik Lake NEON", "aquatic:lake", ["lake"]),
+    ("Aquatic", "Posey Creek NEON", "aquatic:stream", ["stream"]),
+    ("Terrestrial", "Konza Prairie", "terrestrial", []),
+    (None, "x", "terrestrial", []),
+])
+def test_feature_candidates(habitat, name, rule, labels):
+    assert terms.feature_candidates(habitat, name) == (rule, labels)
 
 
 def _ctx(eco: str | None, nlcd: str | None) -> dict:
@@ -200,3 +279,70 @@ def test_site_context_from_catalog(site_env):  # noqa: F811
     assert (ctx["typeEco"], ctx["stateCode"], ctx["habitat"], ctx["nlcdYear"]) == \
         ("Desert shrubland", "AZ", "Terrestrial", "2006")
     assert [(x["nlcdClass"], round(x["share"], 2)) for x in ctx["nlcd"]] == [("shrubScrub", 0.9), ("barrenLand", 0.1)]
+
+
+WATER = "ENVO:00000063"
+
+
+def _aquatic_terms(ols: FakeOLS) -> None:
+    ols.add("ENVO:03605008", "freshwater stream biome", ancestors=(BIOME, WATER))  # biomes are water bodies too
+    ols.add("ENVO:01000253", "freshwater river biome", ancestors=(BIOME, WATER))
+    ols.add("ENVO:01000193", "temperate grassland biome", ancestors=(BIOME,))
+    ols.add("ENVO:00000023", "stream", ancestors=(WATER,))
+    ols.add("ENVO:00000022", "river", ancestors=(WATER,))
+
+
+def test_run_biome_aquatic_feature_and_proposals(ols_env: FakeOLS, monkeypatch):  # noqa: F811
+    _aquatic_terms(ols_env)
+    ctx = {"typeEco": None, "stateCode": "CO", "habitat": "Aquatic Wadeable Stream", "siteName": "Arikaree River NEON",
+           "nlcdYear": None, "nlcd": []}
+    monkeypatch.setattr(terms, "site_context", lambda con, site, has: dict(ctx))
+    out = terms.run_biome(None, SITE, True)
+    assert (out["envoCurie"], out["rule"], out["status"]) == ("ENVO:03605008", "aquatic:wadeable stream", "proposed")
+    assert (out["feature"]["envoCurie"], out["feature"]["status"]) == ("ENVO:00000023", "proposed")
+    assert any(c[3] == store.iri_for(WATER) for c in ols_env.search_calls)  # features: water-body descendants
+    with store.store(read_only=True) as sc:
+        assert sc.execute("SELECT envoCurie, typeEco, method, status FROM ref_site_envo").fetchall() == [
+            ("ENVO:03605008", None, "heuristic", "proposed")]
+        assert sc.execute("SELECT envoCurie, habitat, method, status FROM ref_site_envo_feature").fetchall() == [
+            ("ENVO:00000023", "Aquatic Wadeable Stream", "heuristic", "proposed")]
+        props = sc.execute("SELECT role, source, envoCurie, rule FROM site_envo_proposals ORDER BY role").fetchall()
+    assert props == [("biome", "heuristic", "ENVO:03605008", "aquatic:wadeable stream"),
+                     ("feature", "heuristic", "ENVO:00000023", "aquatic:wadeable stream")]
+    # a curated feature is kept; the heuristic is still recorded
+    with store.store() as sc:
+        sc.execute("UPDATE ref_site_envo_feature SET envoCurie = 'ENVO:00000022', envoLabel = 'river', "
+                   "method = 'curated', status = 'curated'")
+    out = terms.run_biome(None, SITE, True)
+    assert out["feature"]["kept"] and out["feature"]["envoCurie"] == "ENVO:00000022"
+    assert out["feature"]["heuristic"]["envoCurie"] == "ENVO:00000023"
+    text = terms.render(SITE, {"taxa": {"distinct": 0, "counts": dict.fromkeys(terms.TAXON_COUNT_KEYS, 0),
+                                        "resolvedNow": 0, "keptOk": 0, "typeChoices": []},
+                               "units": {"distinct": 0, "mapped": 0, "unmapped": 0,
+                                         "counts": dict.fromkeys(terms.UNIT_COUNT_KEYS, 0), "map": {}},
+                               "nlcd": {"verified": 0, "issues": []}, "biome": out})
+    assert "HABITAT: 'Aquatic Wadeable Stream'" in text and "site feature: ENVO:00000022 river" in text
+    # a terrestrial site has no feature row
+    monkeypatch.setattr(terms, "site_context", lambda con, site, has: {**_ctx("Tallgrass prairie", None)})
+    terms.run_biome(None, "KONZ", True)
+    with store.store(read_only=True) as sc:
+        assert sc.execute("SELECT count(*) FROM ref_site_envo_feature WHERE siteCode = 'KONZ'").fetchone()[0] == 0
+
+
+def test_site_context_aquatic_ignores_type_eco(site_env):  # noqa: F811
+    con = duckdb.connect()
+    con.execute("ATTACH ':memory:' AS neon")
+    con.execute("CREATE TABLE neon.sites (siteCode VARCHAR, siteName VARCHAR, stateCode VARCHAR, "
+                "siteLatitude DOUBLE, siteProperties MAP(VARCHAR, VARCHAR))")
+    con.execute("INSERT INTO neon.sites VALUES ('ARIK', 'Arikaree River NEON', 'CO', 39.75, "
+                "MAP {'TypeEco': 'lightly grazed North American natural shortgrass steppe', "
+                "'HABITAT': 'Aquatic Wadeable Stream'})")
+    con.execute("CREATE TABLE neon.neon_tos_nlcdcoverbysite (siteID VARCHAR, nlcdYear VARCHAR, nlcdClass VARCHAR, "
+                "area_km2 DOUBLE)")
+    con.execute("INSERT INTO neon.neon_tos_nlcdcoverbysite VALUES ('ARIK', '2019', 'grasslandHerbaceous', 9.0)")
+    ctx = terms.site_context(con, "ARIK", True)
+    assert ctx["habitat"] == "Aquatic Wadeable Stream" and ctx["typeEco"] is None and ctx["nlcd"] == []
+    assert ctx["typeEcoIgnored"].startswith("lightly grazed") and ctx["siteLatitude"] == 39.75
+    assert terms.propose_biome.__name__  # the proposal never sees the TypeEco
+    rule, cands = terms.biome_candidates(ctx["typeEco"], None, ctx["stateCode"], ctx["habitat"], ctx["siteName"])
+    assert "grassland" not in " ".join(cands) and rule == "aquatic:wadeable stream"

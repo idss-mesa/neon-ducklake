@@ -453,9 +453,9 @@ def make_prep(cfg: RunConfig) -> Callable[[str, str], Outcome | None]:
             finally:
                 con.close()
         if stage == "validate":
-            from .site.validate import load_replicates
+            from .site.validate import has_proposals
 
-            if not load_replicates(site):
+            if not has_proposals(site):
                 return Outcome("ok", 0, "no site proposals: every product reuses curation/generic or is external")
         if stage == "record":
             holders = env.catalog_lock_holders()

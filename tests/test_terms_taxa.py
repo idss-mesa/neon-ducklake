@@ -44,6 +44,18 @@ def fake_lakes(file_taxa: list[tuple], taxonomy: list[tuple]) -> duckdb.DuckDBPy
     ("Setophaga coronata auduboni", None, "Setophaga coronata auduboni"),
     ("Tyrannidae", None, "Tyrannidae"),
     ("  Amphispiza   bilineata ", None, "Amphispiza bilineata"),
+    # hybrids: NCBI writes the multiplication sign as a separate 'x'
+    ("Abies ×phanerolepis (Fernald) Liu", "(Fernald) Liu", "Abies x phanerolepis"),
+    ("Acer ×freemanii A.E. Murray", None, "Acer x freemanii"),
+    ("Salix × pendulina", None, "Salix x pendulina"),
+    ("×Achnella caduca (Beal) Barkworth", "(Beal) Barkworth", "x Achnella caduca"),
+    # forms: 'fo.' / 'forma' are 'f.'; 'f.' of an author ('Hook. f.') is not a marker
+    ("Fragilariforma constricta fo. stricta (Cleve-Euler) Poulin", None, "Fragilariforma constricta f. stricta"),
+    ("Amphora libyca f. major Frenguelli", "Frenguelli", "Amphora libyca f. major"),
+    ("Osmanthus americanus (L.) Benth. & Hook. f. ex A. Gray", None, "Osmanthus americanus"),
+    ("Antirhea lucida (Sw.) Hook. f.", None, "Antirhea lucida"),
+    ("Corvus sp. (unknown Raven)", None, "Corvus"),
+    ("Mecyclothorax\xa0konanus/rufipennis", None, "Mecyclothorax"),
     ("", None, None),
     (None, None, None),
 ])
@@ -52,10 +64,21 @@ def test_query_name(name, auth, want):
 
 
 def test_taxon_levels_skip_duplicates():
+    assert terms.TAXON_LEVELS == ("exact", "synonym", "species_fallback", "genus_fallback", "family_fallback")
     t = terms.Taxon("BIRD", "X", "Carex sp.", "Carex", family="Cyperaceae", genus="Carex")
-    assert [t.name_for(m) for m in terms.TAXON_LEVELS] == ["Carex", None, "Cyperaceae"]
+    assert [t.name_for(m) for m in terms.TAXON_LEVELS] == ["Carex", "Carex", None, None, "Cyperaceae"]
     t = terms.Taxon("BIRD", "Y", "Tyrannidae", "Tyrannidae", family="Tyrannidae")
-    assert [t.name_for(m) for m in terms.TAXON_LEVELS] == ["Tyrannidae", None, None]
+    assert [t.name_for(m) for m in terms.TAXON_LEVELS] == ["Tyrannidae", "Tyrannidae", None, None, None]
+    t = terms.Taxon("PLANT", "V", "x", "Polygonum bistorta var. plumosum", family="Polygonaceae", genus="Polygonum")
+    assert [t.name_for(m) for m in terms.TAXON_LEVELS] == [
+        "Polygonum bistorta var. plumosum", "Polygonum bistorta var. plumosum", "Polygonum bistorta", "Polygonum",
+        "Polygonaceae"]
+    assert (t.rank_for("synonym"), t.rank_for("genus_fallback"), t.rank_for("family_fallback")) == \
+        (None, "genus", "family")
+    # NEON placeholders never reach NCBI's 'unidentified' nodes through synonyms or a genus
+    t = terms.Taxon("PLANT", "2PLANT-H", "Unknown hardwood plant", "Unknown hardwood plant", family="Poaceae")
+    assert [t.name_for(m) for m in terms.TAXON_LEVELS] == ["Unknown hardwood plant", None, None, None, "Poaceae"]
+    assert terms.is_placeholder("Unidentified beetle") and not terms.is_placeholder("Unona")
     t = terms.Taxon("BIRD", "Z", "Picoides scalaris", "Picoides scalaris")  # genus from the name
     assert t.name_for("genus_fallback") == "Picoides" and t.name_for("family_fallback") is None
     t = terms.Taxon("BIRD", "W", "Aimophila/Peucaea sp.", "Aimophila/Peucaea", family="Passerellidae")
@@ -173,8 +196,8 @@ def test_run_taxa_end_to_end_and_skip_ok(ols_env: FakeOLS):  # noqa: F811
     ols_env.add("NCBITaxon:165749", "Dryobates scalaris")
     ols_env.extra_hits["picoides scalaris"] = ["NCBITaxon:165749"]  # OLS matches the synonym
     out = terms.run_taxa(con, SITE, True)
-    assert out["counts"] == {"exact": 1, "genus_fallback": 1, "family_fallback": 0, "unresolved": 1,
-                             "obsolete": 0, "pending": 0}
+    assert out["counts"] == {"exact": 1, "synonym": 0, "species_fallback": 0, "genus_fallback": 1,
+                             "family_fallback": 0, "unresolved": 1, "obsolete": 0, "pending": 0}
     assert out["typeChoices"][0]["taxonTypeCode"] == "BIRD"
     with store.store(read_only=True) as sc:
         rows = sc.execute("SELECT taxonID, curie, method, status FROM ref_ncbitaxon_map ORDER BY 1").fetchall()
@@ -190,7 +213,7 @@ def test_run_taxa_end_to_end_and_skip_ok(ols_env: FakeOLS):  # noqa: F811
     assert got["ZZZZ"]["status"] == "unresolved" and got["ZZZZ"]["nRecords"] == "1"
     n_search = len(ols_env.search_calls)
     again = terms.run_taxa(con, SITE, True)
-    assert again["keptOk"] == 2 and again["resolvedNow"] == 1  # only the unresolved row is retried
+    assert again["keptOk"] == 1 and again["resolvedNow"] == 2  # the fallback and the unresolved row are retried
     assert len(ols_env.search_calls) == n_search  # ... and its searches come from the cache
 
 
@@ -202,3 +225,66 @@ def test_run_taxa_end_to_end_and_skip_ok(ols_env: FakeOLS):  # noqa: F811
 ])
 def test_query_name_inline_authorship(name, want):
     assert terms.query_name(name) == want
+
+
+@pytest.mark.parametrize(("query", "want"), [
+    ("Polygonum bistorta var. plumosum", "Polygonum bistorta"),
+    ("Bouteloua curtipendula subsp. caespitosa", "Bouteloua curtipendula"),
+    ("Setophaga coronata auduboni", "Setophaga coronata"),
+    ("Abies x phanerolepis", None),
+    ("x Achnella caduca", None),
+    ("Quercus x bushii var. foo", "Quercus x bushii"),
+    ("Carex", None),
+    ("Larrea tridentata", None),
+    (None, None),
+])
+def test_species_of(query, want):
+    assert terms.species_of(query) == want
+
+
+def test_resolve_synonym_species_and_homonym_levels(ols_env: FakeOLS):  # noqa: F811
+    root = "NCBITaxon:33090"
+    ols_env.add("NCBITaxon:72368", "Vachellia farnesiana", ancestors=(root,),
+                synonyms=("Acacia farnesiana", ("sweet acacia", "genbank common name")))
+    ols_env.add("NCBITaxon:7158", "Aedes <genus>", synonyms=(("Aedes", "scientific name"),))
+    ols_env.add("NCBITaxon:149531", "Aedes <subgenus>", synonyms=(("Aedes", "scientific name"),))
+    ols_env.add("NCBITaxon:1000", "Bistorta officinalis", synonyms=("Polygonum bistorta",))
+    ols_env.add("NCBITaxon:23672", "Sapindaceae", synonyms=("Aceraceae",))
+    ols_env.add("NCBITaxon:2000", "Partus alius", synonyms=(("Partus nomen", "in-part"),))
+    ols_env.add("NCBITaxon:2001", "Partus")
+    ols_env.add("NCBITaxon:3000", "Twin one", synonyms=("Twinus dup",), ancestors=("NCBITaxon:33208",))
+    ols_env.add("NCBITaxon:3001", "Twin two", synonyms=("Twinus dup",), ancestors=(root,))
+    taxa = [terms.Taxon("PLANT", "ACFA", "Acacia farnesiana", "Acacia farnesiana", rank="species",
+                        kingdom="Plantae"),
+            terms.Taxon("MOSQUITO", "AEDSP", "Aedes sp.", "Aedes", rank="genus", kingdom="Animalia"),
+            terms.Taxon("MOSQUITO", "AEDHEN", "Aedes hendersoni", "Aedes hendersoni", rank="species",
+                        family="Culicidae", genus="Aedes", kingdom="Animalia"),
+            terms.Taxon("PLANT", "POBIP", "x", "Polygonum bistorta var. plumosum", rank="variety",
+                        genus="Polygonum", kingdom="Plantae"),
+            terms.Taxon("PLANT", "ACERAC", "Aceraceae sp.", "Aceraceae", rank="family", kingdom="Plantae"),
+            terms.Taxon("PLANT", "PANO", "Partus nomen", "Partus nomen", rank="species", kingdom="Plantae"),
+            terms.Taxon("PLANT", "TWIN", "Twinus dup", "Twinus dup", rank="species", kingdom="Plantae")]
+    res = terms.resolve_taxa(taxa)
+    got = {k[1]: (r.curie, r.method, r.status) for k, r in res.items()}
+    assert got == {
+        "ACFA": ("NCBITaxon:72368", "synonym", "ok"),  # NCBI keeps the NEON name as a synonym
+        "AEDSP": ("NCBITaxon:7158", "synonym", "ok"),  # homonym label 'Aedes <genus>' picked by rank
+        "AEDHEN": ("NCBITaxon:7158", "genus_fallback", "ok"),  # genus homonym resolved by the fallback rank
+        "POBIP": ("NCBITaxon:1000", "species_fallback", "ok"),  # the species, through its synonym
+        "ACERAC": ("NCBITaxon:23672", "synonym", "ok"),
+        "PANO": ("NCBITaxon:2001", "genus_fallback", "ok"),  # an 'in-part' synonym is not the same taxon
+        "TWIN": ("NCBITaxon:3001", "synonym", "ok"),  # two synonym owners: the catalog kingdom decides
+    }
+    assert any(c["within"] == store.iri_for(root) for c in ols_env.exact_calls)
+    # synonyms are cached per term; a second run makes no new term or search calls
+    n_terms, n_exact = len(ols_env.term_calls), len(ols_env.exact_calls)
+    terms.resolve_taxa(taxa)
+    assert (len(ols_env.term_calls), len(ols_env.exact_calls)) == (n_terms, n_exact)
+
+
+def test_resolve_synonym_pending_on_outage(ols_env: FakeOLS):  # noqa: F811
+    ols_env.add("NCBITaxon:72368", "Vachellia farnesiana", synonyms=("Acacia farnesiana",))
+    ols_env.fail_terms.add("NCBITaxon:72368")
+    res = terms.resolve_taxa([terms.Taxon("PLANT", "ACFA", "Acacia farnesiana", "Acacia farnesiana")])
+    r = next(iter(res.values()))
+    assert (r.method, r.status) == ("synonym", "pending")

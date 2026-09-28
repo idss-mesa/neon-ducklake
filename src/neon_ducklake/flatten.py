@@ -27,6 +27,10 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+# external-lab files (NEON.<Lab_Name>.<table>.<YYYYMMDDTHHMMSSZ>.<ext>): the grammar lives in filenames.py,
+# shared with the site fetch/stack/AVU code; LAB_FILE_RE stays importable from here
+from .filenames import LAB_FILE_RE, classify  # noqa: F401
+
 log = logging.getLogger("neon_ducklake.flatten")
 
 FLATTEN_VERSION = 2  # bump whenever the files/site_month_packages rows change (invalidates stage/ caches)
@@ -36,9 +40,6 @@ AOP_CODE_RE = re.compile(r"^DP[1-4]\.30\d{3}\.\d{3}$")
 DQ_KEY_RE = re.compile(r"^(?P<product>DP\d\.\d{5}\.\d{3})__(?P<site>[A-Z0-9]+)__(?P<start>\d{4}-\d{2})_"
                        r"(?P<end>\d{4}-\d{2})(?:__(?P<release>.+))?$")
 MANIFEST_DP_RE = re.compile(r"^NEON\.DOM\.[A-Z]+\.")
-# external-lab files published inside site packages: NEON.<Lab_Name>.<table>.<YYYYMMDDTHHMMSSZ>.<ext>
-LAB_FILE_RE = re.compile(r"^NEON\.(?P<lab>[A-Za-z0-9_-]+)\.(?P<table>[A-Za-z0-9_]+)\.(?P<ts>\d{8}T\d{6}Z)\."
-                         r"(?P<ext>[A-Za-z0-9]+)$")
 SIGNED_MARK = "X-Goog"
 
 # ---------------------------------------------------------------- table specs
@@ -908,14 +909,14 @@ class LabFile:
 
 
 def parse_file_name(name: str) -> Any:
-    """``parse_neon_filename`` plus the lab-file grammar (kind ``lab``) it reports as ``other``."""
-    from neon_mcp.neon.filenames import parse_neon_filename
+    """``filenames.classify`` (``parse_neon_filename`` plus the lab-file grammar, kind ``lab``).
 
-    parsed = parse_neon_filename(name)
-    if parsed.kind == "other":
-        m = LAB_FILE_RE.match((name or "").strip().rsplit("/", 1)[-1])
-        if m:
-            return LabFile("lab", m["table"], m["ts"], m["ext"].lower(), m["lab"])
+    Lab files come back as :class:`LabFile` (``.lab``, no product/site/month), everything else as the
+    classifier's result; no product hint is passed, so DP0 support files keep their parsed code.
+    """
+    parsed = classify(name)
+    if parsed.kind == "lab":
+        return LabFile("lab", parsed.table, parsed.timestamp, parsed.ext, parsed.lab_name)
     return parsed
 
 

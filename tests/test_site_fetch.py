@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import base64
+import gzip
+import hashlib
 import sqlite3
 from pathlib import Path
+from typing import Any
 
+import httpx
 import pytest
 
 from neon_ducklake import env, state
@@ -37,6 +42,80 @@ def _files_for(month: str) -> list[dict]:
     eml = f"NEON.D99.TEST.DP1.00002.001.EML.{month.replace('-', '')}01-x.20250101T000000Z.xml"
     out.append(neon_file(eml, _body(eml), size=False, md5_ok=month != "2024-06"))  # soft MD5 mismatch in 2024-06
     return out
+
+
+def _b64md5(body: bytes) -> str:
+    return base64.b64encode(hashlib.md5(body, usedforsecurity=False).digest()).decode()
+
+
+class FakeResponse:
+    """A streamed GCS response: headers + raw body chunks (``aiter_raw``), closed by ``aclose``."""
+
+    def __init__(self, body: bytes, headers: httpx.Headers, on_close: Any = None, chunk: int = 7) -> None:
+        self.body, self.headers, self.on_close, self.chunk = body, headers, on_close, chunk
+        self.closed = False
+
+    async def aiter_raw(self) -> Any:
+        for i in range(0, len(self.body), self.chunk):
+            await asyncio.sleep(0)
+            yield self.body[i:i + self.chunk]
+
+    async def aclose(self) -> None:
+        if not self.closed and self.on_close:
+            self.on_close()
+        self.closed = True
+
+
+class GcsClient(FakeClient):
+    """Download client with NeonClient's opener: the storage md5 comes back in ``x-goog-hash``.
+
+    Per file name: ``corrupt`` (flip the last byte for the next N transfers), ``no_hash`` (no x-goog-hash),
+    ``gzip_stored`` (stored gzip, served gzip), ``transit_gzip`` (stored identity, gzip on the wire),
+    ``transcoded`` (stored gzip, served decoded).
+    """
+
+    def __init__(self, blobs: dict[str, bytes] | None = None) -> None:
+        super().__init__(blobs=dict(blobs or {}))
+        self.corrupt: dict[str, int] = {}
+        self.no_hash: set[str] = set()
+        self.gzip_stored: set[str] = set()
+        self.transit_gzip: set[str] = set()
+        self.transcoded: set[str] = set()
+        self.opened: list[dict[str, Any]] = []
+
+    def on_close(self) -> None:
+        return None
+
+    async def _open(self, url: str, *, token: Any, stats: Any, allowed_hosts: Any, method: str = "GET",
+                    extra_headers: Any = None, timeout_s: float | None = None) -> tuple[FakeResponse, str]:
+        name = url.split("?")[0].rsplit("/", 1)[1]
+        self.calls.append(("stream", name))
+        self.opened.append({"token": token, "timeout_s": timeout_s, "allowed_hosts": allowed_hosts})
+        assert token is None and "X-Goog-Signature" in url
+        fails = self.stream_failures.get(name) or []
+        if fails:
+            raise fails.pop(0)
+        body = self.blobs[url.split("?")[0]]
+        stored, wire, hdr = body, body, [("x-goog-stored-content-encoding", "identity")]
+        if name in self.gzip_stored or name in self.transcoded:
+            stored = gzip.compress(body, mtime=0)
+            hdr = [("x-goog-stored-content-encoding", "gzip")]
+            if name in self.gzip_stored:
+                wire = stored
+                hdr.append(("content-encoding", "gzip"))
+        elif name in self.transit_gzip:
+            wire = gzip.compress(body, mtime=0)
+            hdr.append(("content-encoding", "gzip"))
+        if name not in self.no_hash:
+            hdr += [("x-goog-hash", "crc32c=AAAAAA=="), ("x-goog-hash", f"md5={_b64md5(stored)}")]
+        if self.corrupt.get(name):
+            self.corrupt[name] -= 1
+            wire = wire[:-1] + bytes([wire[-1] ^ 0xFF])
+        hdr.append(("content-length", str(len(wire))))
+        return FakeResponse(wire, httpx.Headers(hdr), on_close=self.on_close), url
+
+    async def stream_to_file(self, *a: Any, **kw: Any) -> Any:  # pragma: no cover - must not be used
+        raise AssertionError("the fetcher streams through _open")
 
 
 def _stage(root: Path) -> None:
@@ -82,7 +161,7 @@ def _client() -> FakeClient:
 def fake(site_env: Path, monkeypatch: pytest.MonkeyPatch) -> FakeBundle:  # noqa: F811
     _stage(site_env)
     lc = _client()
-    dc = FakeClient(blobs={f"https://storage.googleapis.com/bucket/{n}": b for n, b in BODIES.items()})
+    dc = GcsClient(blobs={f"https://storage.googleapis.com/bucket/{n}": b for n, b in BODIES.items()})
     bundle = FakeBundle(lc, dc)
     monkeypatch.setattr(env, "neon_bundle", lambda roles=(), **kw: bundle)
     monkeypatch.setattr(fetch, "RETRY_DELAYS", [0, 0, 0, 0, 0])
@@ -180,13 +259,13 @@ def test_query_bisects_on_5xx(fake: FakeBundle) -> None:
 
 
 def test_download_retries_relists_and_resumes(fake: FakeBundle, site_env: Path) -> None:  # noqa: F811
-    from neon_mcp.errors import NeonApiError, ToolError
+    from neon_mcp.errors import NeonApiError
 
     assert fetch.main("list", SITE) == 0
     dc = fake.download_client
     bad = SAAT.format(m="2024-05")
     gone = SAAT.format(m="2024-06")
-    dc.stream_failures[bad] = [ToolError("checksum_mismatch", "x")]
+    dc.corrupt[bad] = 1  # one corrupted transfer (bytes != storage md5): retried, no re-list
     dc.stream_failures[gone] = [NeonApiError(403, "expired", "/bucket/x")]
     posts_before = len([c for c in fake.list_client.calls if c[0] == "post"])
     assert fetch.main("download", SITE) == 0
@@ -198,13 +277,23 @@ def test_download_retries_relists_and_resumes(fake: FakeBundle, site_env: Path) 
     soft = next(r for r in rows if r["kind"] == "eml" and r["month"] == "2024-06")
     assert soft["md5_verified"] == 0 and soft["dl_md5"] == md5(_body(soft["name"]))  # kept, flagged
     assert all(r["md5_verified"] == 1 for r in rows if r["name"] != soft["name"])
+    assert all(r["transfer_verified"] == 1 and r["storage_md5"] == r["dl_md5"] for r in rows)
+    assert all(r["neon_md5"] == r["md5"] for r in rows)
+    assert not list(site_env.rglob("*.part"))
     assert len([c for c in fake.list_client.calls if c[0] == "post"]) == posts_before + 1  # one GCS-403 re-list
     for r in rows:
         assert (site_env / r["local_path"]).read_bytes() == _body(r["name"])
     con = site_lake.open_site_lake(SITE, read_only=True)
     assert con.execute("SELECT count(*) FROM lake.files WHERE dlMd5 IS NOT NULL").fetchone()[0] == len(rows)
     assert con.execute("SELECT count(*) FROM lake.files WHERE NOT md5Verified").fetchone()[0] == 1
+    assert con.execute("SELECT count(*) FROM lake.files WHERE transferVerified AND storageMd5 = dlMd5 AND "
+                       "neonMd5 = md5").fetchone()[0] == len(rows)
     con.close()
+    import json
+
+    summary = json.loads((site_lake.site_paths(SITE).reports_dir / "download_summary.json").read_text())
+    assert summary["counts"]["corruptRetries"] == 1 and summary["counts"]["transferVerified"] == len(rows)
+    assert summary["integrity"]["eml"]["neonMismatch"] == 1 and summary["counts"]["neonStale"] == 1
     # resume: a stale .part is removed and nothing is fetched again
     part = site_env / rows[0]["local_path"]
     part.with_name(part.name + ".part").write_bytes(b"junk")
@@ -249,8 +338,8 @@ def test_external_without_landing_does_one_get(fake: FakeBundle, site_env: Path)
 
 # ---------------------------------------------------------------- adaptive download lanes + eviction
 
-class SlowClient(FakeClient):
-    """A download client that yields to the loop mid-transfer and records its concurrency."""
+class SlowClient(GcsClient):
+    """A download client that yields to the loop mid-transfer and records its concurrency (open -> close)."""
 
     def __init__(self, blobs: dict[str, bytes], meter: dict[str, int]) -> None:
         super().__init__(blobs=blobs)
@@ -258,17 +347,18 @@ class SlowClient(FakeClient):
         self.active = 0
         self.peak = 0
 
-    async def stream_to_file(self, url: str, dest: Path, **kw):  # type: ignore[override]
+    def on_close(self) -> None:
+        self.active -= 1
+        self.meter["active"] -= 1
+
+    async def _open(self, url: str, **kw: Any) -> tuple[FakeResponse, str]:  # type: ignore[override]
+        await asyncio.sleep(0.001)
+        resp, final = await super()._open(url, **kw)
         self.active += 1
         self.meter["active"] += 1
         self.peak = max(self.peak, self.active)
         self.meter["peak"] = max(self.meter["peak"], self.meter["active"])
-        try:
-            await asyncio.sleep(0.001)
-            return await super().stream_to_file(url, dest, **kw)
-        finally:
-            self.active -= 1
-            self.meter["active"] -= 1
+        return resp, final
 
 
 def _seed_downloads(n: int) -> tuple[sqlite3.Connection, dict[str, bytes]]:
@@ -323,7 +413,7 @@ def test_transport_errors_halve_download_concurrency(site_env: Path, monkeypatch
 
     monkeypatch.setattr(fetch, "RETRY_DELAYS", [0, 0, 0, 0, 0])
     con, blobs = _seed_downloads(40)
-    c1 = FakeClient(blobs=blobs)
+    c1 = GcsClient(blobs=blobs)
     names = [r[0] for r in con.execute("SELECT name FROM site_files ORDER BY name LIMIT 3")]
     for n in names:
         c1.stream_failures[n] = [NeonApiError(0, "ReadTimeout", "/bucket/x", kind="transport")]
@@ -374,3 +464,240 @@ def test_download_tolerates_a_journal_without_the_evict_column(fake: FakeBundle)
     assert fetch.main("download", SITE, products=["DP1.10003.001"]) == 0
     assert all(r["dl_status"] == "ok" for r in _rows("SELECT dl_status FROM site_files"))
     assert "local_evicted" not in {r[1] for r in _rows("PRAGMA table_info(site_files)")}
+
+
+# ---------------------------------------------------------------- integrity (F1), re-list windows (F2), lab kind (F8)
+
+def test_goog_md5_and_gunzip_helpers() -> None:
+    body = b"hello world\n"
+    assert fetch.goog_md5(f"crc32c=AAAAAA==, md5={_b64md5(body)}") == md5(body)
+    assert fetch.goog_md5("crc32c=AAAAAA==") is None and fetch.goog_md5(None) is None
+    assert fetch.goog_md5("md5=not*base64") is None and fetch.goog_md5("md5=AAAA") is None  # 3 bytes, not 16
+    g = fetch._Gunzip()
+    two = gzip.compress(b"abc", mtime=0) + gzip.compress(b"def", mtime=0)  # concatenated members
+    assert b"".join(g.feed(two[i:i + 3]) for i in range(0, len(two), 3)) + g.finish() == b"abcdef"
+    g = fetch._Gunzip()
+    g.feed(gzip.compress(b"x" * 100, mtime=0)[:-6])
+    with pytest.raises(fetch.TransferCorrupt):
+        g.finish()
+
+
+def _set_neon_md5(fake: FakeBundle, name: str, value: str) -> None:
+    for payload in fake.list_client.responses.values():
+        for r in payload.get("releases") or []:
+            for pk in r.get("packages") or []:
+                for f in pk.get("files") or []:
+                    if f["name"] == name:
+                        f["md5"] = value
+
+
+def test_stale_neon_md5_on_a_data_file_is_kept_and_flagged(fake: FakeBundle, site_env: Path) -> None:  # noqa: F811
+    """F1 revised: storage md5 matches, NEON's listed md5 does not -> keep, md5_verified=0, no re-list."""
+    data = SAAT.format(m="2024-06")
+    var = "NEON.D99.TEST.DP1.00002.001.variables.20250101T000000Z.csv"
+    _set_neon_md5(fake, data, "d" * 32)
+    _set_neon_md5(fake, var, "e" * 32)
+    assert fetch.main("list", SITE, products=["DP1.00002.001"]) == 0
+    posts = len([c for c in fake.list_client.calls if c[0] == "post"])
+    assert fetch.main("download", SITE, products=["DP1.00002.001"]) == 0
+    assert len([c for c in fake.list_client.calls if c[0] == "post"]) == posts  # never re-listed for it
+    rows = {r["name"]: r for r in _rows("SELECT * FROM site_files WHERE site=?", (SITE,))}
+    r = rows[data]
+    assert r["dl_status"] == "ok" and r["dl_attempts"] == 1
+    assert (r["md5_verified"], r["transfer_verified"]) == (0, 1)
+    assert r["neon_md5"] == "d" * 32 and r["storage_md5"] == r["dl_md5"] == md5(_body(data))
+    assert rows[var]["md5_verified"] == 0 and rows[var]["transfer_verified"] == 1
+    con = site_lake.open_site_lake(SITE, read_only=True)
+    assert con.execute("SELECT md5Verified, transferVerified, neonMd5, storageMd5 FROM lake.files WHERE name = ?",
+                       [data]).fetchone() == (False, True, "d" * 32, md5(_body(data)))
+    con.close()
+    # the next listing (same stale md5) does not mark it stale; a real upstream change does
+    assert fetch.main("list", SITE, products=["DP1.00002.001"]) == 0
+    assert _rows("SELECT dl_status FROM site_files WHERE name=?", (data,))[0][0] == "ok"
+    _set_neon_md5(fake, data, "c" * 32)
+    assert fetch.main("list", SITE, products=["DP1.00002.001"]) == 0
+    assert _rows("SELECT dl_status FROM site_files WHERE name=?", (data,))[0][0] == "stale"
+    # NEON's md5 catching up with our bytes confirms the file
+    _set_neon_md5(fake, var, md5(_body(var)))
+    assert fetch.main("list", SITE, products=["DP1.00002.001"]) == 0
+    assert _rows("SELECT md5_verified, neon_md5 FROM site_files WHERE name=?", (var,))[0][:] == (1, md5(_body(var)))
+
+
+def test_upstream_changed_rule() -> None:
+    row = {"dl_md5": "a" * 32, "neon_md5": "b" * 32}
+    assert not fetch.upstream_changed("b" * 32, "data", row)  # the stale NEON md5 we recorded: no change
+    assert not fetch.upstream_changed("a" * 32, "data", row)  # NEON now lists our bytes
+    assert fetch.upstream_changed("c" * 32, "variables", row)  # NEON moved: re-download
+    legacy = {"dl_md5": "a" * 32, "neon_md5": None}
+    assert fetch.upstream_changed("c" * 32, "data", legacy) and not fetch.upstream_changed("c" * 32, "eml", legacy)
+    assert not fetch.upstream_changed(None, "data", legacy)
+
+
+def test_corrupt_transfers_retry_then_fail_without_relisting(fake: FakeBundle, site_env: Path) -> None:  # noqa: F811
+    assert fetch.main("list", SITE, products=["DP1.00002.001"]) == 0
+    dc = fake.download_client
+    bad = SAAT.format(m="2024-07")
+    dc.corrupt[bad] = fetch.DL_TRIES  # every attempt corrupted
+    posts = len([c for c in fake.list_client.calls if c[0] == "post"])
+    assert fetch.main("download", SITE, products=["DP1.00002.001"]) == 2
+    assert len([c for c in fake.list_client.calls if c[0] == "post"]) == posts
+    r = _rows("SELECT * FROM site_files WHERE name=?", (bad,))[0]
+    assert (r["dl_status"], r["dl_error"], r["dl_attempts"]) == ("error", "transfer_corrupt", fetch.DL_TRIES)
+    assert [c for c in dc.calls if c == ("stream", bad)] == [("stream", bad)] * fetch.DL_TRIES
+    assert not (site_env / r["local_path"]).exists() and not list(site_env.rglob("*.part"))
+    # the next run gets good bytes
+    assert fetch.main("download", SITE, products=["DP1.00002.001"]) == 0
+    assert _rows("SELECT dl_status, transfer_verified FROM site_files WHERE name=?", (bad,))[0][:] == ("ok", 1)
+
+
+def test_corruption_never_replaces_a_good_local_file(site_env: Path) -> None:  # noqa: F811
+    dest = site_env / "x" / "NEON.D99.TEST.DP1.00002.001.variables.20250101T000000Z.csv"
+    dest.parent.mkdir(parents=True)
+    dest.write_bytes(b"good")
+    c = GcsClient(blobs={"https://storage.googleapis.com/bucket/" + dest.name: b"new bytes"})
+    c.corrupt[dest.name] = 1
+    with pytest.raises(fetch.TransferCorrupt):
+        asyncio.run(fetch.stream_verified(c, f"https://storage.googleapis.com/bucket/{dest.name}?X-Goog-Signature=1",
+                                          dest, max_bytes=100, neon_md5=None, hard=True))
+    assert dest.read_bytes() == b"good" and not dest.with_name(dest.name + ".part").exists()
+
+
+def test_without_a_storage_md5_neon_md5_is_hard_for_data_soft_for_supporting(fake: FakeBundle,
+                                                                              site_env: Path) -> None:  # noqa: F811
+    data = SAAT.format(m="2024-06")
+    var = "NEON.D99.TEST.DP1.00002.001.variables.20250101T000000Z.csv"
+    _set_neon_md5(fake, data, "d" * 32)
+    _set_neon_md5(fake, var, "e" * 32)
+    assert fetch.main("list", SITE, products=["DP1.00002.001"]) == 0
+    dc = fake.download_client
+    dc.no_hash |= {data, var, SAAT.format(m="2024-05")}
+    assert fetch.main("download", SITE, products=["DP1.00002.001"]) == 2
+    rows = {r["name"]: r for r in _rows("SELECT * FROM site_files WHERE site=?", (SITE,))}
+    assert (rows[data]["dl_status"], rows[data]["dl_error"]) == ("error", "checksum_mismatch")
+    assert rows[var]["dl_status"] == "ok" and rows[var]["md5_verified"] == 0 and rows[var]["transfer_verified"] is None
+    ok = rows[SAAT.format(m="2024-05")]  # right NEON md5, no storage md5: verified against NEON only
+    assert (ok["dl_status"], ok["md5_verified"], ok["transfer_verified"], ok["storage_md5"]) == ("ok", 1, None, None)
+    # one re-list at the second attempt, over the recorded window only
+    posts = [c for c in fake.list_client.calls if c[0] == "post"]
+    assert posts[-1] == ("post", "DP1.00002.001|2024-05|2024-07|")
+
+
+@pytest.mark.parametrize("mode", ["gzip_stored", "transit_gzip", "transcoded"])
+def test_content_encodings(site_env: Path, mode: str) -> None:  # noqa: F811
+    body = b"a,b,c\n" + b"1,2,3\n" * 200
+    name = "NEON.D99.TEST.DP1.00002.001.000.010.030.SAAT_30min.2024-01.basic.20250101T000000Z.csv"
+    c = GcsClient(blobs={f"https://storage.googleapis.com/bucket/{name}": body})
+    getattr(c, mode).add(name)
+    dest = site_env / "raw" / name
+    out = asyncio.run(fetch.stream_verified(c, f"https://storage.googleapis.com/bucket/{name}?X-Goog-Signature=1",
+                                            dest, max_bytes=10_000, neon_md5=md5(body), hard=True))
+    assert dest.read_bytes() == body and out.md5 == md5(body) and out.bytes == len(body)
+    if mode == "gzip_stored":  # the hash covers the stored (gzip) bytes = the raw body
+        assert out.transfer_verified is True and out.storage_md5 == md5(gzip.compress(body, mtime=0))
+        assert out.raw_bytes < len(body) and out.content_encoding == "gzip"
+    elif mode == "transit_gzip":  # stored identity, gzip on the wire only: the hash covers the decoded body
+        assert out.transfer_verified is True and out.storage_md5 == md5(body)
+    else:  # served decoded from a gzip object: no comparable hash, NEON md5 decides
+        assert out.transfer_verified is None
+
+
+def test_download_limit_still_applies(site_env: Path) -> None:  # noqa: F811
+    from neon_mcp.errors import ToolError
+
+    name = "NEON.D99.TEST.DP1.00002.001.variables.20250101T000000Z.csv"
+    c = GcsClient(blobs={f"https://storage.googleapis.com/bucket/{name}": b"x" * 500})
+    dest = site_env / "raw" / name
+    with pytest.raises(ToolError) as exc:
+        asyncio.run(fetch.stream_verified(c, f"https://storage.googleapis.com/bucket/{name}?X-Goog-Signature=1",
+                                          dest, max_bytes=100, neon_md5=None, hard=False))
+    assert exc.value.code == "download_limit_exceeded" and not dest.exists()
+    assert not dest.with_name(dest.name + ".part").exists()
+
+
+def test_relist_reuses_the_recorded_sample_windows(fake: FakeBundle, site_env: Path) -> None:  # noqa: F811
+    """F2 regression: a download without month filters (probe style) must not re-list the full window."""
+    lc = fake.list_client
+    lc.responses["DP1.00002.001|2024-06|2024-06|"] = query_payload("DP1.00002.001", [
+        ("RELEASE-2026", "2026-01-23T00:07:49Z", [("2024-06", _files_for("2024-06"))])])
+    assert fetch.main("list", SITE, products=["DP1.00002.001"], months=["2024-06"]) == 0
+    gone = SAAT.format(m="2024-06")
+    from neon_mcp.errors import NeonApiError
+
+    fake.download_client.stream_failures[gone] = [NeonApiError(403, "expired", "/bucket/x")]
+    lc.calls.clear()
+    assert fetch.main("download", SITE) == 0  # unfiltered pairs: the full 2024-05..2024-07 window
+    assert [c for c in lc.calls if c[0] == "post"] == [("post", "DP1.00002.001|2024-06|2024-06|")]
+    months = {r[0] for r in _rows("SELECT DISTINCT month FROM site_files WHERE product='DP1.00002.001'")}
+    assert months == {"2024-06"}  # nothing from outside the sample was journaled
+    parts = [r[0] for r in _rows("SELECT part FROM listings WHERE product='DP1.00002.001'")]
+    assert parts == ["2024-06_2024-06"]
+
+
+def test_relist_windows_pick_the_narrowest_recorded_part(site_env: Path) -> None:  # noqa: F811
+    con = state.connect(state.DB_PATH)
+    f = fetch.Fetcher(site=SITE, bundle=FakeBundle(FakeClient(), FakeClient()), con=con, pairs=[])
+    P = "DP1.00002.001"
+    for part, rel, s, e in [("2024-06_2024-06", None, "2024-06", "2024-06"),
+                            ("2016-05_2026-08", None, "2016-05", "2026-08"),  # a stray full window (F2 bug)
+                            ("2019-01_2019-02__RELEASE-2025", "RELEASE-2025", "2019-01", "2019-02"),
+                            ("external__2024-07", None, "2024-06", "2024-07")]:
+        con.execute("INSERT INTO listings(site, product, part, release, start_month, end_month, listed_at, status)"
+                    " VALUES (?,?,?,?,?,?,?,?)", (SITE, P, part, rel, s, e, "2026-09-01T00:00:00+00:00", "ok"))
+    f.pending_months = {P: {("2024-06", False, "RELEASE-2026"), ("2019-02", True, "RELEASE-2025"),
+                            ("2025-01", False, "PROVISIONAL"), ("2019-05", True, "RELEASE-2024")}}
+    got = [(s, e, p["release"], p["months"], p["filtered"]) for p, s, e in f.relist_windows(P)]
+    assert got == [
+        ("2016-05", "2026-08", None, ["2025-01"], False),  # only the stray part covers 2025-01
+        ("2024-06", "2024-06", None, ["2024-06"], False),  # the narrow part wins for 2024-06
+        ("2019-05", "2019-05", "RELEASE-2024", ["2019-05"], True),  # no recorded part: exactly that month
+        ("2019-01", "2019-02", "RELEASE-2025", ["2019-02"], True),
+    ]
+    # nothing pending -> nothing to re-list
+    f.pending_months = {P: set()}
+    assert f.relist_windows(P) == [] and asyncio.run(f.relist(P, "test")) is False
+    con.close()
+
+
+def test_lab_files_are_kind_lab_in_listings_and_healed(fake: FakeBundle) -> None:
+    lab = "NEON.NEON_HQ.mct_taxonTableLabSummary.20251206T221502Z.csv"
+    lc = fake.list_client
+    lc.responses["DP1.10003.001|2024-06|2024-06|"]["releases"][0]["packages"][0]["files"].append(
+        neon_file(lab, _body(lab)))
+    fake.download_client.blobs[f"https://storage.googleapis.com/bucket/{lab}"] = _body(lab)
+    assert fetch.main("list", SITE, products=["DP1.10003.001"]) == 0
+    assert _rows("SELECT kind FROM site_files WHERE name=?", (lab,))[0][0] == "lab"
+    con = state.connect(state.DB_PATH)
+    con.execute("UPDATE site_files SET kind='other' WHERE name=?", (lab,))  # a row from an older listing
+    con.close()
+    assert fetch.main("download", SITE, products=["DP1.10003.001"]) == 0
+    r = _rows("SELECT kind, dl_status, md5_verified FROM site_files WHERE name=?", (lab,))[0]
+    assert tuple(r) == ("lab", "ok", 1)
+    lake = site_lake.open_site_lake(SITE, read_only=True)
+    assert lake.execute("SELECT kind, tableName FROM lake.files WHERE name=?", [lab]).fetchone() == (
+        "lab", "mct_taxonTableLabSummary")
+    lake.close()
+
+
+def test_legacy_client_without_opener_uses_neon_md5(site_env: Path) -> None:  # noqa: F811
+    con, blobs = _seed_downloads(5)
+    f = fetch.Fetcher(site=SITE, bundle=FakeBundle(FakeClient(), FakeClient(blobs=blobs)), con=con, pairs=[])
+    asyncio.run(f.download_all(None, None))
+    rows = con.execute("SELECT dl_status, md5_verified, transfer_verified FROM site_files").fetchall()
+    assert {tuple(r) for r in rows} == {("ok", 1, None)} and f.counts["noStorageMd5"] == 5
+    con.close()
+
+
+def test_lake_files_follow_the_journal(fake: FakeBundle) -> None:
+    """Rows deleted from the journal (F2 stray-row cleanup) leave the site lake ``files`` on the next write."""
+    assert fetch.main("list", SITE, products=["DP1.00002.001"]) == 0
+    con = state.connect(state.DB_PATH)
+    con.execute("DELETE FROM site_files WHERE month='2024-05'")
+    con.close()
+    assert fetch.main("download", SITE, products=["DP1.00002.001"]) == 0
+    lake = site_lake.open_site_lake(SITE, read_only=True)
+    assert {r[0] for r in lake.execute("SELECT DISTINCT month FROM lake.files").fetchall()} == {"2024-06", "2024-07"}
+    lake.close()
+    import json
+
+    summary = json.loads((site_lake.site_paths(SITE).reports_dir / "download_summary.json").read_text())
+    assert summary["lake"]["notInJournalRemoved"] == 3
