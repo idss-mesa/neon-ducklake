@@ -73,7 +73,7 @@ def test_upload_items_and_order(site_env: Path, pushed: list) -> None:  # noqa: 
     assert [str(p.relative_to(site_env)) for p, _d, _m in pushed[1]["items"]] == [
         f"sites/{SITE}/ducklake/neon_{SITE.lower()}.ducklake"]
     assert not site_lake.site_paths(SITE).wal_file.exists()
-    assert (site_env / "sites" / SITE / "reports" / "upload_summary.json").exists()
+    assert (site_env / "logs" / f"upload_summary_{SITE}.json").exists()
 
 
 def test_upload_filters_and_failure_holds_back_catalog(site_env: Path, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: F811
