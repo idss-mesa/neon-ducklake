@@ -73,7 +73,7 @@ def test_default_budget_resolves_lock_dir_and_size_at_call_time(tmp_path: Path, 
     monkeypatch.setattr(env, "LOCK_DIR", tmp_path / "locks")
     monkeypatch.delenv(tuning.BUDGET_ENV, raising=False)
     b = tuning.irods_budget()
-    assert b.total == 32 and b.lock_dir == tmp_path / "locks"
+    assert b.total == tuning.DEFAULT_IRODS_CONNECTIONS == 8 and b.lock_dir == tmp_path / "locks"
     monkeypatch.setenv(tuning.BUDGET_ENV, "12")
     assert tuning.irods_budget().total == 12
     monkeypatch.setenv(tuning.BUDGET_ENV, "zero")

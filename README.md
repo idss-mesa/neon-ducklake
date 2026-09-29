@@ -195,7 +195,7 @@ The defaults need no user-specific paths. Override them with these environment v
 | `NEON_DUCKLAKE_CLAUDE` | `~/.local/bin/claude`, else `claude` on `PATH` | Claude CLI used by `curate` |
 | `NEON_DUCKLAKE_ANYJEV_PYTHON` | a mesa-anyjev `.venv` | Optional interpreter whose mesa-anyjev card parser `site cards` uses |
 | `NEON_DUCKLAKE_ROWS_PER_BATCH` | 250,000 | MESA history rows per batch and per recorder snapshot |
-| `NEON_DUCKLAKE_IRODS_CONNECTIONS` | 32 | iRODS connection budget shared by all neon-ducklake processes on one machine |
+| `NEON_DUCKLAKE_IRODS_CONNECTIONS` | 8 | iRODS connection budget shared by all neon-ducklake processes on one machine (CyVerse refuses connections above about 10 per user) |
 | `NEON_DUCKLAKE_WORKSET_BYTES` | 50 GB | Cap on the local working set of stream runs: raw files plus site lakes (`run --workset-bytes`) |
 | `NEON_DUCKLAKE_CHUNK_BYTES` | 8 GB | Largest chunk (`run --chunk-bytes`) |
 | `NEON_DUCKLAKE_SECRETS` | `auto` | Where `with-secrets.sh` finds the secrets: `env`, `keyring` or `auto` |

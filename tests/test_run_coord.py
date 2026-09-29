@@ -139,8 +139,8 @@ def test_journal_pusher_stages_errors_and_stop() -> None:
     def boom(site: str) -> dict[str, Any]:
         raise ConnectionError("no route to host")
 
-    assert "journal push failed: ConnectionError: no route to host" in run.make_journal_pusher(push=boom)(
-        "A", "finalize", None)
+    assert "journal push failed: ConnectionError: no route to host" in run.make_journal_pusher(
+        push=boom, sleep=lambda _s: None)("A", "finalize", None)
     stop.set()  # the caller lost the claim: never overwrite the new owner's backup
     assert "not pushed" in (hook("A", "delete", "c1") or "") and pushed == ["A"] * 4
 

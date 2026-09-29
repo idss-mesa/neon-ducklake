@@ -57,7 +57,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from .. import env, state
+from .. import env, state, tuning
 from . import chunks as chunkmod
 from . import site_lake
 from .chunks import FAILED, RANK, STAGE_STATUS, STATUSES, Chunk
@@ -70,6 +70,17 @@ StageFn = Callable[[Chunk, sqlite3.Connection], tuple[int, dict[str, Any]]]
 
 
 # ---------------------------------------------------------------- the stage wrapper
+
+def _crashed(what: str, exc: BaseException) -> tuple[int, dict[str, Any]]:
+    """The rc and info of a stage that raised: RC_RETRY for a transient iRODS/network failure (a refused
+    handshake, a reset, a timeout, the connection limit), so the orchestrator retries it later; else RC_FAILED."""
+    err = f"{type(exc).__name__}: {exc}"[:500]
+    if isinstance(exc, Exception) and tuning.transient_irods(exc):
+        log.warning("%s: transient iRODS/network failure, retry later: %s", what, err)
+        return RC_RETRY, {"error": f"transient: {err}"[:500], "transient": True}
+    log.exception("%s crashed", what)
+    return RC_FAILED, {"error": err}
+
 
 def _gate(ch: Chunk | None, site: str, chunk_id: str, stage: str) -> int | None:
     """RC_OK (already done), RC_NOT_READY (unknown / earlier stage missing) or None (the stage may run)."""
@@ -115,9 +126,8 @@ def _run_stage(site: str, chunk_id: str, stage: str, fn: StageFn, *, con: sqlite
             t0 = time.monotonic()
             try:
                 rc, info = fn(ch, con)
-            except (Exception, SystemExit) as exc:  # a stage failure is journaled, never raised
-                log.exception("%s %s %s crashed", stage, site, chunk_id)
-                rc, info = RC_FAILED, {"error": f"{type(exc).__name__}: {exc}"[:500]}
+            except (Exception, SystemExit) as exc:  # noqa: BLE001 - a stage failure is journaled, never raised
+                rc, info = _crashed(f"{stage} {site} {chunk_id}", exc)
             info = {**info, "rc": rc, "seconds": round(time.monotonic() - t0, 1), "at": env.utcnow().isoformat()}
             if rc == RC_OK:
                 chunkmod.set_status(con, site, chunk_id, target, done=target, finished=True, info={stage: info})
@@ -850,8 +860,12 @@ def restore_lake(site: str, *, session: Any | None = None, con: sqlite3.Connecti
                 log.warning("restore lake %s: %s; retry later", site, exc)
                 summary["retry"] = str(exc)[:500]
             except Exception as exc:  # reported, never raised
-                log.exception("restore lake %s failed", site)
-                summary["error"] = f"{type(exc).__name__}: {exc}"[:500]
+                if tuning.transient_irods(exc):  # the Data Store refused or dropped us: not a failed restore
+                    log.warning("restore lake %s: %s: %s; retry later", site, type(exc).__name__, exc)
+                    summary["retry"] = f"{type(exc).__name__}: {exc}"[:500]
+                else:
+                    log.exception("restore lake %s failed", site)
+                    summary["error"] = f"{type(exc).__name__}: {exc}"[:500]
             finally:
                 tmp.unlink(missing_ok=True)
                 tmp.with_name(tmp.name + ".wal").unlink(missing_ok=True)
@@ -891,9 +905,8 @@ def _site_step(con: sqlite3.Connection, site: str, step: str, fn: Callable[[], t
     t0 = time.monotonic()
     try:
         rc, info = fn()
-    except (Exception, SystemExit) as exc:  # journaled, never raised
-        log.exception("finalize %s %s crashed", site, step)
-        rc, info = RC_FAILED, {"error": f"{type(exc).__name__}: {exc}"[:500]}
+    except (Exception, SystemExit) as exc:  # noqa: BLE001 - journaled, never raised
+        rc, info = _crashed(f"finalize {site} {step}", exc)
     info = {**info, "rc": rc, "seconds": round(time.monotonic() - t0, 1)}
     if rc == RC_OK:
         chunkmod.set_step(con, site, step, "ok", info=info)

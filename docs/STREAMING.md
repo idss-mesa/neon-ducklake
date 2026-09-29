@@ -362,7 +362,9 @@ The cap is exported to the stages.
 - A stage whose return code asks for a later retry (`RETRY_RC`) is dispatched again after a delay, instead
   of failing:
   - `RC_RETRY` (4) from any stream stage, chunk or site-level: a transient condition, such as OLS leaving
-    taxa pending or the lake's Data Store catalog being written;
+    taxa pending or the lake's Data Store catalog being written. A stage (or finalize step, or the lake
+    restore) that raises a transient iRODS/network error (`tuning.transient_irods`: a refused handshake, a
+    reset, a timeout, `SYS_MAX_CONNECT_COUNT_EXCEEDED`, a locked object) returns it too, instead of failing;
   - chunk `download` rc 3 (the working set stayed full);
   - `finalize` rc 1 (another VM still curates one of the site's products).
 

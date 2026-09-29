@@ -105,6 +105,7 @@ from pathlib import Path
 from typing import Any
 
 from . import env, state
+from .tuning import transient_irods
 
 STAGES: tuple[str, ...] = ("plan", "list", "download", "stack", "terms", "cards", "curate", "validate", "upload",
                            "apply", "record", "verify", "evict")
@@ -2140,8 +2141,13 @@ def _push_site_journal(site: str) -> Any:
     return journal_sync.push_site_journal(site)
 
 
+JOURNAL_PUSH_TRIES = 4  # a push that fails with a transient iRODS error is retried after 30, 60, 90 s
+JOURNAL_PUSH_WAIT_S = 30.0
+
+
 def make_journal_pusher(stop_event: threading.Event | None = None,
-                        push: Callable[[str], Any] | None = None) -> Callable[[str, str, str | None], str | None]:
+                        push: Callable[[str], Any] | None = None,
+                        sleep: Callable[[float], None] = time.sleep) -> Callable[[str, str, str | None], str | None]:
     """``after_ok`` hook: push the site's journal to the Data Store after the stages of JOURNAL_PUSH_AFTER.
 
     Pushes of one site are serialised. Returns an error message (the stage then fails) when the push fails, or
@@ -2156,11 +2162,20 @@ def make_journal_pusher(stop_event: threading.Event | None = None,
             return "stopped by the caller (claim lost?): journal not pushed"
         with guard:
             lock = locks.setdefault(site, threading.Lock())
-        try:
-            with lock:
-                res = (push or _push_site_journal)(site)
-        except Exception as exc:  # noqa: BLE001
-            return f"journal push failed: {type(exc).__name__}: {exc}"
+        for attempt in range(1, JOURNAL_PUSH_TRIES + 1):
+            try:
+                with lock:
+                    res = (push or _push_site_journal)(site)
+                break
+            except Exception as exc:  # noqa: BLE001
+                # a refused or dropped connection is retried here: failing the stage for it fails the site
+                if attempt < JOURNAL_PUSH_TRIES and transient_irods(exc) and \
+                        not (stop_event is not None and stop_event.is_set()):
+                    say(f"{site:5} {stage:10} journal push: {type(exc).__name__}: {exc}; "
+                        f"retry {attempt}/{JOURNAL_PUSH_TRIES - 1} in {JOURNAL_PUSH_WAIT_S * attempt:.0f}s"[:400])
+                    sleep(JOURNAL_PUSH_WAIT_S * attempt)
+                    continue
+                return f"journal push failed: {type(exc).__name__}: {exc}"
         if isinstance(res, dict) and res.get("error"):
             return f"journal push failed: {res['error']}"
         return None

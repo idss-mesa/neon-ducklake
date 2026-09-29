@@ -182,9 +182,14 @@ coordination is needed: claims keep them on different sites, and curation claims
 for the same product's Opus runs twice. sparky-1's own `neon-ducklake run` (or `scripts/full_sweep.sh`)
 takes the same site claims, so it can run next to the workers; it skips sites they hold or finished.
 
-**The iRODS connection budget is per VM.** `NEON_DUCKLAKE_IRODS_CONNECTIONS` (default 32) is enforced with
-lock files on each machine, but CyVerse's per-user connection limit is shared by all of them. With `n`
-VMs, set it to about `32 / n` on each VM (and close idle mesa-mcp sessions).
+**The iRODS connection budget is per VM.** `NEON_DUCKLAKE_IRODS_CONNECTIONS` (default 8) is enforced with
+lock files on each machine, but CyVerse's per-user connection limit is shared by all of them. On
+2026-09-29 sparky-1 alone saw handshakes refused (`NetworkException`, "Read 0 bytes from socket") above
+about 10 connections, so the default leaves room for the root sessions, the claim heartbeat and the journal
+push, which hold connections outside the budget. With `n` VMs on one CyVerse user, lower it on each VM
+(and close idle mesa-mcp sessions). A refused connection is retried: the listing and every put retry on a
+fresh session, the journal push retries in place, and a stage that still fails with one returns rc 4
+(retry later), so the orchestrator backs off instead of failing the site.
 
 **Stopping.** Press Ctrl-C once, or `kill -INT` / `kill -TERM` the worker. The site in progress stops, its
 journal is pushed and its claim is released, so any VM can continue it. Chunks already verified and

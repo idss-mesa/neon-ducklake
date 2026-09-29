@@ -19,8 +19,11 @@ size-dependent per-file target, with ``target=1.0``. The AVU rate passes seconds
 
 Cross-process iRODS connection budget (:class:`ConnectionBudget`, :class:`SessionPool`):
 
-- ``work/locks/irods-conn-NN.lock`` are N lock files. N is 32 by default, or
-  ``NEON_DUCKLAKE_IRODS_CONNECTIONS``, and must be the same in every process.
+- ``work/locks/irods-conn-NN.lock`` are N lock files. N is 8 by default, or
+  ``NEON_DUCKLAKE_IRODS_CONNECTIONS``, and must be the same in every process. CyVerse refuses the
+  handshake (``NetworkException``: "Read 0 bytes from socket") above about 10 connections of one user
+  (measured 2026-09-29), and root sessions, the claim heartbeat and the journal push hold connections
+  outside the budget, so N stays below that.
 - One slot is one iRODS connection. It is held with ``fcntl.flock(LOCK_EX | LOCK_NB)`` on one of those
   files. The kernel releases it when the process dies, so a ``kill -9`` never leaks a slot.
 - A :class:`SessionPool` binds every cloned worker session to one slot for the session's whole life.
@@ -53,7 +56,7 @@ from . import env
 
 log = logging.getLogger("neon_ducklake.tuning")
 
-DEFAULT_IRODS_CONNECTIONS = 32
+DEFAULT_IRODS_CONNECTIONS = 8
 BUDGET_ENV = "NEON_DUCKLAKE_IRODS_CONNECTIONS"
 
 CONN_LIMIT = "SYS_MAX_CONNECT_COUNT_EXCEEDED"
@@ -88,6 +91,12 @@ def irods_error_kind(exc: BaseException) -> str | None:
     if isinstance(exc, (ConnectionError, EOFError)) or any(m in s for m in _RESET_MARKERS):
         return "reset"
     return None
+
+
+def transient_irods(exc: BaseException) -> bool:
+    """True for a failure that goes away on its own (a refused or reset connection, a timeout, the connection
+    limit, a locked object): a stage that raised it should be retried later, not failed."""
+    return irods_error_kind(exc) is not None
 
 
 # ---------------------------------------------------------------- AIMD policy
