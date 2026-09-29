@@ -289,7 +289,16 @@ def variables_meta(con: duckdb.DuckDBPyConnection, product: str, neon_table: str
 
 
 def h5_objdesc(con: duckdb.DuckDBPyConnection, product: str) -> dict[str, str]:
-    """The ``/objDesc`` term dictionary of the newest local HDF5 file of the product ({} when unavailable)."""
+    """The ``/objDesc`` term dictionary of the product's HDF5 files: the lake table ``h5_objdesc`` (captured at
+    stack time, the newest file's description per term), else the newest local HDF5 file ({} when neither).
+
+    Streamed sites delete their .h5 files after the upload, so the lake table is the one that counts."""
+    if site_lake.table_exists(con, "h5_objdesc"):
+        rows = con.execute("SELECT term, description FROM lake.h5_objdesc WHERE productCode = ? AND term IS NOT NULL "
+                           "QUALIFY row_number() OVER (PARTITION BY term ORDER BY month DESC NULLS LAST, "
+                           "sourceFile DESC) = 1", [product]).fetchall()
+        if rows:
+            return {str(t).strip(): clean(d or "") for t, d in rows}
     row = con.execute("SELECT localRelPath FROM lake.files WHERE productCode = ? AND lower(name) LIKE '%.h5' "
                       "AND localRelPath IS NOT NULL ORDER BY month DESC, name DESC LIMIT 1", [product]).fetchone()
     if not row:
@@ -803,13 +812,15 @@ def _write(path: Path, text: str) -> None:
 
 def main(site: str, products: list[str] | None = None) -> int:
     site = site.upper()
-    con = site_lake.open_site_lake(site, read_only=True)
-    try:
-        has_catalog = site_lake.attach_catalog(con)
-        summary = build_cards(con, site, products, has_catalog)
-        summary["siteCard"] = str(write_site_card(con, site, has_catalog))
-    finally:
-        con.close()
+    # the site lake is read under its lock: a concurrent writer (a chunk download or stack) would fail the attach
+    with env.file_lock(f"site-lake-{site}", blocking=True):
+        con = site_lake.open_site_lake(site, read_only=True)
+        try:
+            has_catalog = site_lake.attach_catalog(con)
+            summary = build_cards(con, site, products, has_catalog)
+            summary["siteCard"] = str(write_site_card(con, site, has_catalog))
+        finally:
+            con.close()
     parsed = anyjev_parse([Path(a["path"]) for a in summary["anyjev"]])
     bad = dict(summary["problems"])
     if parsed is None:

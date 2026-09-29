@@ -77,6 +77,10 @@ STACK_SCHEMAS: dict[str, dict[str, str]] = {
         "nColumns": "BIGINT", "nFiles": "BIGINT", "firstMonth": "VARCHAR", "lastMonth": "VARCHAR",
         "columns": "VARCHAR[]", "missingVsUnion": "VARCHAR[]", "notInVariables": "VARCHAR[]", "builtAt": "TIMESTAMPTZ",
         "unknownColumns": "VARCHAR[]", "firstPublication": "TIMESTAMPTZ", "lastPublication": "TIMESTAMPTZ"},
+    # one row per variables file: its record count (``neon.variableCount``, read from the lake, not the CSV)
+    "variables_files": {
+        "productCode": "VARCHAR", "month": "VARCHAR", "sourceFile": "VARCHAR", "publicationDate": "TIMESTAMPTZ",
+        "nVariables": "BIGINT"},
     "table_catalog": {
         "tableName": "VARCHAR", "productCode": "VARCHAR", "neonTable": "VARCHAR", "kind": "VARCHAR",
         "nFiles": "BIGINT", "nRows": "BIGINT", "nColumns": "BIGINT", "firstMonth": "VARCHAR", "lastMonth": "VARCHAR",
@@ -365,3 +369,144 @@ def replace_where(con: duckdb.DuckDBPyConnection, table: str, source: str, where
 
 def snapshot_count(con: duckdb.DuckDBPyConnection, alias: str = ALIAS) -> int:
     return int(con.execute(f"SELECT count(*) FROM {alias}.snapshots()").fetchone()[0])
+
+
+# ---------------------------------------------------------------- catalog lineage (Data Store copy vs local)
+
+Snapshot = tuple[int, str, str]  # (snapshot_id, snapshot_time, commit_message)
+
+
+def catalog_snapshots(catalog: Path, site: str) -> list[Snapshot]:
+    """Every snapshot of a ``.ducklake`` catalog file (attached READ_ONLY; its data files are never read)."""
+    con = duckdb.connect()
+    try:
+        con.execute("LOAD ducklake")
+        data = site_paths(site).data_dir
+        con.execute(f"ATTACH {sql_str('ducklake:' + str(catalog))} AS cat "
+                    f"(READ_ONLY, DATA_PATH {sql_str(str(data) + '/')}, OVERRIDE_DATA_PATH true)")
+        rows = con.execute("SELECT snapshot_id, CAST(snapshot_time AS VARCHAR), coalesce(commit_message, '') "
+                           "FROM cat.snapshots() ORDER BY snapshot_id").fetchall()
+    finally:
+        con.close()
+    return [(int(r[0]), str(r[1]), str(r[2])) for r in rows]
+
+
+def _live_row(rows: list[tuple[Any, ...]], at: int | None) -> tuple[Any, ...] | None:
+    """The version of a schema or table row (``begin_snapshot, end_snapshot, ...``) live at snapshot ``at``; the
+    newest one when no version covers it."""
+    if not rows:
+        return None
+    if at is not None:
+        for r in rows:
+            if (r[0] is None or r[0] <= at) and (r[1] is None or r[1] > at):
+                return r
+    return max(rows, key=lambda r: r[0] or 0)
+
+
+def _join_path(prefix: str, part: Any, relative: Any) -> str:
+    part = str(part or "")
+    return prefix + part if relative is None or bool(relative) else part
+
+
+def catalog_data_files(catalog: Path) -> dict[str, int | None]:
+    """Every data file a ``.ducklake`` catalog file references (``ducklake_data_file`` and ``ducklake_delete_file``,
+    ended ones included: older snapshots still read them), as ``path relative to the lake's data/`` -> the size the
+    catalog records (``file_size_bytes``; None when unknown).
+
+    The catalog is opened as a plain DuckDB database, read-only (checkpoint the lake first: no ``.wal``). Paths
+    resolve the DuckLake way: data path + schema path + table path + file path, each part relative to the one
+    before unless absolute. An absolute path outside the catalog's data path cannot be mapped to ``data/`` and is
+    left out (logged)."""
+    con = duckdb.connect(str(catalog), read_only=True)
+    try:
+        def cols(table: str) -> set[str]:
+            return {str(r[0]) for r in con.execute(f"DESCRIBE {table}").fetchall()}
+
+        scoped = "scope" in cols("ducklake_metadata")
+        row = con.execute("SELECT value FROM ducklake_metadata WHERE key = 'data_path'" +
+                          (" ORDER BY scope NULLS FIRST" if scoped else "") + " LIMIT 1").fetchone()
+        base = str(row[0] or "") if row else ""
+        if base and not base.endswith("/"):
+            base += "/"
+        versions: dict[str, dict[int, list[tuple[Any, ...]]]] = {}
+        for table, key, extra, name in (("ducklake_schema", "schema_id", "", "schema_name"),
+                                        ("ducklake_table", "table_id", "schema_id, ", "table_name")):
+            path = "path, path_is_relative" if "path" in cols(table) else f"{name} || '/', true"
+            got = versions.setdefault(table, {})
+            for rid, *rest in con.execute(f"SELECT {key}, begin_snapshot, end_snapshot, {extra}{path} "
+                                          f"FROM {table}").fetchall():
+                got.setdefault(int(rid), []).append(tuple(rest))
+        files = con.execute(
+            "SELECT table_id, begin_snapshot, path, path_is_relative, file_size_bytes FROM ducklake_data_file "
+            "UNION ALL SELECT table_id, begin_snapshot, path, path_is_relative, file_size_bytes "
+            "FROM ducklake_delete_file").fetchall()
+    finally:
+        con.close()
+    out: dict[str, int | None] = {}
+    for tid, begin, path, relative, size in files:
+        prefix = base
+        t = _live_row(versions["ducklake_table"].get(int(tid), []), begin)
+        if t is not None:  # (begin, end, schema_id, path, path_is_relative)
+            s = _live_row(versions["ducklake_schema"].get(int(t[2]), []), begin)
+            if s is not None:  # (begin, end, path, path_is_relative)
+                prefix = _join_path(prefix, s[2], s[3])
+            prefix = _join_path(prefix, t[3], t[4])
+        full = _join_path(prefix, path, relative)
+        if base and full.startswith(base):
+            rel = full[len(base):]
+        elif not base and not full.startswith("/"):
+            rel = full
+        else:
+            log.warning("catalog %s: data file %s lies outside its data path %s; left out", catalog.name, full, base)
+            continue
+        out[rel.lstrip("/")] = int(size) if size is not None else None
+    return out
+
+
+def snapshot_key(snap: Snapshot) -> str:
+    """``id|time|message``: identifies one snapshot of one lake history (``lake_pushes.snapshot_key``)."""
+    return f"{snap[0]}|{snap[1]}|{snap[2]}"
+
+
+def lineage(local: list[Snapshot], remote: list[Snapshot]) -> str:
+    """How two snapshot histories of one lake relate: ``same``, ``local_ahead`` (the remote history is a prefix of
+    the local one), ``remote_ahead`` (the reverse) or ``diverged`` (each has snapshots the other lacks)."""
+    if local == remote:
+        return "same"
+    n = min(len(local), len(remote))
+    if local[:n] != remote[:n]:
+        return "diverged"
+    return "local_ahead" if len(local) > len(remote) else "remote_ahead"
+
+
+def last_snapshot_id(con: duckdb.DuckDBPyConnection, alias: str = ALIAS) -> int | None:
+    row = con.execute(f"SELECT max(snapshot_id) FROM {alias}.snapshots()").fetchone()
+    return None if not row or row[0] is None else int(row[0])
+
+
+def stream_chunk_ids(con: duckdb.DuckDBPyConnection, site: str, alias: str = ALIAS) -> dict[str, int]:
+    """chunk id -> last snapshot id of the lake's ``stream stack <SITE> <chunk> <unit>`` commits."""
+    prefix = f"stream stack {site.upper()} "
+    out: dict[str, int] = {}
+    for sid, msg in con.execute(f"SELECT snapshot_id, commit_message FROM {alias}.snapshots() "
+                                "WHERE starts_with(commit_message, ?)", [prefix]).fetchall():
+        parts = str(msg)[len(prefix):].split(" ", 1)
+        if parts and parts[0]:
+            out[parts[0]] = max(out.get(parts[0], 0), int(sid))
+    return out
+
+
+def data_bytes(site: str | None = None) -> int:
+    """Bytes of the local site-lake ``data/**`` files (one site, or every site under ``sites/``)."""
+    import os
+
+    roots = [site_paths(site).data_dir] if site else sorted(env.SITES_DIR.glob("*/ducklake/data"))
+    total = 0
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for dirpath, _dirs, names in os.walk(root):
+            for n in names:
+                with contextlib.suppress(OSError):
+                    total += os.lstat(os.path.join(dirpath, n)).st_size
+    return total

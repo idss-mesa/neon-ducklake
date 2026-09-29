@@ -299,3 +299,27 @@ def test_journal_columns_tolerate_missing_optional_columns(site_env) -> None:  #
     cols = vs.journal_columns(sc)
     assert "local_evicted" in cols and "NULL AS storage_md5" in cols and "NULL AS local_evicted" not in cols
     sc.execute(f"SELECT {cols} FROM site_files").fetchall()
+
+
+def test_metadata_only_skips_local_files_and_sampled_csvs(world, site_env: Path,  # noqa: F811
+                                                         monkeypatch: pytest.MonkeyPatch) -> None:
+    _f, con, data, store = world
+    for j in data.journal:  # streamed away: the raw files are gone (this journal never flagged them evicted)
+        (site_env / j["local_path"]).unlink()
+    full = run(con, data, store)
+    assert full["local files"]["status"] == "fail" and full["local files"]["details"]["missing"]
+    meta = run(con, data, store, metadata_only=True)
+    assert meta["local files"]["status"] == "pass" and meta["local files"]["summary"].startswith("metadata only")
+    assert meta["stack rows"]["summary"].startswith("0 sampled CSVs")
+    assert meta["irods objects"]["status"] == "pass" and meta["_report"]["metadataOnly"] is True
+    assert meta["_report"]["ok"] is True
+    # main() takes the flag (the stream finalize passes metadata_only=True)
+    seen: dict[str, Any] = {}
+
+    def fake_run(self: SiteVerifier) -> dict[str, Any]:
+        seen["metadata_only"] = self.metadata_only
+        return {"site": SITE, "filters": {"products": None, "months": None}, "checks": [], "summary": {}, "ok": True}
+
+    monkeypatch.setattr(SiteVerifier, "run", fake_run)
+    assert verify_site.main(SITE, metadata_only=True, out=site_env / "v.json") == 0
+    assert seen == {"metadata_only": True}

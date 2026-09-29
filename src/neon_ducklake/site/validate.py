@@ -63,6 +63,16 @@ validate again → curated) and the heuristic row stays. Rows set by hand (statu
 are never replaced. Every replicate choice is kept in ``site_envo_proposals`` (source ``rep1``/``rep2``/
 ``human``), and ``curation/site/_site.validated.json`` records the outcome.
 
+**Shared generic results (multi-VM).** Every generic result records its content version: ``validatedAt``
+and ``runId`` (the ``site validate`` run), plus ``validatedBy`` ``{vm, host}`` (these three are ignored when
+deciding whether the file changed). When ``coord.curation_sync_enabled()`` (workers), every product
+validated here is published to ``<IRODS_ROOT>/curation/generic/<code>.validated.json`` (checksum-verified;
+never over a Data Store copy with a newer version) and this VM's curation claim on it is released
+(:func:`publish_generic_results`). :func:`import_generic` loads generic results fetched from the Data Store
+into ``curation_avus`` for products this host has no rows for, so their curated AVUs apply here too.
+:func:`pending_generic` lists the site's products whose curation another live VM holds and whose result is
+not on the Data Store yet (the site's finalize must wait for them).
+
 ``main(site, accept='', site_level=None)``: ``None`` validates the site pass (when it has proposals) and the
 products (when they have proposals); ``True`` only the site pass; ``False`` only the products.
 :func:`has_proposals` says whether there is anything to validate (for the orchestrator).
@@ -576,12 +586,95 @@ def store_rows(by_product: dict[str, list[dict[str, Any]]]) -> int:
     return len(rows)
 
 
-def write_generic(site: str, product: str, reps: list[Replicate], items: list[dict[str, Any]]) -> Path:
+def import_generic(products: Iterable[str] | None = None) -> dict[str, int]:
+    """Load ``curation/generic/<code>.validated.json`` into ``curation_avus`` for products without rows here.
+
+    ``products=None`` means every generic file. Products that already have rows (validated on this host) are
+    left alone. Returns ``{code: rows imported}``.
+    """
+    gdir = generic_path("X").parent
+    codes = sorted(products) if products is not None else sorted(
+        p.name[: -len(".validated.json")] for p in gdir.glob("*.validated.json")) if gdir.exists() else []
+    docs: dict[str, list[dict[str, Any]]] = {}
+    for code in codes:
+        try:
+            doc = json.loads(generic_path(code).read_text("utf-8"))
+        except (OSError, ValueError):
+            continue
+        items = [it for k in ("accepted", "proposed", "rejected") for it in doc.get(k) or [] if isinstance(it, dict)]
+        docs[code] = [it | {"productCode": code} for it in items if it.get("proposalId")]
+    if not docs:
+        return {}
+    with ontology_store.store(read_only=True) as con:
+        have = {r[0] for r in con.execute("SELECT DISTINCT productCode FROM curation_avus WHERE productCode IN "
+                                          "(SELECT unnest(?::VARCHAR[]))", [list(docs)]).fetchall()}
+    todo = {code: its for code, its in docs.items() if code not in have}
+    if not todo:
+        return {}
+    for its in todo.values():
+        for it in its:
+            for k in ("attribute", "value", "unit", "curie", "label", "ontologyId", "aspect", "column", "rationale",
+                      "model", "reps", "grounded", "status", "reason"):
+                it.setdefault(k, None)
+            it["unit"] = it["unit"] or ""
+    store_rows(todo)
+    out = {code: len(its) for code, its in todo.items()}
+    log.info("imported generic curation from the Data Store: %s", out)
+    return out
+
+
+def publish_generic_results(codes: Iterable[str]) -> dict[str, Any]:
+    """Publish validated generic results to the Data Store and release this VM's curation claims.
+
+    A no-op unless ``coord.curation_sync_enabled()``. A failed upload is reported, never fatal: the product
+    is still curated locally, and another VM may curate it again.
+    """
+    from .. import coord
+
+    codes = sorted(set(codes))
+    if not codes or not coord.curation_sync_enabled():
+        return {}
+    out: dict[str, Any] = {"published": [], "failed": {}}
+    try:
+        session = coord.get_session()
+    except (SystemExit, Exception) as exc:  # noqa: BLE001 - no credentials / Data Store unreachable
+        log.error("generic curation not published (no Data Store session): %s", exc)
+        return {"published": [], "failed": dict.fromkeys(codes, str(exc)[:200])}
+    for code in codes:
+        try:
+            stats = coord.publish_generic(code, generic_path(code), session=session)
+            if stats.get("errors"):
+                raise RuntimeError("; ".join(stats.get("error_samples") or ["upload failed"]))
+            if stats.get("skipped"):  # the Data Store holds a newer result (another VM validated it later)
+                out.setdefault("skipped", {})[code] = stats["skipped"]
+            else:
+                out["published"].append(code)
+        except Exception as exc:  # noqa: BLE001 - reported per product
+            log.error("%s: generic curation not published: %s", code, exc)
+            out["failed"][code] = str(exc)[:200]
+            continue
+        try:
+            coord.release_curation(code, session=session)
+        except Exception as exc:  # noqa: BLE001 - the claim expires on its own
+            log.warning("%s: curation claim not released: %s", code, exc)
+    log.info("generic curation published to the Data Store: %d product(s), %d failed", len(out["published"]),
+             len(out["failed"]))
+    return out
+
+
+GENERIC_VOLATILE: tuple[str, ...] = ("validatedAt", "validatedBy", "runId")
+
+
+def write_generic(site: str, product: str, reps: list[Replicate], items: list[dict[str, Any]],
+                  run_id: str | None = None) -> Path:
+    import socket
+
     def pick(status: set[str]) -> list[dict[str, Any]]:
         return [it for it in items if it["status"] in status]
 
     doc = {
         "productCode": product, "site": site, "validatedAt": env.utcnow().isoformat(),
+        "validatedBy": {"vm": env.vm_id(), "host": socket.gethostname()}, "runId": run_id,
         "model": next((r.data.get("model") for r in reps), MODEL),
         "rules": {"maxPerProduct": MAX_PER_PRODUCT, "replicates": REPLICATES,
                   "accepted": "valid in every replicate and grounded in at least one"},
@@ -597,8 +690,41 @@ def write_generic(site: str, product: str, reps: list[Replicate], items: list[di
         "rejected": pick({"rejected"}),
     }
     path = generic_path(product)
-    write_json_stable(path, doc)
+    write_json_stable(path, doc, volatile=GENERIC_VOLATILE)
     return path
+
+
+def pending_generic(site: str, *, session: Any | None = None) -> list[str]:
+    """Products of ``site`` (its cards) whose curation is claimed by another live VM and whose generic result
+    is not on the Data Store yet. Empty unless ``coord.curation_sync_enabled()``.
+
+    The site's finalize must not build product AVUs while this is non-empty (retry later), else those
+    products would never get their curated AVUs at this site.
+    """
+    from .. import coord
+
+    if not coord.curation_sync_enabled():
+        return []
+    p = curation_paths(site)
+    cards = sorted(c.stem for c in p.cards_dir.glob("*.md") if not c.name.startswith("_")) \
+        if p.cards_dir.exists() else []
+    if not cards:
+        return []
+    s = coord.get_session(session)
+    claims = coord.curation_claims(session=s)
+    now = env.utcnow()
+    out: list[str] = []
+    for code in cards:
+        c = claims.get(code)
+        # an invalid claim that is not stale is being written, or unreadable (coord.curation_claims): held
+        if c is None or c.is_stale(now) or c.is_mine():
+            continue
+        if coord.stat(s, coord.generic_remote_path(code)) is not None:
+            continue
+        out.append(code)
+    if out:
+        log.info("%s: curation of %s is held by other VM(s) and not published yet", site, ", ".join(out))
+    return out
 
 
 def card_title(site: str, product: str) -> str:
@@ -1122,6 +1248,7 @@ def _main_products(site: str, accept: str, site_ids: set[str], quiet: bool) -> i
     status = "failed"
     by_product: dict[str, list[dict[str, Any]]] = {}
     unknown: list[str] = []
+    published: dict[str, Any] = {}
     try:
         ctx = build_context(site, reps)
         for code, rs in sorted(reps.items()):
@@ -1139,7 +1266,8 @@ def _main_products(site: str, accept: str, site_ids: set[str], quiet: bool) -> i
             log.warning("--accept %s matches no proposed item", u)
         n_rows = store_rows(by_product) if by_product else 0
         for code in sorted(by_product):
-            write_generic(site, code, reps[code], by_product[code])
+            write_generic(site, code, reps[code], by_product[code], run_id=rid)
+        published = publish_generic_results(by_product)
         if incomplete:
             # Rewriting review.md now would drop the boxes (and any ticks) of the skipped products.
             log.warning("review.md not rewritten while product(s) %s are incomplete", sorted(incomplete))
@@ -1154,6 +1282,8 @@ def _main_products(site: str, accept: str, site_ids: set[str], quiet: bool) -> i
         summary = {"site": site, "runId": rid, "status": status, "seconds": round(time.monotonic() - t0, 1),
                    "counts": counts, "incomplete": incomplete, "unknownAcceptIds": unknown,
                    "rejectReasons": _reason_counts(by_product)}
+        if published:
+            summary["dataStore"] = published
         env.write_json(p.site_dir / "reports" / "validate_summary.json", summary)
         state.finish_run(scon, rid, "site-validate", site, status, {"products": len(by_product)})
         scon.close()

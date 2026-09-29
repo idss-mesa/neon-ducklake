@@ -29,10 +29,26 @@ site, one ENVO water-body feature. Same isolated child, tools ``mesa_ols_search_
 Traces and proposals go to ``sites/<SITE>/curation/site/`` (``_site.rep<N>.jsonl`` / ``.json``), apart from the
 product proposals. :func:`site.validate.validate_site` applies the agreement rule.
 
+Several VMs (docs/STREAMING.md, "Curation claims"): when ``coord.curation_sync_enabled()`` (workers), the
+product pass first fetches ``<IRODS_ROOT>/curation/generic/<code>.validated.json`` for every card that has
+one on the Data Store (a product curated by any VM is then skipped, and its result is imported into
+``curation_avus``), then claims ``<IRODS_ROOT>/curation/claims/<code>.claim`` for each product it will
+curate. A product claimed by another live VM is skipped. Claims are heartbeated while the replicates run,
+released at once for a product whose run failed, and otherwise released by ``site validate`` after it
+publishes the generic result.
+
 ``main(site, products=None, force=False, site_level=None)``:
 - ``site_level=None`` (the default, and the ``site curate`` stage): the products as before, plus the site pass
   when no product filter is given, the site card exists and the site has no proposals yet;
 - ``site_level=True``: only the site pass (``curate_site``); ``site_level=False``: only the products.
+
+**Without the claude CLI** (:func:`curator_unavailable`; optional on DE worker VMs, docs/DE_SANDBOX.md) the
+product pass still reuses what exists: the Data Store prefetch and import (with curation sync) and the import
+of the local ``curation/generic`` results of the site's products. No Opus run starts and no curation claim is
+taken; the products without a generic result are left uncurated (logged, and listed as ``uncurated`` in
+``reports/curate_summary.json``, status ``no_curator``), the units and site passes are skipped, and ``main``
+returns 0 so the site's finalize goes on (it still waits for products another VM is curating). The site pass
+alone (``site_level=True``) returns 1, as does any pass with ``NEON_DUCKLAKE_CURATION_REQUIRE_CLI=1``.
 """
 
 from __future__ import annotations
@@ -67,6 +83,8 @@ def _default_claude() -> Path:
 
 
 CLAUDE_BIN = Path(os.environ.get("NEON_DUCKLAKE_CLAUDE") or _default_claude()).expanduser()
+REQUIRE_CLI_ENV = "NEON_DUCKLAKE_CURATION_REQUIRE_CLI"  # 1: a missing claude CLI fails `site curate` (rc 1)
+NO_CURATOR = "no_curator"  # curate_summary.json status of a pass without the claude CLI (reuse only)
 MODEL = "claude-opus-5-5"
 REPLICATES = 2
 PARALLEL = 4
@@ -580,6 +598,62 @@ def select_products(site: str, products: list[str] | None, force: bool) -> tuple
     return todo, skipped
 
 
+def datastore_prefetch(site: str, products: list[str] | None) -> dict[str, str]:
+    """Fetch the Data Store's generic results for this site's cards; import new ones. ``{code: status}``."""
+    from .. import coord
+    from . import validate
+
+    p = curation_paths(site)
+    cards = sorted(c.stem for c in p.cards_dir.glob("*.md") if not c.name.startswith("_")) \
+        if p.cards_dir.exists() else []
+    if products:
+        cards = [c for c in cards if c in products]
+    out: dict[str, str] = {}
+    try:
+        session = coord.get_session()
+        for code in cards:
+            out[code] = coord.fetch_generic(code, generic_path(code), session=session)
+    except (SystemExit, Exception) as exc:  # noqa: BLE001 - curate on without the shared results
+        log.warning("Data Store generic curation not fetched: %s", exc)
+        return out
+    fetched = [c for c, st in out.items() if st == "fetched"]
+    if fetched:
+        log.info("fetched %d generic curation result(s) from the Data Store: %s", len(fetched), ", ".join(fetched))
+        try:
+            validate.import_generic(fetched)
+        except Exception as exc:  # noqa: BLE001 - the files are in place; `site validate` can redo it
+            log.warning("importing fetched generic curation failed: %s", exc)
+    return out
+
+
+def datastore_claim(codes: list[str], skipped: dict[str, str]) -> tuple[list[str], list[Any]]:
+    """Claim each product on the Data Store; returns (codes to curate, acquired claims). Claimed-elsewhere
+    products move to ``skipped``. Without a Data Store session every product is curated (unclaimed)."""
+    from .. import coord
+
+    try:
+        session = coord.get_session()
+    except (SystemExit, Exception) as exc:  # noqa: BLE001
+        log.warning("curation claims unavailable (%s); curating without them", exc)
+        return codes, []
+    todo: list[str] = []
+    claims: list[Any] = []
+    for code in codes:
+        try:
+            res = coord.claim_curation(code, session=session)
+        except Exception as exc:  # noqa: BLE001 - a duplicate curation only costs a run
+            log.warning("%s: curation claim failed (%s); curating anyway", code, exc)
+            todo.append(code)
+            continue
+        if res.acquired:
+            todo.append(code)
+            claims.append(res.claim)
+        else:
+            who = res.claim.vm if res.claim is not None and res.claim.valid else "another VM"
+            skipped[code] = f"curation claimed by {who} on the Data Store"
+    return todo, claims
+
+
 def product_jobs(site: str, codes: list[str], force: bool) -> tuple[list[Job], list[str]]:
     p = curation_paths(site)
     template, prompt_sha = read_prompt("prompt_product.md")
@@ -777,20 +851,113 @@ def run_jobs(jobs: list[Job], cwd: Path, parallel: int = PARALLEL) -> list[dict[
     return results
 
 
+def curator_unavailable() -> str | None:
+    """Why this host cannot run the Opus curation children (None when it can): the claude CLI (``CLAUDE_BIN``,
+    ``$NEON_DUCKLAKE_CLAUDE``) is missing or not executable."""
+    if not CLAUDE_BIN.exists():
+        return f"claude CLI not found at {CLAUDE_BIN}"
+    if not os.access(CLAUDE_BIN, os.X_OK):
+        return f"claude CLI at {CLAUDE_BIN} is not executable"
+    return None
+
+
+def cli_required(environ: dict[str, str] | None = None) -> bool:
+    """``$NEON_DUCKLAKE_CURATION_REQUIRE_CLI``: a host where a missing claude CLI is an error, not a reuse-only
+    curation pass."""
+    raw = ((environ if environ is not None else os.environ).get(REQUIRE_CLI_ENV) or "").strip().lower()
+    return raw in ("1", "true", "yes", "on")
+
+
+def reuse_only(site: str, products: list[str] | None, codes: list[str], skipped: dict[str, str],
+               prefetch: dict[str, str], *, why: str, force: bool = False, site_level: bool | None = None,
+               t0: float | None = None) -> int:
+    """The product pass of a host that cannot run Opus (``why``): import the site's local ``curation/generic``
+    results (``validate.import_generic``, a no-op for products with rows here), start no run and take no claim,
+    log ``codes`` (products with no generic result) as left uncurated, except those another live VM is curating
+    (``validate.pending_generic``: finalize waits for them), write ``reports/curate_summary.json`` (status
+    ``no_curator``, ``uncurated``, ``pendingElsewhere``) and return 0. The Data Store prefetch has already run
+    (``main``)."""
+    from . import validate
+
+    t0 = time.monotonic() if t0 is None else t0
+    p = curation_paths(site)
+    validated = sorted(c for c, r in skipped.items() if r.startswith("already validated"))
+    imported: dict[str, int] = {}
+    errors: list[str] = []
+    if validated:
+        try:
+            imported = validate.import_generic(validated)
+        except Exception as exc:  # noqa: BLE001 - the files stay; the next pass (or `site validate`) imports them
+            log.warning("curate %s: importing generic curation failed: %s", site, exc)
+            errors.append(f"import_generic: {type(exc).__name__}: {exc}"[:300])
+    try:
+        units = unmapped_units()
+        if products and units:
+            used = product_units(site, products)
+            units = [u for u in units if used is None or u in used]
+    except Exception as exc:  # noqa: BLE001 - informational only
+        log.info("curate %s: unmapped units unknown (%s)", site, exc)
+        units = []
+    site_pass = site_level is None and not products and p.site_card.exists() and \
+        (force or not has_site_proposals(site))
+    pending: list[str] = []
+    if codes:
+        try:  # products another live VM is curating: finalize waits for their result (stream._generic_pending)
+            pending = validate.pending_generic(site)
+        except Exception as exc:  # noqa: BLE001 - informational: finalize asks again before the avus step
+            log.info("curate %s: curation claims unknown (%s)", site, exc)
+    pending = [c for c in codes if c in set(pending)]
+    uncurated = [c for c in codes if c not in pending]
+    if pending:
+        log.info("curate %s: %s: %d product(s) are being curated by other VMs: %s", site, why, len(pending),
+                 ", ".join(pending))
+    if uncurated:
+        log.warning("curate %s: %s: %d product(s) left uncurated (no curation/generic result here or on the Data "
+                    "Store; their product AVUs carry no curated terms): %s", site, why, len(uncurated),
+                    ", ".join(uncurated))
+    elif not pending:
+        log.info("curate %s: %s: every product reuses curation/generic or is external", site, why)
+    if units:
+        log.warning("curate %s: units pass skipped (%s): %d unmapped unit(s)", site, why, len(units))
+    if site_pass:
+        log.warning("curate %s: site pass skipped (%s): no biome/feature proposals for the site", site, why)
+    rid = env.run_id()
+    summary: dict[str, Any] = {
+        "site": site, "runId": rid, "status": NO_CURATOR, "curator": why, "model": MODEL, "replicates": REPLICATES,
+        "products": [], "uncurated": uncurated, "skipped": skipped, "existing": [], "runs": [],
+        "prefetch": prefetch, "imported": imported, "errors": errors, "unitsUncurated": units,
+        "sitePassSkipped": site_pass, "pendingElsewhere": pending, "units": {},
+        "seconds": round(time.monotonic() - t0, 1), "total_cost_usd": 0.0}
+    env.write_json(p.site_dir / "reports" / "curate_summary.json", summary)
+    scon = state.connect(state.DB_PATH)
+    try:
+        state.start_run(scon, rid, "site-curate", site, [site, ",".join(products or []), "no-curator"])
+        state.finish_run(scon, rid, "site-curate", site, NO_CURATOR,
+                         {"runs": 0, "uncurated": len(uncurated), "pendingElsewhere": len(pending), "curator": why})
+    finally:
+        scon.close()
+    return 0
+
+
 def main(site: str, products: list[str] | None = None, force: bool = False,
          site_level: bool | None = None) -> int:
-    """``site curate <SITE>``: product replicates + the units pass, and the site pass (see the module docstring)."""
+    """``site curate <SITE>``: product replicates + the units pass, and the site pass (see the module docstring).
+
+    Without the claude CLI (:func:`curator_unavailable`) the product pass is :func:`reuse_only` (rc 0); the site
+    pass alone, or ``NEON_DUCKLAKE_CURATION_REQUIRE_CLI=1``, returns 1."""
     site = site.upper()
     t0 = time.monotonic()
     p = curation_paths(site)
-    if not CLAUDE_BIN.exists():
-        log.error("claude CLI not found at %s", CLAUDE_BIN)
+    no_cli = curator_unavailable()
+    if no_cli and (site_level or cli_required()):
+        log.error("%s%s", no_cli, "" if site_level else f" ({REQUIRE_CLI_ENV}=1)")
         return 1
-    try:
-        render_mcp_config()
-    except SystemExit as exc:
-        log.error("%s", exc)
-        return 1
+    if no_cli is None:
+        try:
+            render_mcp_config()
+        except SystemExit as exc:
+            log.error("%s", exc)
+            return 1
     if site_level:
         rid = env.run_id()
         scon = state.connect(state.DB_PATH)
@@ -804,7 +971,19 @@ def main(site: str, products: list[str] | None = None, force: bool = False,
                               "errors": sum(1 for r in summary.get("runs") or [] if r.get("error"))})
             scon.close()
         return {"ok": 0, "missing_card": 1}.get(summary["status"], 2)
+    from .. import coord
+
+    sync = coord.curation_sync_enabled()
+    prefetch: dict[str, str] = {}
+    if sync:
+        prefetch = datastore_prefetch(site, products)
     codes, skipped = select_products(site, products, force)
+    if no_cli is not None:  # reuse what exists; never claim a product this host cannot curate
+        return reuse_only(site, products, codes, skipped, prefetch, why=no_cli, force=force, site_level=site_level,
+                          t0=t0)
+    claims: list[Any] = []
+    if sync and codes:
+        codes, claims = datastore_claim(codes, skipped)
     for code, why in sorted(skipped.items()):
         log.info("%s: skipped (%s)", code, why)
     jobs, existing = product_jobs(site, codes, force)
@@ -831,7 +1010,20 @@ def main(site: str, products: list[str] | None = None, force: bool = False,
         log.info("curate %s: %d product(s), %d run(s) (%s, %d replicates, %d in parallel)%s%s", site, len(codes),
                  len(jobs), MODEL, REPLICATES, PARALLEL, f", units pass for {len(units)} unit(s)" if uj else "",
                  ", site pass" if site_pass else "")
-        results = run_jobs(jobs, p.run_cwd)
+        heartbeat = coord.Heartbeat(claims).start() if claims else None
+        try:
+            results = run_jobs(jobs, p.run_cwd)
+        finally:
+            if heartbeat is not None:
+                heartbeat.stop()
+        if claims:
+            failed_codes = {r.get("key") for r in results if r.get("error")}
+            for c in claims:
+                if c.key in failed_codes:
+                    try:
+                        coord.release(c)
+                    except Exception as exc:  # noqa: BLE001 - it expires on its own
+                        log.warning("%s: curation claim not released: %s", c.key, exc)
         if units:
             units_result = apply_units(site, units)
         failed = [r for r in results if r.get("error")]
@@ -841,6 +1033,7 @@ def main(site: str, products: list[str] | None = None, force: bool = False,
         site_results = [r for r in results if r.get("key") == SITE_KEY]
         summary = {"site": site, "runId": rid, "status": status, "model": MODEL, "replicates": REPLICATES,
                    "products": codes, "skipped": skipped, "existing": existing, "runs": _run_summary(product_results),
+                   "pendingElsewhere": sorted(c for c, why in skipped.items() if why.startswith("curation claimed by")),
                    "units": units_result, "seconds": round(time.monotonic() - t0, 1),
                    "total_cost_usd": round(sum(r.get("total_cost_usd") or 0 for r in results), 4)}
         if site_pass:

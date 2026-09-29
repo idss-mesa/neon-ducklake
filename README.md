@@ -24,11 +24,14 @@ neon-ducklake builds two things from them:
 What it is built for:
 
 - **Unattended runs at observatory scale.** One command runs all 81 sites: about 3.2 million files, 4 TB
-  and 65 million AVUs, over roughly 4–5 days. Every stage is idempotent, resumable and safe to kill, and
-  raw files are deleted locally only after they are verified in iRODS.
+  and 65 million AVUs, over roughly 4–5 days. Every stage is idempotent, resumable and safe to kill.
+- **Metadata, not data.** Each site streams in bounded chunks: fetch, analyze, write AVUs, push the data
+  and the stacked lake to the CyVerse Data Store, verify the Data Store copy, delete the local copy. Local
+  disk never holds more than a working set (50 GB by default), so several CyVerse Discovery Environment VMs
+  can work on different sites at once, coordinated only through the Data Store.
 - **One MESA project, one history.** Site data lives in subtrees of that project. Every AVU the pipeline
-  writes is journaled locally and recorded in MESA in large batches, so the snapshot count stays within
-  budget.
+  writes is journaled locally, spooled to the Data Store and recorded in MESA by one recorder in large,
+  coalesced snapshots, so the snapshot count stays within the 900-snapshot budget.
 - **Provenance end to end.** Each lake snapshot carries a commit message, and each object carries its
   NEON source URL and release DOI. The tool versions are recorded as AVUs.
 
@@ -57,7 +60,7 @@ from the University of New Mexico. It is not affiliated with NEON, Battelle or N
    journal: work/state.sqlite (files, uploads, AVU journal, history batches, site_runs); logs/
    curation: claude -p (Opus) with only mesa-mcp's OLS tools, no secrets -> curation/generic/<DP>.json
                |
-               |  mirror + site upload: replica- and checksum-aware puts; raw files evicted after verify
+               |  mirror + chunk upload: replica- and checksum-aware puts; local copies deleted after verify
                v
 +----------------------------------------------------------------------------------------------------+
 | CyVerse iRODS  /iplant/home/<user>/neon-ducklake            (one MESA project, mesa.enabled=true)  |
@@ -65,7 +68,7 @@ from the University of New Mexico. It is not affiliated with NEON, Battelle or N
 |   AVUs on every collection and data object: journaled bulk writer (tag --apply-only)                |
 +----------------------------------------------------------------------------------------------------+
                |
-               |  tag --record-only: batched record_changes, <= 250,000 rows per snapshot
+               |  history spool (.mesa/spool/<vm>/) -> neon-ducklake recorder: coalesced, <= 250,000 rows/snapshot
                v
 +----------------------------------------------------------------------------------------------------+
 | MESA AVU history (mesa-ducklake): one history for the whole project                                |
@@ -73,8 +76,27 @@ from the University of New Mexico. It is not affiliated with NEON, Battelle or N
 +----------------------------------------------------------------------------------------------------+
 ```
 
-The Phase-2 orchestrator (`neon-ducklake run`) takes each site through 13 stages. Each stage belongs to a
-resource class, so different sites can overlap safely. For example, site B downloads while site A uploads.
+The Phase-2 orchestrator (`neon-ducklake run`) **streams** each site by default
+([`docs/STREAMING.md`](docs/STREAMING.md)):
+
+| Stage | Does |
+|---|---|
+| restore | Restores the site's journal and site lake from the Data Store when another VM worked on the site |
+| plan, list | As below |
+| chunk-plan | Splits the listed files into chunks: one product, ascending months, at most 8 GB each |
+| chunks | Per chunk, in a pipeline (chunk k+1 downloads while chunk k uploads): download, stack (incremental), AVUs, upload (raw files, then the site lake), apply, history (spooled), verify against the Data Store, delete the local files |
+| finalize | Terms, cards, curation, the site/product/lake AVUs, the final upload, apply, history, a metadata-level verify |
+| cleanup | Deletes the local site lake data, cards and curation once their Data Store copies are checked |
+
+Before a site's first stage, `run` claims it on the Data Store, so sparky-1 and worker VMs never work on
+the same site; the site's journal is backed up to the Data Store after every chunk's apply, history and
+delete. The site lake's catalog and the journal backup are versioned on the Data Store (a `CURRENT` pointer
+is replaced last), so a VM that dies mid-write never leaves them unreadable. A stage that hits a transient
+condition exits 4 and is retried with backoff instead of failing the site.
+
+With `--no-stream`, the orchestrator takes each site through the previous 13 whole-site stages. Each stage
+belongs to a resource class, so different sites can overlap safely. For example, site B downloads while
+site A uploads. Stream chunk stages use the same classes.
 
 | Stage | Does | Class (sites at once) |
 |---|---|---|
@@ -153,7 +175,9 @@ Store the secrets once, using the MESA helpers:
 Every command that talks to NEON, iRODS or MESA runs through `scripts/with-secrets.sh`:
 
 - It reads the NEON token and the CyVerse password from the keyring and exports them as `NEON_TOKEN` and
-  `MESA_MCP_IRODS__USER` / `MESA_MCP_IRODS__PASSWORD`.
+  `MESA_MCP_IRODS__USER` / `MESA_MCP_IRODS__PASSWORD`. On a VM without a keyring, it takes them from the
+  environment and from `~/.irods` (written by `iinit`) instead: `NEON_DUCKLAKE_SECRETS=env|keyring|auto`
+  (default `auto`, per secret).
 - It sets neon-mcp's concurrency (8), rate-limit wait (300 s) and log level (`warning`).
 - It then `exec`s the command. It never prints a secret.
 - Exit codes: 2 if the MESA install is missing, 3 if the NEON token is unavailable, 4 if the CyVerse
@@ -170,8 +194,16 @@ The defaults need no user-specific paths. Override them with these environment v
 | `NEON_DUCKLAKE_PRECEDENT_LAKE`, `_DATA`, `_VERSION`, `_IRODS` | `~/neon-downloads/...`, snapshot 90 | Optional spatial lake whose 16 `neon_*` layers the catalog build copies. `none` skips it |
 | `NEON_DUCKLAKE_CLAUDE` | `~/.local/bin/claude`, else `claude` on `PATH` | Claude CLI used by `curate` |
 | `NEON_DUCKLAKE_ANYJEV_PYTHON` | a mesa-anyjev `.venv` | Optional interpreter whose mesa-anyjev card parser `site cards` uses |
-| `NEON_DUCKLAKE_ROWS_PER_BATCH` | 250,000 | MESA history rows per snapshot |
-| `NEON_DUCKLAKE_IRODS_CONNECTIONS` | 32 | iRODS connection budget shared by all neon-ducklake processes |
+| `NEON_DUCKLAKE_ROWS_PER_BATCH` | 250,000 | MESA history rows per batch and per recorder snapshot |
+| `NEON_DUCKLAKE_IRODS_CONNECTIONS` | 32 | iRODS connection budget shared by all neon-ducklake processes on one machine |
+| `NEON_DUCKLAKE_WORKSET_BYTES` | 50 GB | Cap on the local working set of stream runs: raw files plus site lakes (`run --workset-bytes`) |
+| `NEON_DUCKLAKE_CHUNK_BYTES` | 8 GB | Largest chunk (`run --chunk-bytes`) |
+| `NEON_DUCKLAKE_SECRETS` | `auto` | Where `with-secrets.sh` finds the secrets: `env`, `keyring` or `auto` |
+| `NEON_DUCKLAKE_VM_ID` | the short host name | Names this machine's site claims, history spool and ontology export; unique per VM |
+| `NEON_DUCKLAKE_HISTORY_MODE` | `spool` (stream), `direct` (`--no-stream`) | MESA history backend. Stream runs always spool; `direct` is refused there until DuckDB 2.0 multi-writer |
+| `NEON_DUCKLAKE_MESA_MULTIWRITER` | off | `1` once the MESA catalog takes parallel writers (DuckDB 2.0): allows `direct` history in stream runs |
+| `NEON_DUCKLAKE_CURATION_SYNC` | `auto` | Share curation claims and results through the Data Store (on for stream runs) |
+| `NEON_DUCKLAKE_WAIT_TIMEOUT_S` | 21600 | How long a stage waits for the MESA catalog or another VM's curation before it fails |
 
 ## Quick start
 
@@ -197,8 +229,9 @@ nd tag catalog                    # apply the Phase-1 AVUs and record them in ME
 # Phase 2: one site
 nd site plan SRER                 # read-only preview: products, months, files, bytes, what is excluded
 nd run SRER --dry-run             # site order, resume point and the exact commands; runs nothing
-nd run SRER --sample 2 --stages plan,list,download,stack,terms,cards   # optional local-only probe
-nd run SRER                       # all 13 stages; re-run the same command to resume
+nd run SRER --no-stream --sample 2 --stages plan,list,download,stack,terms,cards   # optional local-only probe
+nd run SRER                       # stream the site: restore ... chunks ... cleanup; re-run to resume
+nd recorder --flush               # record the spooled MESA history now (full_sweep.sh runs `recorder --watch`)
 .venv/bin/neon-ducklake status    # site x stage table and totals (needs no secrets)
 ```
 
@@ -220,7 +253,12 @@ In order, it:
 4. **Asks for confirmation**, unless you pass `--yes`.
 5. **With `--refresh-catalog`, refreshes the catalog.** It runs `catalog fetch --new`, `catalog seal`,
    `catalog build`, `verify catalog`, `diff`, and `mirror --what api,lake`.
-6. **Runs `neon-ducklake run …`** through `with-secrets.sh`, then prints `neon-ducklake status`.
+6. **Starts the MESA history recorder** (`neon-ducklake recorder --watch --interval 300 --min-rows 200000
+   --max-rows 250000 --max-age-h 12`) in the tmux session `neon-recorder`, unless one already runs or you pass
+   `--no-recorder`. Stream runs spool their history; the recorder writes it into MESA in few, large
+   snapshots.
+7. **Runs `neon-ducklake run …`** through `with-secrets.sh`, then prints `neon-ducklake status`. Sites
+   that are done or claimed by a worker VM are skipped.
 
 All output also goes to `logs/sweep-<UTC>.log`, and the script never prints a secret.
 
@@ -228,17 +266,23 @@ All output also goes to `logs/sweep-<UTC>.log`, and the script never prints a se
 scripts/full_sweep.sh --dry-run                  # plan + estimate for all 81 sites; no secrets, starts nothing
 scripts/full_sweep.sh --detach                   # preflight, plan, confirm, then run in tmux session neon-sweep-<UTC>
 scripts/full_sweep.sh --habitat aquatic --yes    # the 34 aquatic sites, no prompt
-scripts/full_sweep.sh --sites 'SRER HARV' --sample 2 --no-evict
+scripts/full_sweep.sh --sites 'SRER HARV' --no-stream --sample 2 --no-evict   # a local-only probe
+scripts/full_sweep.sh --worker --detach          # on a CyVerse DE VM: claim and stream sites one by one
 scripts/full_sweep.sh --refresh-catalog --from-stage list --detach   # after a new NEON release
 scripts/full_sweep.sh --all -- --order size --threads 12            # options after -- go to `neon-ducklake run`
-scripts/sweep_status.sh                          # progress: table, running stages, log tail, disk, MESA budget
+scripts/sweep_status.sh                          # progress: table, chunks, working set, spool, recorder, disk, MESA budget
 ```
 
 | Option | Effect |
 |---|---|
 | `--all` (default), `--sites 'A B'`, `--habitat X` | Selects the sites. `--all` orders aquatic sites first, smallest first, then terrestrial sites by size. `--sites` keeps your order. |
-| `--sample N` | Probe mode: only the N most recent months per product. Never evicts. |
-| `--no-evict` | Keeps raw files on disk; the evict stage is skipped. |
+| `--stream` (default) / `--no-stream` | Streams each site in bounded chunks, or runs the previous whole-site stages. |
+| `--chunk-bytes N`, `--workset-bytes N` | Largest chunk (8 GB) and the cap on the local working set (50 GB). |
+| `--history-mode MODE` | Stream runs always spool (`direct` needs `NEON_DUCKLAKE_MESA_MULTIWRITER=1`); `--no-stream` defaults to direct. |
+| `--no-recorder` | Does not start the recorder; start it yourself on the MESA-catalog host. |
+| `--worker`, `--max-sites N`, `--once` | Runs `neon-ducklake worker` instead of `run` (a CyVerse DE VM). |
+| `--sample N` | Probe mode: only the N most recent months per product. With `--no-stream` it never evicts. |
+| `--no-evict` | `--no-stream` only: keeps raw files on disk; the evict stage is skipped. |
 | `--from-stage STAGE` | Re-runs from `STAGE` even when later stages are ok. |
 | `--max-in-flight N` | Caps the sites between their first and last stage (default 3). |
 | `--refresh-catalog` | Harvests and mirrors a new catalog run first (about 1.5–2.5 h). |
@@ -266,12 +310,29 @@ To manage a running sweep:
   terminates them. Every stage survives `kill -9`.
 - **Resume it.** Run the same command again. Each site resumes at its first stage that is not `ok`, and
   a failed stage is retried.
-- **Close other MESA writers first.** The `record` stage needs the MESA catalog's single-writer lock, so
-  close any other mesa-mcp session before a site reaches it. Preflight and `record` both name the process
-  that holds the lock.
+- **Close other MESA writers.** Stream runs never open the MESA catalog; the recorder (and the whole-site
+  `record` stage) need its single-writer lock. Close any other mesa-mcp session; they wait for the lock
+  and name the process that holds it.
 - **Review curation.** Terms that only one Opus replicate proposed wait in `sites/<SITE>/curation/review.md`.
   Reviews never block a run. See [`docs/RUNBOOK.md`](docs/RUNBOOK.md) sections 5–7 for monitoring,
   recovery and review.
+
+## Workers on several VMs
+
+Several CyVerse Discovery Environment VMs ("AI Sandboxes") can stream different sites at the same time,
+next to sparky-1. They share nothing but the Data Store: atomic site claims (`sites/<SITE>/.claim`, `.done`),
+per-site journal backups (`sites/<SITE>/.mesa-journal/`), the site lakes, the history spool
+(`.mesa/spool/<vm>/`), shared curation results and each VM's ontology export. Setup, secrets without a
+keyring, and troubleshooting are in [`docs/DE_SANDBOX.md`](docs/DE_SANDBOX.md).
+
+```bash
+export NEON_DUCKLAKE_SECRETS=env NEON_DUCKLAKE_VM_ID=de-vm-01     # on each VM; NEON_TOKEN and iinit first
+nd worker                         # bootstrap, then claim -> stream -> .done -> release, site after site
+nd claims [--json]                # every site and curation claim, and the finished sites
+nd claims --release SRER [--force]
+nd journal push SRER              # back up a site's journal now; `journal restore SRER` brings it back
+nd recorder --watch --interval 300 --min-rows 200000 --max-rows 250000 --max-age-h 12   # MESA-catalog host only
+```
 
 ## Data layout
 
@@ -416,7 +477,9 @@ Expected durations:
   and is the long pole. AVU apply (~15 h) and record (~16 h) overlap with it across sites.
 - **Curation:** 1.5–2.5 h on the first sites. It is generic per product, so later sites curate only
   products that no earlier site had.
-- **Disk:** peak local use is about the largest site (~101 GB) times the sites in flight.
+- **Disk:** a stream run holds at most the working set (`NEON_DUCKLAKE_WORKSET_BYTES`, 50 GB) of raw files
+  and site-lake data. With `--no-stream`, peak local use is about the largest site (~101 GB) times the
+  sites in flight.
 
 ## Safety properties
 
@@ -432,10 +495,17 @@ Expected durations:
 - **Journaled AVU ownership.** Every AVU the pipeline writes is journaled: intent, then applied, then
   recorded. It removes only AVUs it owns and never touches `ipc*`, `mesa.enabled` or anyone else's AVUs.
 - **Bounded MESA history.**
-  - History is recorded in batches of up to 250,000 rows, one snapshot each.
+  - Stream runs spool history batches to the Data Store; one recorder records them in coalesced
+    snapshots of up to 250,000 rows (at least 200,000 rows, or batches older than 12 h).
   - A budget guard refuses to record past 900 snapshots; MESA caches at most 1,000.
-  - `recover` quarantines failed Parquet and re-records dead batches, so no batch is recorded twice.
-- **Eviction only after verification.** A raw file is deleted only when all of these hold:
+  - The recorder skips batches already committed and rows already recorded under another batch id, and
+    `recover` quarantines failed Parquet and re-records dead batches, so nothing is recorded twice.
+- **Deletion only after verification (stream).** A chunk's raw files are deleted only after each one has a
+  good Data Store replica with the downloaded checksum, its core AVUs are in iRODS, its history rows are
+  spooled or recorded, and the site lake holding the chunk is on the Data Store.
+- **One VM per site.** Site claims are atomic Data Store objects with a heartbeat; a VM whose claim is lost
+  stops the site at once and never overwrites the new owner's journal or lake catalog.
+- **Eviction only after verification (`--no-stream`).** A raw file is deleted only when all of these hold:
   - it downloaded ok;
   - it is in iRODS with a good replica whose checksum matches;
   - its AVUs are recorded in MESA;
@@ -443,7 +513,8 @@ Expected durations:
 
   The journal row is committed before the file is unlinked.
 - **Disk and connection guards.**
-  - A download starts only if free disk is at least 1.3 × its bytes plus what other downloads reserved.
+  - A download starts only if free disk is at least 1.3 × its bytes plus what other downloads reserved,
+    and, in stream mode, only while the working set plus the chunk fits the cap.
   - A cross-process budget caps iRODS connections.
   - Uploads back off when CyVerse resets connections.
 - **Secrets stay out.**
@@ -468,7 +539,9 @@ Before changing a module interface, read [`docs/CONTRACTS.md`](docs/CONTRACTS.md
 - [`docs/PLAN.md`](docs/PLAN.md): the approved design.
 - [`docs/SCALING.md`](docs/SCALING.md): scaling to 81 sites and the measured throughput.
 - [`docs/CONTRACTS.md`](docs/CONTRACTS.md): internal interfaces.
+- [`docs/STREAMING.md`](docs/STREAMING.md): the streaming pipeline and the multi-VM contract.
 - [`docs/RUNBOOK.md`](docs/RUNBOOK.md): operations.
+- [`docs/DE_SANDBOX.md`](docs/DE_SANDBOX.md): workers on CyVerse Discovery Environment VMs.
 - [`CHANGELOG.md`](CHANGELOG.md): release history.
 
 ## Citing NEON data and related projects

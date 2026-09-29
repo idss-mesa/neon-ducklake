@@ -27,6 +27,10 @@ Checks (status pass / warn / fail / skip; any ``fail`` gives a non-zero exit):
 - datacite         site/product ``datacite.*`` AVUs round-trip (``avus_to_datacite`` + ``DataCiteMetadata``)
 
 Filters ``products``/``months`` restrict every check to those product/month units (dry runs).
+``metadata_only`` (the stream finalize: the raw files were verified per chunk and deleted) skips every check
+of local files: the ``local files`` check keeps the journal md5 comparisons but not presence/size on disk, and
+``stack rows`` skips the sampled CSV record counts (Σ file_stats vs table_catalog stays).
+The site lake is read under the ``site-lake-<SITE>`` lock (a concurrent writer would fail the attach).
 Output: a table on stdout and ``sites/<SITE>/reports/verify.json``.
 """
 
@@ -164,6 +168,11 @@ class SiteData:
 
 
 def load_site_data(site: str) -> SiteData:
+    with env.file_lock(f"site-lake-{site.upper()}", blocking=True):
+        return _load_site_data(site)
+
+
+def _load_site_data(site: str) -> SiteData:
     import duckdb
 
     d = SiteData()
@@ -234,8 +243,10 @@ class SiteVerifier:
     def __init__(self, site: str, products: list[str] | None = None, months: list[str] | None = None, *,
                  session: Any | None = None, con: sqlite3.Connection | None = None, data: SiteData | None = None,
                  threads: int = DEFAULT_THREADS, sample: int = SAMPLE_FILES, ontology: bool = True,
-                 ols_terms: Callable[[list[str]], dict[str, Any]] | None = None) -> None:
+                 ols_terms: Callable[[list[str]], dict[str, Any]] | None = None,
+                 metadata_only: bool = False) -> None:
         self.site = site.upper()
+        self.metadata_only = metadata_only
         self.P = set(products) if products else None
         self.M = set(months) if months else None
         self.S = f"{env.IRODS_ROOT}/sites/{self.site}"
@@ -350,6 +361,8 @@ class SiteVerifier:
             if int(r.get("local_evicted") or 0) == 1:
                 evicted.append(r["name"])  # verified in iRODS and deleted locally (site evict)
                 continue
+            if self.metadata_only:
+                continue  # stream finalize: the raw files were checked per chunk and are gone by design
             local = env.ROOT / (r.get("local_path") or "")
             try:
                 if local.stat().st_size != int(r.get("dl_bytes") or -1):
@@ -362,7 +375,8 @@ class SiteVerifier:
         status = "fail" if (hard or missing or size_bad or lake_bad) else ("warn" if not_dl else "pass")
         n_match = len(ok) - len(hard) - len(soft) - len(stale) - len(no_md5)
         self.add("local files", status,
-                 f"{len(ok)}/{len(rows)} downloaded; md5 == NEON for {n_match}"
+                 ("metadata only (presence on disk not checked); " if self.metadata_only else "")
+                 + f"{len(ok)}/{len(rows)} downloaded; md5 == NEON for {n_match}"
                  f"; flagged soft (regenerated supporting files) {len(soft)}; NEON md5 stale (storage-verified)"
                  f" {len(stale)}; hard mismatches {len(hard)}; no NEON md5 {len(no_md5)}; evicted {len(evicted)};"
                  f" missing on disk {len(missing)}; size != journal {len(size_bad)}; not downloaded {len(not_dl)}",
@@ -585,7 +599,7 @@ class SiteVerifier:
         files = self.files
         # rows: sampled local CSV record counts vs file_stats
         cands = [r for r in files if r.get("kind") == "data" and (r.get("ext") or "").lower() == "csv"
-                 and r["name"] in d.file_stats]
+                 and r["name"] in d.file_stats] if not self.metadata_only else []
         rng = random.Random(f"{self.site}-{len(cands)}")
         pick = rng.sample(cands, min(self.sample, len(cands)))
         bad, checked, lines_total = [], 0, 0
@@ -811,6 +825,7 @@ class SiteVerifier:
         counts = Counter(c.status for c in self.checks)
         return {"site": self.site, "generatedAt": env.utcnow().isoformat(),
                 "filters": {"products": sorted(self.P) if self.P else None, "months": sorted(self.M) if self.M else None},
+                "metadataOnly": self.metadata_only,
                 "irods": self.session is not None, "summary": dict(counts),
                 "ok": counts.get("fail", 0) == 0, "checks": [asdict(c) for c in self.checks]}
 
@@ -835,14 +850,18 @@ def render(report: dict[str, Any]) -> str:
 
 
 def main(site: str, products: list[str] | str | None = None, months: list[str] | str | None = None, *,
-         threads: int = DEFAULT_THREADS, session: Any | None = None, out: Path | None = None) -> int:
-    """Run every Phase-2 check for ``site``; write ``sites/<SITE>/reports/verify.json``; 1 on any failure."""
+         threads: int = DEFAULT_THREADS, session: Any | None = None, out: Path | None = None,
+         metadata_only: bool = False) -> int:
+    """Run every Phase-2 check for ``site``; write ``sites/<SITE>/reports/verify.json``; 1 on any failure.
+
+    ``metadata_only`` skips the local-file and sampled-CSV checks (a streamed site keeps no raw file)."""
     def split(v: list[str] | str | None) -> list[str] | None:
         items = v.split(",") if isinstance(v, str) else (v or [])
         return [s.strip() for s in items if s and s.strip()] or None
 
     site = site.upper()
-    v = SiteVerifier(site, split(products), split(months), session=session, threads=threads)
+    v = SiteVerifier(site, split(products), split(months), session=session, threads=threads,
+                     metadata_only=metadata_only)
     report = v.run()
     path = out or site_lake.site_paths(site).reports_dir / "verify.json"
     env.write_json(path, report)
