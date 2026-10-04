@@ -248,6 +248,23 @@ def test_status_table_totals_and_json(site_env: Path, capsys: pytest.CaptureFixt
     assert json.loads(capsys.readouterr().out)["totals"]["files"] == 3
 
 
+def test_status_counts_mesa_snapshots_not_spooled_batches(site_env: Path) -> None:  # noqa: F811
+    """The spool recorder coalesces many batches (of several scopes) into one MESA snapshot: the snapshot budget
+    line must count snapshots, as scripts/full_sweep.sh reads it against the 900 budget."""
+    con = state.connect(state.DB_PATH)
+    store = run.Store(con)
+    for site in ("KONZ", "SRER"):
+        store.set_pending(site, run.STAGES)
+    con.executemany("INSERT INTO batches(batch_id, scope, status, snapshot_id) VALUES (?,?,?,?)",
+                    [(f"k{i}", "KONZ", "recorded", 10) for i in range(57)]
+                    + [("s1", "SRER", "recorded", 3), ("s2", "SRER", "recorded", 4), ("c1", "catalog", "recorded", 10),
+                       ("x1", "KONZ", "spooled", None)])
+    rep = run.collect_status(con)
+    con.close()
+    assert rep["sites"]["KONZ"]["snapshots"] == 1 and rep["sites"]["SRER"]["snapshots"] == 2
+    assert rep["allScopes"]["snapshots"] == 3  # 3, 4 and 10 (shared by KONZ and catalog)
+
+
 # ---------------------------------------------------------------- entry points
 
 def test_main_dry_run_prints_plan_and_runs_nothing(site_env: Path, monkeypatch: pytest.MonkeyPatch,  # noqa: F811

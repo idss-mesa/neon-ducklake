@@ -2481,8 +2481,12 @@ def collect_status(con: sqlite3.Connection, sites: list[str] | None = None) -> d
     spool = spool_backlog(con)
     avus = {r[0]: int(r[1]) for r in con.execute(
         "SELECT scope, count(*) FROM avu_journal WHERE status = 'recorded' GROUP BY scope")}
+    # MESA snapshots, not batches: the spool recorder coalesces many batches (of several scopes) into one snapshot
     snaps = {r[0]: int(r[1]) for r in con.execute(
-        "SELECT scope, count(*) FROM batches WHERE status = 'recorded' GROUP BY scope")}
+        "SELECT scope, count(DISTINCT coalesce(snapshot_id, batch_id)) FROM batches WHERE status = 'recorded' "
+        "GROUP BY scope")}
+    snaps_all = int(con.execute("SELECT count(DISTINCT coalesce(snapshot_id, batch_id)) FROM batches "
+                                "WHERE status = 'recorded'").fetchone()[0])
     chunk_tasks: dict[str, list[dict[str, Any]]] = {}
     for r in con.execute("SELECT * FROM site_run_chunks WHERE status IN ('running', 'failed') "
                          "ORDER BY site, chunk_id, started_at"):
@@ -2521,7 +2525,7 @@ def collect_status(con: sqlite3.Connection, sites: list[str] | None = None) -> d
             "sites": out_sites, "totals": totals, "stageCounts": dict(stage_counts),
             "localBytesAllSites": sum(held.values()), "worksetBytes": workset,
             "worksetCap": env_bytes(ENV_WORKSET_BYTES, WORKSET_BYTES_DEFAULT), "spool": spool,
-            "allScopes": {"avusRecorded": sum(avus.values()), "snapshots": sum(snaps.values()),
+            "allScopes": {"avusRecorded": sum(avus.values()), "snapshots": snaps_all,
                           "snapshotBudget": SNAPSHOT_BUDGET}}
 
 
