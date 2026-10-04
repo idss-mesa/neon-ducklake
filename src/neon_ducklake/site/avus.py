@@ -8,8 +8,9 @@ Levels (plan § AVU vocabulary + Data-object profiles; ``neon.<lowerCamelCase>``
                  sites only; canonical ``datacite.*``. TypeEco is never used for an aquatic site (NEON copied a
                  shortgrass-steppe TypeEco to all of them): no ``neon.typeEco``, and the biome value is HABITAT.
 - ``container``  ``sites/<SITE>/{raw,ducklake,cards,curation,reports}`` and ``ref/`` (if uploaded).
-- ``lake-dir`` / ``side-dir``  sub-collections of ``ducklake/data/**`` and of cards/curation/reports, so that
-                 every collection of the subtree carries a ``neon.*``/``mesa.*`` AVU (verify rule).
+- ``lake-dir`` / ``side-dir``  sub-collections of ``ducklake/data/**`` (and ``ducklake/catalogs`` once the lake
+                 was pushed in the versioned layout) and of cards/curation/reports, so that every collection of
+                 the subtree carries a ``neon.*``/``mesa.*`` AVU (verify rule).
 - ``product``    ``raw/<DP>``: record, releases (DOI units), month ranges, counts, tables, ``uo.*``,
                  ``ncbitaxon.*`` (union of resolved taxa), accepted curated terms, canonical ``datacite.*``.
 - ``month``      ``raw/<DP>/<YYYY-MM>``: release, generation date, counts, coverage, IS/OS summaries.
@@ -951,6 +952,15 @@ class Builder:
         keep = {root, *dirs}
         return dirs, [f for f in files if f.parent in keep]
 
+    def lake_pushed(self) -> bool:
+        """Whether this host pushed (or restored) the site lake in the versioned layout (``lake_pushes``)."""
+        from .chunks import last_lake_push
+
+        try:
+            return last_lake_push(self.site) is not None
+        except sqlite3.Error:  # no journal table yet: a whole-site (--no-stream) lake has no catalogs/
+            return False
+
     def irods_of(self, local: Path) -> str:
         return f"{env.IRODS_ROOT}/{local.relative_to(env.ROOT).as_posix()}"
 
@@ -965,6 +975,13 @@ class Builder:
             self.obj(self.irods_of(cat), "lake-catalog", [
                 ("mesa.ducklake.catalog", self.lake_rel, "relative path"), ("dc.format", MIME["ducklake"]),
                 ("provenance.generator", "neon-ducklake site list + site stack")])
+            if self.lake_pushed():  # stream push_lake publishes versioned catalogs under ducklake/catalogs/
+                from .upload import VERSIONS_DIR
+
+                self.coll(f"{self.irods_of(cat.parent)}/{VERSIONS_DIR}", "lake-dir", [
+                    ("neon.siteCode", s), ("provenance.generator", "neon-ducklake site upload (push_lake)"),
+                    ("dc.description", (f"Versioned DuckLake catalogs of {self.lake_rel}, one per push; the "
+                                        "CURRENT pointer next to them names the current one."))])
         dirs, files = self._tree(data)
         if not data.is_dir():
             return
