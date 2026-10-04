@@ -1037,7 +1037,10 @@ def finalize_site(site: str, *, threads: int = 8, rate: float = 20.0, session: A
             kw: dict[str, Any] = {"metadata_only": True}  # the raw files and CSVs are gone: metadata level only
             if session is not None:
                 kw["session"] = session
-            return _main_rc(verify_site.main(site, **kw))
+            rc = verify_site.main(site, **kw)
+            if rc == verify_site.RC_INCOMPLETE:  # only refused iRODS reads failed: nothing known to be wrong
+                return RC_RETRY, {"error": "verify incomplete: some iRODS reads were refused; retry later"}
+            return _main_rc(rc)
 
         for step, fn in (("terms", terms), ("cards", cards), ("curate", curate), ("validate", validate),
                          ("avus", build), ("upload", push), ("apply", apply), ("history", history),

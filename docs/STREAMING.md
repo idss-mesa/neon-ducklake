@@ -151,7 +151,10 @@ skipped once `ok`:
    reports. The shared `ref/ontology_maps/` is not pushed from here: each VM publishes its own export;
 4. apply;
 5. history (spool);
-6. site verify at metadata level (`verify_site.main(metadata_only=True)`; the raw files are gone).
+6. site verify at metadata level (`verify_site.main(metadata_only=True)`; the raw files are gone). Collections
+   whose path starts with a dot (`.mesa-journal/...`) are pipeline bookkeeping and are not checked. When the only
+   failures are iRODS reads refused after retries, verify reports `incomplete` and returns 4; the step then
+   returns `RC_RETRY` instead of failing.
 
 It returns 0, 1 (not ready: chunks left, or another VM still curates), 2 (a step failed) or 4 (retry later:
 the lake's catalog is being written). The orchestrator retries 1 and 4 later.

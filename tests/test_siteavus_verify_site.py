@@ -282,6 +282,32 @@ def test_transient_irods_errors_are_retried_and_persistent_ones_fail(world, monk
     assert r["irods objects"]["details"]["unreadable"][0].startswith(f"{P_IS}/2024-06: ConnectionError")
 
 
+def test_refused_avu_reads_make_the_verify_incomplete_not_failed(world, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A month collection whose AVUs cannot be read (refused after retries) is not "missing" its AVUs: the checks
+    say incomplete, the report asks for a retry, and main() returns RC_INCOMPLETE instead of 1."""
+    _f, con, data, store = world
+    monkeypatch.setattr(verify_site, "RETRY_DELAYS", (0.0, 0.0))
+    real = SiteVerifier.read_unit
+
+    def refused(self, session, unit, colls_known):  # replicas stay readable: only the AVU read is refused
+        if unit.unit_id == MONTH:
+            raise ConnectionError("Could not receive server response")
+        return real(self, session, unit, colls_known)
+
+    monkeypatch.setattr(SiteVerifier, "read_unit", refused)
+    r = run(con, data, store)
+    assert r["irods objects"]["status"] == "pass"
+    assert r["avu core"]["details"]["n_lacking"] == 0 and r["avu core"]["details"]["n_unreadable"] == 6
+    for name in ("avu desired", "avu core", "avu file kinds"):
+        assert r[name]["status"] == "fail" and r[name]["details"]["incomplete"] is True, (name, r[name]["summary"])
+    assert r["_report"]["ok"] is False and r["_report"]["incomplete"] is True
+    assert "INCOMPLETE" in verify_site.render(r["_report"])
+    # a real gap next to a refused read is still a failure
+    store.colls[f"{S}/raw"]["avus"] = {("ipc_UUID", "c", "")}
+    r = run(con, data, store)
+    assert r["_report"]["incomplete"] is False and r["avu collections"]["details"]["incomplete"] is False
+
+
 def test_local_evicted_and_storage_verified_stale_md5(world) -> None:
     """Evicted rows count as evicted (not missing); a storage-verified NEON-stale data file is flagged, not hard."""
     _f, con, data, store = world
