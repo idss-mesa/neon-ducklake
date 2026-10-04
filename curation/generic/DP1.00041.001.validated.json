@@ -1,0 +1,537 @@
+{
+ "productCode": "DP1.00041.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.531717+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00041.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00041.001.rep1.jsonl",
+   "card_sha256": "fd8bd3e469cfc9a529bf97793870a8e9c8f010241a8960b33983d2140e67ce71",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 47.8,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6268,
+    "cache_creation_input_tokens": 23649,
+    "cache_read_input_tokens": 76460,
+    "thinking_tokens": 344
+   },
+   "total_cost_usd": 0.3299
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00041.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00041.001.rep2.jsonl",
+   "card_sha256": "fd8bd3e469cfc9a529bf97793870a8e9c8f010241a8960b33983d2140e67ce71",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 8,
+   "seconds": 38.2,
+   "tool_calls": 22,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 14,
+    "mesa_avu_from_term": 8
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 4701,
+    "cache_creation_input_tokens": 15546,
+    "cache_read_input_tokens": 85068,
+    "thinking_tokens": 413
+   },
+   "total_cost_usd": 0.2354
+  }
+ ],
+ "counts": {
+  "accepted": 8,
+  "human_accepted": 0,
+  "proposed": 4,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "0884f7199438d332",
+   "productCode": "DP1.00041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.temperature_of_soil",
+   "value": "temperature of soil",
+   "unit": "ENVO:09200012",
+   "curie": "ENVO:09200012",
+   "label": "temperature of soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "soilTempMean",
+   "rationale": "The product measures soil temperature at depth profiles.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_soil",
+     "modelValue": "temperature of soil",
+     "modelLabel": "temperature of soil",
+     "column": "soilTempMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_soil",
+     "modelValue": "temperature of soil",
+     "modelLabel": "temperature of soil",
+     "column": "soilTempMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "4cad88066912d6ad",
+   "productCode": "DP1.00041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Sensors are buried in soil at the instrumented soil plots.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f0e82bd787855e9f",
+   "productCode": "DP1.00041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.temperature_measurement_assay",
+   "value": "temperature measurement assay",
+   "unit": "OBI:0002140",
+   "curie": "OBI:0002140",
+   "label": "temperature measurement assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil temperature is measured with an in-situ RTD temperature probe.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_assay",
+     "modelValue": "temperature measurement assay",
+     "modelLabel": "temperature measurement assay",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_assay",
+     "modelValue": "temperature measurement assay",
+     "modelLabel": "temperature measurement assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "fb4e33d5f0a46b4b",
+   "productCode": "DP1.00041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "The data are a time series of 1-minute and 30-minute averages.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "93d2bc7882916863",
+   "productCode": "DP1.00041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilTempMean",
+   "rationale": "Arithmetic mean soil temperature for each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "soilTempMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "soilTempMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "f007da766111311e",
+   "productCode": "DP1.00041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilTempVariance",
+   "rationale": "Variance of soil temperature within each interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "soilTempVariance"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "soilTempVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "54614c632ed10c64",
+   "productCode": "DP1.00041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilTempStdErMean",
+   "rationale": "Standard error of the mean soil temperature.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "soilTempStdErMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "soilTempStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "9c3fc145a0c5b55e",
+   "productCode": "DP1.00041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilTempExpUncert",
+   "rationale": "Expanded measurement uncertainty reported for soil temperature.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "soilTempExpUncert"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "soilTempExpUncert"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "0f5a0476687c52f8",
+   "productCode": "DP1.00041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.depth",
+   "value": "depth",
+   "unit": "PATO:0001595",
+   "curie": "PATO:0001595",
+   "label": "depth",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "verticalPosition",
+   "rationale": "Vertical position indexes the sensor depth below the soil surface, from 2 to 200 cm.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.depth",
+     "modelValue": "depth",
+     "modelLabel": "depth",
+     "column": "verticalPosition"
+    }
+   ]
+  },
+  {
+   "proposalId": "db4dc94dedf86454",
+   "productCode": "DP1.00041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.temperature_measurement_datum",
+   "value": "temperature measurement datum",
+   "unit": "OBI:0003079",
+   "curie": "OBI:0003079",
+   "label": "temperature measurement datum",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilTempMean",
+   "rationale": "Records are scalar temperature measurement data.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_datum",
+     "modelValue": "temperature measurement datum",
+     "modelLabel": "temperature measurement datum",
+     "column": "soilTempMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "fbc58e226b0fa9e7",
+   "productCode": "DP1.00041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.minimum_observed_value",
+   "value": "minimum observed value",
+   "unit": "STATO:0000150",
+   "curie": "STATO:0000150",
+   "label": "minimum observed value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilTempMinimum",
+   "rationale": "Minimum soil temperature within each interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.minimum_observed_value",
+     "modelValue": "minimum observed value",
+     "modelLabel": "minimum observed value",
+     "column": "soilTempMinimum"
+    }
+   ]
+  },
+  {
+   "proposalId": "90b240cf972e6768",
+   "productCode": "DP1.00041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.maximum_observed_value",
+   "value": "maximum observed value",
+   "unit": "STATO:0000151",
+   "curie": "STATO:0000151",
+   "label": "maximum observed value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilTempMaximum",
+   "rationale": "Maximum soil temperature within each interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.maximum_observed_value",
+     "modelValue": "maximum observed value",
+     "modelLabel": "maximum observed value",
+     "column": "soilTempMaximum"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

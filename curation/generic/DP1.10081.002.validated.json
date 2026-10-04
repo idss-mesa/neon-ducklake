@@ -1,0 +1,653 @@
+{
+ "productCode": "DP1.10081.002",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.539655+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10081.002.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10081.002.rep1.jsonl",
+   "card_sha256": "a18036c9fd3a66f33acc5443b2069c39dbb80c3cd2769377afc6a9cd100025ce",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 55.9,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 7260,
+    "cache_creation_input_tokens": 29418,
+    "cache_read_input_tokens": 92524,
+    "thinking_tokens": 1053
+   },
+   "total_cost_usd": 0.3419
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10081.002.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10081.002.rep2.jsonl",
+   "card_sha256": "a18036c9fd3a66f33acc5443b2069c39dbb80c3cd2769377afc6a9cd100025ce",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 13,
+   "seconds": 53.6,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 13
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 7199,
+    "cache_creation_input_tokens": 18422,
+    "cache_read_input_tokens": 78853,
+    "thinking_tokens": 844
+   },
+   "total_cost_usd": 0.2519
+  }
+ ],
+ "counts": {
+  "accepted": 10,
+  "human_accepted": 0,
+  "proposed": 5,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "24d5a3bebaf1a7a7",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.bacteria",
+   "value": "Bacteria",
+   "unit": "NCBITaxon:2",
+   "curie": "NCBITaxon:2",
+   "label": "Bacteria",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "targetTaxonGroup",
+   "rationale": "16S tables target bacteria and archaea in soil communities.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": "targetTaxonGroup"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": "targetTaxonGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "367522a89eaa5d80",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.archaea",
+   "value": "Archaea",
+   "unit": "NCBITaxon:2157",
+   "curie": "NCBITaxon:2157",
+   "label": "Archaea",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "targetTaxonGroup",
+   "rationale": "16S tables target bacteria and archaea in soil communities.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.archaea",
+     "modelValue": "Archaea",
+     "modelLabel": "Archaea",
+     "column": "targetTaxonGroup"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.archaea",
+     "modelValue": "Archaea",
+     "modelLabel": "Archaea",
+     "column": "targetTaxonGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "4b34a4db30cb8258",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.fungi",
+   "value": "Fungi",
+   "unit": "NCBITaxon:4751",
+   "curie": "NCBITaxon:4751",
+   "label": "Fungi",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "targetTaxonGroup",
+   "rationale": "ITS tables target fungal soil communities.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": "targetTaxonGroup"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": "targetTaxonGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "b2a8876bfc344351",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleMaterial",
+   "rationale": "Microbial communities come from homogenized soil samples.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "sampleMaterial"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "sampleMaterial"
+    }
+   ]
+  },
+  {
+   "proposalId": "fb650fc12f72be3f",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.amplicon_sequencing_assay",
+   "value": "amplicon sequencing assay",
+   "unit": "OBI:0002767",
+   "curie": "OBI:0002767",
+   "label": "amplicon sequencing assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "targetGene",
+   "rationale": "Taxonomy comes from 16S and ITS marker-gene amplicon sequencing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.amplicon_sequencing_assay",
+     "modelValue": "amplicon sequencing assay",
+     "modelLabel": "amplicon sequencing assay",
+     "column": "targetGene"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.amplicon_sequencing_assay",
+     "modelValue": "amplicon sequencing assay",
+     "modelLabel": "amplicon sequencing assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "7985bdcb899f6534",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.16s_ribosomal_gene_sequencing_assay",
+   "value": "16s ribosomal gene sequencing assay",
+   "unit": "OBI:0002763",
+   "curie": "OBI:0002763",
+   "label": "16s ribosomal gene sequencing assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "targetGene",
+   "rationale": "Bacterial and archaeal taxa come from 16S rRNA gene sequencing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.16s_ribosomal_gene_sequencing_assay",
+     "modelValue": "16s ribosomal gene sequencing assay",
+     "modelLabel": "16s ribosomal gene sequencing assay",
+     "column": "targetGene"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.16s_ribosomal_gene_sequencing_assay",
+     "modelValue": "16S rRNA",
+     "modelLabel": "16s ribosomal gene sequencing assay",
+     "column": "targetGene"
+    }
+   ]
+  },
+  {
+   "proposalId": "9a6421d9684d4cdd",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.readbased_taxonomic_classification",
+   "value": "read-based taxonomic classification",
+   "unit": "OBI:0003925",
+   "curie": "OBI:0003925",
+   "label": "read-based taxonomic classification",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "analysisProgram",
+   "rationale": "RDP classifier assigns taxa using reference databases such as RDP and UNITE.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.readbased_taxonomic_classification",
+     "modelValue": "read-based taxonomic classification",
+     "modelLabel": "read-based taxonomic classification",
+     "column": "analysisProgram"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.readbased_taxonomic_classification",
+     "modelValue": "RDP classifier",
+     "modelLabel": "read-based taxonomic classification",
+     "column": "analysisProgram"
+    }
+   ]
+  },
+  {
+   "proposalId": "bdca3b307c2cff8a",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.operational_taxonomic_unit_matrix",
+   "value": "operational taxonomic unit matrix",
+   "unit": "OBI:0001968",
+   "curie": "OBI:0001968",
+   "label": "operational taxonomic unit matrix",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product provides OTU and sequence-variant taxon count tables across samples.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.operational_taxonomic_unit_matrix",
+     "modelValue": "operational taxonomic unit matrix",
+     "modelLabel": "operational taxonomic unit matrix",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.operational_taxonomic_unit_matrix",
+     "modelValue": "operational taxonomic unit matrix",
+     "modelLabel": "operational taxonomic unit matrix",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "22dd8af20821b304",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "bco.taxonomic_inventory",
+   "value": "taxonomic inventory",
+   "unit": "BCO:0000048",
+   "curie": "BCO:0000048",
+   "label": "taxonomic inventory",
+   "ontologyId": "bco",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Lists the microbial taxa observed in each soil sample, with abundances.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_inventory",
+     "modelValue": "taxonomic inventory",
+     "modelLabel": "taxonomic inventory",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_inventory",
+     "modelValue": "taxonomic inventory",
+     "modelLabel": "taxonomic inventory",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "2f7adeb9d7cda796",
+   "productCode": "DP1.10081.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.sequence_read_count",
+   "value": "sequence read count",
+   "unit": "STATO:0000064",
+   "curie": "STATO:0000064",
+   "label": "sequence read count",
+   "ontologyId": "stato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sampleFilteredReadNumber",
+   "rationale": "Number of quality-filtered sequence reads per sample.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.sequence_read_count",
+     "modelValue": "sequence read count",
+     "modelLabel": "sequence read count",
+     "column": "sampleFilteredReadNumber"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.sequence_read_count",
+     "modelValue": "sequence read count",
+     "modelLabel": "sequence read count",
+     "column": "sampleFilteredReadNumber"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "21ac9533bf883983",
+   "productCode": "DP1.10081.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "dnaSampleID",
+   "rationale": "DNA is extracted from soil genetic subsamples before sequencing.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "dnaSampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "c9b1068ca5daec63",
+   "productCode": "DP1.10081.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ohmi.relative_species_abundance",
+   "value": "relative species abundance",
+   "unit": "OHMI:0000468",
+   "curie": "OHMI:0000468",
+   "label": "relative species abundance",
+   "ontologyId": "ohmi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product reports counts and relative abundances of microbial taxa.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ohmi.relative_species_abundance",
+     "modelValue": "relative species abundance",
+     "modelLabel": "relative species abundance",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ef63639b42f173f6",
+   "productCode": "DP1.10081.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pco.microbial_community",
+   "value": "soil microbial community",
+   "unit": "PCO:1000004",
+   "curie": "PCO:1000004",
+   "label": "microbial community",
+   "ontologyId": "pco",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product describes the taxonomy of soil microbial communities.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "soil microbial community",
+     "modelLabel": "microbial community",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "1234bf57adcf5c52",
+   "productCode": "DP1.10081.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pco.community_species_diversity",
+   "value": "community species diversity",
+   "unit": "PCO:0000019",
+   "curie": "PCO:0000019",
+   "label": "community species diversity",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Taxon counts and relative abundances describe the diversity of microbial communities.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_diversity",
+     "modelValue": "community species diversity",
+     "modelLabel": "community species diversity",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "0e9aade7fb3d336a",
+   "productCode": "DP1.10081.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "so.internaltranscribedspacerregion",
+   "value": "ITS",
+   "unit": "SO:0000639",
+   "curie": "SO:0000639",
+   "label": "internal_transcribed_spacer_region",
+   "ontologyId": "so",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "targetGene",
+   "rationale": "ITS region is the marker gene targeted for fungi.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.internaltranscribedspacerregion",
+     "modelValue": "ITS",
+     "modelLabel": "internal_transcribed_spacer_region",
+     "column": "targetGene"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

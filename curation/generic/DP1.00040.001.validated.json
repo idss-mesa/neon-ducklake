@@ -1,0 +1,463 @@
+{
+ "productCode": "DP1.00040.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.531483+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00040.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00040.001.rep1.jsonl",
+   "card_sha256": "0b7b60a7617b5f6dea0f96688cd703b21ab9eccf929a6084c6b7ba54d5bc151a",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 8,
+   "seconds": 43.3,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 8
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5344,
+    "cache_creation_input_tokens": 27512,
+    "cache_read_input_tokens": 102796,
+    "thinking_tokens": 470
+   },
+   "total_cost_usd": 0.3476
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00040.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00040.001.rep2.jsonl",
+   "card_sha256": "0b7b60a7617b5f6dea0f96688cd703b21ab9eccf929a6084c6b7ba54d5bc151a",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 47.0,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5924,
+    "cache_creation_input_tokens": 35528,
+    "cache_read_input_tokens": 125857,
+    "thinking_tokens": 690
+   },
+   "total_cost_usd": 0.4279
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 3,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "5cb036b748aeda46",
+   "productCode": "DP1.00040.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Heat flux plates buried below the soil surface measure conductive heat flow through soil.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e82041c814ace78c",
+   "productCode": "DP1.00040.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.flux",
+   "value": "soil heat flux",
+   "unit": "PATO:0001030",
+   "curie": "PATO:0001030",
+   "label": "flux",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "SHFMean",
+   "rationale": "Primary measured quantity: rate of thermal energy flow across soil area.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.flux",
+     "modelValue": "soil heat flux",
+     "modelLabel": "flux",
+     "column": "SHFMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.flux",
+     "modelValue": "soil heat flux",
+     "modelLabel": "flux",
+     "column": "SHFMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "2b2b12ff96f6813f",
+   "productCode": "DP1.00040.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "1-minute and 30-minute sensor time series.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "c17f40128d9844d5",
+   "productCode": "DP1.00040.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "SHFMean",
+   "rationale": "Arithmetic mean soil heat flux per averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "SHFMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "SHFMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "ac04c30156778565",
+   "productCode": "DP1.00040.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "SHFStdErMean",
+   "rationale": "Standard error of mean soil heat flux reported per interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "SHFStdErMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "SHFStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "9a12a60aa7d99664",
+   "productCode": "DP1.00040.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "SHFVariance",
+   "rationale": "Variance of soil heat flux within each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "SHFVariance"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "SHFVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "56a7a793e72f68ce",
+   "productCode": "DP1.00040.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "SHFExpUncert",
+   "rationale": "Expanded uncertainty reported for soil heat flux.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "SHFExpUncert"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "SHFExpUncert"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "ca8598336232c5db",
+   "productCode": "DP1.00040.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.heat_conductivity",
+   "value": "heat conductivity",
+   "unit": "PATO:0001756",
+   "curie": "PATO:0001756",
+   "label": "heat conductivity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil heat flux is conductive heat transfer, governed by soil heat conductivity.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.heat_conductivity",
+     "modelValue": "heat conductivity",
+     "modelLabel": "heat conductivity",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ed465fc9b1a3998a",
+   "productCode": "DP1.00040.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.thermal_energy",
+   "value": "thermal energy",
+   "unit": "ENVO:2000032",
+   "curie": "ENVO:2000032",
+   "label": "thermal energy",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "SHFMean",
+   "rationale": "The flux measured is thermal energy moving by conduction through soil.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.thermal_energy",
+     "modelValue": "thermal energy",
+     "modelLabel": "thermal energy",
+     "column": "SHFMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "da0f381d44aee54b",
+   "productCode": "DP1.00040.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are device-produced measurement outputs from the heat flux sensors.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

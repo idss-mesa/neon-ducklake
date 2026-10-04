@@ -1,0 +1,559 @@
+{
+ "productCode": "DP1.00046.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.532241+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00046.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00046.001.rep1.jsonl",
+   "card_sha256": "c11cce84e1b519e12fbcb3bf9f957b5ac371355366f7a28b458ab58cce9e3956",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 45.7,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5826,
+    "cache_creation_input_tokens": 22983,
+    "cache_read_input_tokens": 96269,
+    "thinking_tokens": 520
+   },
+   "total_cost_usd": 0.3197
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00046.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00046.001.rep2.jsonl",
+   "card_sha256": "c11cce84e1b519e12fbcb3bf9f957b5ac371355366f7a28b458ab58cce9e3956",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 48.8,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6240,
+    "cache_creation_input_tokens": 19160,
+    "cache_read_input_tokens": 105512,
+    "thinking_tokens": 611
+   },
+   "total_cost_usd": 0.2992
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "0d00d6060631c386",
+   "productCode": "DP1.00046.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.volume_of_hydrological_precipitation",
+   "value": "volume of hydrological precipitation",
+   "unit": "ENVO:01001363",
+   "curie": "ENVO:01001363",
+   "label": "volume of hydrological precipitation",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipBulk",
+   "rationale": "Bulk precipitation depth collected below the canopy over each aggregation interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.volume_of_hydrological_precipitation",
+     "modelValue": "throughfall bulk precipitation",
+     "modelLabel": "volume of hydrological precipitation",
+     "column": "precipBulk"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.volume_of_hydrological_precipitation",
+     "modelValue": "volume of hydrological precipitation",
+     "modelLabel": "volume of hydrological precipitation",
+     "column": "precipBulk"
+    }
+   ]
+  },
+  {
+   "proposalId": "3bd1013785e27a52",
+   "productCode": "DP1.00046.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.hydrological_precipitation_process",
+   "value": "hydrological precipitation process",
+   "unit": "ENVO:01000703",
+   "curie": "ENVO:01000703",
+   "label": "hydrological precipitation process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product quantifies precipitation passing through the canopy to the ground surface.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_precipitation_process",
+     "modelValue": "hydrological precipitation process",
+     "modelLabel": "hydrological precipitation process",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_precipitation_process",
+     "modelValue": "hydrological precipitation process",
+     "modelLabel": "hydrological precipitation process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "abc2079704dd436b",
+   "productCode": "DP1.00046.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.snowfall",
+   "value": "snowfall",
+   "unit": "ENVO:01000895",
+   "curie": "ENVO:01000895",
+   "label": "snowfall",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Solid precipitation is recorded once it melts in the unheated collectors.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.snowfall",
+     "modelValue": "snowfall",
+     "modelLabel": "snowfall",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.snowfall",
+     "modelValue": "snowfall",
+     "modelLabel": "snowfall",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "98401b4603cdd864",
+   "productCode": "DP1.00046.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.canopy",
+   "value": "canopy",
+   "unit": "ENVO:01001242",
+   "curie": "ENVO:01001242",
+   "label": "canopy",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Throughfall is measured below the vegetation canopy to show interception.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.canopy",
+     "modelValue": "below canopy",
+     "modelLabel": "canopy",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.canopy",
+     "modelValue": "canopy",
+     "modelLabel": "canopy",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "0498914a65cc63ac",
+   "productCode": "DP1.00046.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.measurement_device",
+   "value": "tipping bucket rain gauge",
+   "unit": "OBI:0000832",
+   "curie": "OBI:0000832",
+   "label": "measurement device",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Non-heated tipping bucket gauges with troughs; no more specific OBO gauge term found.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.measurement_device",
+     "modelValue": "tipping bucket rain gauge",
+     "modelLabel": "measurement device",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.measurement_device",
+     "modelValue": "tipping bucket rain gauge",
+     "modelLabel": "measurement device",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "3e91c64aaf0d05c4",
+   "productCode": "DP1.00046.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "Time series at 1-minute and 30-minute intervals.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "4a3a93b090f63020",
+   "productCode": "DP1.00046.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipBulkExpUncert",
+   "rationale": "Expanded uncertainty is reported for each bulk precipitation value.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "precipBulkExpUncert"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "precipBulkExpUncert"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "26d1cc2f5818bb0f",
+   "productCode": "DP1.00046.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.waterbased_rainfall",
+   "value": "water-based rainfall",
+   "unit": "ENVO:01000830",
+   "curie": "ENVO:01000830",
+   "label": "water-based rainfall",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Liquid rainfall is the primary precipitation recorded by the throughfall tipping buckets.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.waterbased_rainfall",
+     "modelValue": "water-based rainfall",
+     "modelLabel": "water-based rainfall",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ee3362b70c1806b7",
+   "productCode": "DP1.00046.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.rainwater",
+   "value": "rainwater",
+   "unit": "ENVO:01000600",
+   "curie": "ENVO:01000600",
+   "label": "rainwater",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "precipBulk",
+   "rationale": "Collected material is precipitated water captured by troughs and the tipping bucket.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.rainwater",
+     "modelValue": "rainwater",
+     "modelLabel": "rainwater",
+     "column": "precipBulk"
+    }
+   ]
+  },
+  {
+   "proposalId": "db12e8b4e6d31e8a",
+   "productCode": "DP1.00046.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.scalar_measurement_datum",
+   "value": "scalar measurement datum",
+   "unit": "IAO:0000032",
+   "curie": "IAO:0000032",
+   "label": "scalar measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "precipBulk",
+   "rationale": "Each record is a numeric precipitation depth with a unit.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.scalar_measurement_datum",
+     "modelValue": "scalar measurement datum",
+     "modelLabel": "scalar measurement datum",
+     "column": "precipBulk"
+    }
+   ]
+  },
+  {
+   "proposalId": "6ef6db3320824444",
+   "productCode": "DP1.00046.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.rain",
+   "value": "rain",
+   "unit": "ENVO:01001564",
+   "curie": "ENVO:01001564",
+   "label": "rain",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "precipBulk",
+   "rationale": "Liquid precipitation is the main material the throughfall buckets collect",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.rain",
+     "modelValue": "rain",
+     "modelLabel": "rain",
+     "column": "precipBulk"
+    }
+   ]
+  },
+  {
+   "proposalId": "7cf28a4ad994c4f8",
+   "productCode": "DP1.00046.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.liquid_water",
+   "value": "liquid water",
+   "unit": "ENVO:00002006",
+   "curie": "ENVO:00002006",
+   "label": "liquid water",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "precipBulk",
+   "rationale": "Tipping buckets measure water in liquid form, including melted snow",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.liquid_water",
+     "modelValue": "liquid water",
+     "modelLabel": "liquid water",
+     "column": "precipBulk"
+    }
+   ]
+  },
+  {
+   "proposalId": "916eadbcac5e3b7a",
+   "productCode": "DP1.00046.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.soil_surface_layer",
+   "value": "soil surface layer",
+   "unit": "ENVO:04000010",
+   "curie": "ENVO:04000010",
+   "label": "soil surface layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Throughfall measures the precipitation that reaches the soil surface",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_surface_layer",
+     "modelValue": "soil surface layer",
+     "modelLabel": "soil surface layer",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

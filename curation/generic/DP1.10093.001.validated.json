@@ -1,0 +1,592 @@
+{
+ "productCode": "DP1.10093.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.540523+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10093.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10093.001.rep1.jsonl",
+   "card_sha256": "8159fcaf13df6ef9e0aced572b2b0812227962482d1897f516353d123a7b69c6",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 59.2,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6452,
+    "cache_creation_input_tokens": 27331,
+    "cache_read_input_tokens": 113618,
+    "thinking_tokens": 898
+   },
+   "total_cost_usd": 0.313
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10093.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10093.001.rep2.jsonl",
+   "card_sha256": "8159fcaf13df6ef9e0aced572b2b0812227962482d1897f516353d123a7b69c6",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 60.7,
+   "tool_calls": 32,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 21,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 7163,
+    "cache_creation_input_tokens": 20260,
+    "cache_read_input_tokens": 121237,
+    "thinking_tokens": 866
+   },
+   "total_cost_usd": 0.2689
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "4fd91ddcd4ad71cb",
+   "productCode": "DP1.10093.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.ixodida",
+   "value": "Ixodida",
+   "unit": "NCBITaxon:6935",
+   "curie": "NCBITaxon:6935",
+   "label": "Ixodida",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "Product targets ticks (order Ixodida); identified specimens are Ixodida taxa.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.ixodida",
+     "modelValue": "Ixodida",
+     "modelLabel": "Ixodida",
+     "column": "scientificName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.ixodida",
+     "modelValue": "Ixodida",
+     "modelLabel": "Ixodida",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "fc9c46c1002238e2",
+   "productCode": "DP1.10093.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "uberon.life_cycle_stage",
+   "value": "life cycle stage",
+   "unit": "UBERON:0000105",
+   "curie": "UBERON:0000105",
+   "label": "life cycle stage",
+   "ontologyId": "uberon",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sexOrAge",
+   "rationale": "Ticks are identified to life stage (larva, nymph, adult).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.life_cycle_stage",
+     "modelValue": "life cycle stage",
+     "modelLabel": "life cycle stage",
+     "column": "sexOrAge"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.life_cycle_stage",
+     "modelValue": "life cycle stage",
+     "modelLabel": "life cycle stage",
+     "column": "sexOrAge"
+    }
+   ]
+  },
+  {
+   "proposalId": "08a1e0a004b3b2e1",
+   "productCode": "DP1.10093.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.phenotypic_sex",
+   "value": "phenotypic sex",
+   "unit": "PATO:0001894",
+   "curie": "PATO:0001894",
+   "label": "phenotypic sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sexOrAge",
+   "rationale": "Adult ticks are identified to sex where detectable.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.phenotypic_sex",
+     "modelValue": "phenotypic sex",
+     "modelLabel": "phenotypic sex",
+     "column": "sexOrAge"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.phenotypic_sex",
+     "modelValue": "phenotypic sex",
+     "modelLabel": "phenotypic sex",
+     "column": "sexOrAge"
+    }
+   ]
+  },
+  {
+   "proposalId": "87ff1c6a62a6476e",
+   "productCode": "DP1.10093.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "uberon.nymph_stage",
+   "value": "nymph stage",
+   "unit": "UBERON:0014405",
+   "curie": "UBERON:0014405",
+   "label": "nymph stage",
+   "ontologyId": "uberon",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nymphCount",
+   "rationale": "Field counts of nymphal ticks per drag sample.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.nymph_stage",
+     "modelValue": "nymph stage",
+     "modelLabel": "nymph stage",
+     "column": "nymphCount"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.nymph_stage",
+     "modelValue": "nymph stage",
+     "modelLabel": "nymph stage",
+     "column": "nymphCount"
+    }
+   ]
+  },
+  {
+   "proposalId": "4e0a4575402fc7e7",
+   "productCode": "DP1.10093.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "uberon.larval_stage",
+   "value": "larval stage",
+   "unit": "UBERON:0000069",
+   "curie": "UBERON:0000069",
+   "label": "larval stage",
+   "ontologyId": "uberon",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "larvaCount",
+   "rationale": "Field counts of larval ticks per drag sample.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.larval_stage",
+     "modelValue": "larval stage",
+     "modelLabel": "larval stage",
+     "column": "larvaCount"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.larval_stage",
+     "modelValue": "larval stage",
+     "modelLabel": "larval stage",
+     "column": "larvaCount"
+    }
+   ]
+  },
+  {
+   "proposalId": "947ed191e39d75e9",
+   "productCode": "DP1.10093.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.herb_and_fern_layer",
+   "value": "herb and fern layer",
+   "unit": "ENVO:01000337",
+   "curie": "ENVO:01000337",
+   "label": "herb and fern layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Drag and flag cloths sweep low vegetation where questing ticks wait.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.herb_and_fern_layer",
+     "modelValue": "herb and fern layer",
+     "modelLabel": "herb and fern layer",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.herb_and_fern_layer",
+     "modelValue": "herb and fern layer",
+     "modelLabel": "herb and fern layer",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "c4835cca29f6c4fd",
+   "productCode": "DP1.10093.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.arthropod_specimen_collection_process",
+   "value": "arthropod specimen collection process",
+   "unit": "OBI:0002913",
+   "curie": "OBI:0002913",
+   "label": "arthropod specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "samplingMethod",
+   "rationale": "Ticks collected as arthropod specimens by drag/flag cloth sampling.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.arthropod_specimen_collection_process",
+     "modelValue": "drag and flag sampling",
+     "modelLabel": "arthropod specimen collection process",
+     "column": "samplingMethod"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.arthropod_specimen_collection_process",
+     "modelValue": "arthropod specimen collection process",
+     "modelLabel": "arthropod specimen collection process",
+     "column": "samplingMethod"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "560161675130f07e",
+   "productCode": "DP1.10093.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.amount",
+   "value": "amount",
+   "unit": "PATO:0000070",
+   "curie": "PATO:0000070",
+   "label": "amount",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "individualCount",
+   "rationale": "Tick abundance recorded as counts of individuals per sample and taxon.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.amount",
+     "modelValue": "amount",
+     "modelLabel": "amount",
+     "column": "individualCount"
+    }
+   ]
+  },
+  {
+   "proposalId": "685183ded1a2ce4e",
+   "productCode": "DP1.10093.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.plant_litter",
+   "value": "plant litter",
+   "unit": "ENVO:01000628",
+   "curie": "ENVO:01000628",
+   "label": "plant litter",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Drag cloths are pulled over the ground litter surface to collect ticks.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_litter",
+     "modelValue": "plant litter",
+     "modelLabel": "plant litter",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "4db3eda89fd0e524",
+   "productCode": "DP1.10093.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "totalSampledArea",
+   "rationale": "Records are field and lab measurements of sampled area and tick counts.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": "totalSampledArea"
+    }
+   ]
+  },
+  {
+   "proposalId": "a64dabc187898a4f",
+   "productCode": "DP1.10093.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "bco.taxonomic_identification_process",
+   "value": "taxonomic identification process",
+   "unit": "BCO:0000042",
+   "curie": "BCO:0000042",
+   "label": "taxonomic identification process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "A professional taxonomist identifies collected ticks to species, life stage and sex.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "e5fa247e37f2b2e9",
+   "productCode": "DP1.10093.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "uberon.postjuvenile_adult_stage",
+   "value": "post-juvenile adult stage",
+   "unit": "UBERON:0000113",
+   "curie": "UBERON:0000113",
+   "label": "post-juvenile adult stage",
+   "ontologyId": "uberon",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "adultCount",
+   "rationale": "Adult ticks are counted separately in the field data.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.postjuvenile_adult_stage",
+     "modelValue": "post-juvenile adult stage",
+     "modelLabel": "post-juvenile adult stage",
+     "column": "adultCount"
+    }
+   ]
+  },
+  {
+   "proposalId": "c3e8d8155deac08e",
+   "productCode": "DP1.10093.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.litter_layer",
+   "value": "litter layer",
+   "unit": "ENVO:01000338",
+   "curie": "ENVO:01000338",
+   "label": "litter layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Drag cloths are pulled across the ground litter layer where ticks are found.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.litter_layer",
+     "modelValue": "litter layer",
+     "modelLabel": "litter layer",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "3d46dba8c85b35c0",
+   "productCode": "DP1.10093.001",
+   "status": "rejected",
+   "reason": "no_curie",
+   "attribute": "",
+   "value": "count",
+   "unit": "",
+   "curie": null,
+   "label": "count",
+   "ontologyId": null,
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "individualCount",
+   "rationale": "Tick abundance is recorded as counts of individuals per taxon and life stage.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": false,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "no_curie",
+     "grounded": null,
+     "modelAttribute": "iao.count",
+     "modelValue": "count",
+     "modelLabel": "count",
+     "column": "individualCount"
+    }
+   ]
+  }
+ ]
+}

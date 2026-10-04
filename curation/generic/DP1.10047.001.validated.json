@@ -1,0 +1,641 @@
+{
+ "productCode": "DP1.10047.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.536895+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10047.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10047.001.rep1.jsonl",
+   "card_sha256": "7ecfb9a227b6e2066a2006db44e597baadd2c87905ed09ca025ef2a1e640272c",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 13,
+   "seconds": 62.5,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 13
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 7143,
+    "cache_creation_input_tokens": 43766,
+    "cache_read_input_tokens": 153592,
+    "thinking_tokens": 751
+   },
+   "total_cost_usd": 0.5237
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10047.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10047.001.rep2.jsonl",
+   "card_sha256": "7ecfb9a227b6e2066a2006db44e597baadd2c87905ed09ca025ef2a1e640272c",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 13,
+   "seconds": 53.1,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 13
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6872,
+    "cache_creation_input_tokens": 18034,
+    "cache_read_input_tokens": 169294,
+    "thinking_tokens": 513
+   },
+   "total_cost_usd": 0.3156
+  }
+ ],
+ "counts": {
+  "accepted": 12,
+  "human_accepted": 0,
+  "proposed": 2,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "e1ac54a86eaffb81",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil is the material sampled from pits and cores and analyzed.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "81a0fab7d21562b9",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_horizon",
+   "value": "soil horizon",
+   "unit": "ENVO:03600030",
+   "curie": "ENVO:03600030",
+   "label": "soil horizon",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "horizonName",
+   "rationale": "Data are reported for each pedogenic horizon.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_horizon",
+     "modelValue": "soil horizon",
+     "modelLabel": "soil horizon",
+     "column": "horizonName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_horizon",
+     "modelValue": "soil horizon",
+     "modelLabel": "soil horizon",
+     "column": "horizonName"
+    }
+   ]
+  },
+  {
+   "proposalId": "5b9142554ce7316d",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_bulk_density",
+   "value": "soil bulk density",
+   "unit": "ENVO:00010005",
+   "curie": "ENVO:00010005",
+   "label": "soil bulk density",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "bulkDensOvenDry",
+   "rationale": "Clod-method bulk density measured for each horizon.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_bulk_density",
+     "modelValue": "soil bulk density",
+     "modelLabel": "soil bulk density",
+     "column": "bulkDensOvenDry"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_bulk_density",
+     "modelValue": "soil bulk density",
+     "modelLabel": "soil bulk density",
+     "column": "bulkDensOvenDry"
+    }
+   ]
+  },
+  {
+   "proposalId": "ebed5f7f38cf47aa",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_texture",
+   "value": "soil texture",
+   "unit": "ENVO:06105271",
+   "curie": "ENVO:06105271",
+   "label": "soil texture",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "clayTotal",
+   "rationale": "Particle size distribution gives sand, silt and clay fractions.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_texture",
+     "modelValue": "soil texture",
+     "modelLabel": "soil texture",
+     "column": "clayTotal"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_texture",
+     "modelValue": "soil texture",
+     "modelLabel": "soil texture",
+     "column": "clayTotal"
+    }
+   ]
+  },
+  {
+   "proposalId": "db3681971657d135",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.acidity",
+   "value": "soil pH",
+   "unit": "PATO:0001842",
+   "curie": "PATO:0001842",
+   "label": "acidity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "phH2o",
+   "rationale": "Soil pH measured in water and in CaCl2.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.acidity",
+     "modelValue": "soil pH",
+     "modelLabel": "acidity",
+     "column": "phH2o"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.acidity",
+     "modelValue": "soil pH",
+     "modelLabel": "acidity",
+     "column": "phH2o"
+    }
+   ]
+  },
+  {
+   "proposalId": "234f7a54eb512dba",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.electrical_conductivity",
+   "value": "electrical conductivity",
+   "unit": "PATO:0001757",
+   "curie": "PATO:0001757",
+   "label": "electrical conductivity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "ec12pre",
+   "rationale": "1:2 soil/water and saturated paste electrical conductivity.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.electrical_conductivity",
+     "modelValue": "electrical conductivity",
+     "modelLabel": "electrical conductivity",
+     "column": "ec12pre"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.electrical_conductivity",
+     "modelValue": "electrical conductivity",
+     "modelLabel": "electrical conductivity",
+     "column": "ec12pre"
+    }
+   ]
+  },
+  {
+   "proposalId": "8b08c24bfda8dd98",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.cation_exchange_capacity",
+   "value": "cation exchange capacity",
+   "unit": "ENVO:06105240",
+   "curie": "ENVO:06105240",
+   "label": "cation exchange capacity",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "cecdNh4",
+   "rationale": "Ammonium acetate CEC and extractable bases measured.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.cation_exchange_capacity",
+     "modelValue": "cation exchange capacity",
+     "modelLabel": "cation exchange capacity",
+     "column": "cecdNh4"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.cation_exchange_capacity",
+     "modelValue": "cation exchange capacity",
+     "modelLabel": "cation exchange capacity",
+     "column": "cecdNh4"
+    }
+   ]
+  },
+  {
+   "proposalId": "1c3784cd0b30c816",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.concentration_of_carbon_atom_in_soil",
+   "value": "concentration of carbon atom in soil",
+   "unit": "ENVO:09000008",
+   "curie": "ENVO:09000008",
+   "label": "concentration of carbon atom in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "carbonTot",
+   "rationale": "Total carbon concentration of the <2 mm fraction.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_carbon_atom_in_soil",
+     "modelValue": "total carbon concentration in soil",
+     "modelLabel": "concentration of carbon atom in soil",
+     "column": "carbonTot"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_carbon_atom_in_soil",
+     "modelValue": "concentration of carbon atom in soil",
+     "modelLabel": "concentration of carbon atom in soil",
+     "column": "carbonTot"
+    }
+   ]
+  },
+  {
+   "proposalId": "7fd4b64f6f11b1b4",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.concentration_of_nitrogen_atom_in_soil",
+   "value": "concentration of nitrogen atom in soil",
+   "unit": "ENVO:09000017",
+   "curie": "ENVO:09000017",
+   "label": "concentration of nitrogen atom in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nitrogenTot",
+   "rationale": "Total nitrogen concentration of the <2 mm fraction.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_nitrogen_atom_in_soil",
+     "modelValue": "total nitrogen concentration in soil",
+     "modelLabel": "concentration of nitrogen atom in soil",
+     "column": "nitrogenTot"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_nitrogen_atom_in_soil",
+     "modelValue": "concentration of nitrogen atom in soil",
+     "modelLabel": "concentration of nitrogen atom in soil",
+     "column": "nitrogenTot"
+    }
+   ]
+  },
+  {
+   "proposalId": "96566c0aa149dced",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_profile_characterization",
+   "value": "soil profile characterization",
+   "unit": "ENVO:06105267",
+   "curie": "ENVO:06105267",
+   "label": "soil profile characterization",
+   "ontologyId": "envo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "NRCS described soil profiles and horizons in pits or cores.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_profile_characterization",
+     "modelValue": "soil profile characterization",
+     "modelLabel": "soil profile characterization",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_profile_characterization",
+     "modelValue": "soil profile characterization",
+     "modelLabel": "soil profile characterization",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ed1a0bf0fc93399b",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Lab measurements of physical and chemical properties for each horizon.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "be9b6abbef288226",
+   "productCode": "DP1.10047.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.weathering",
+   "value": "weathering",
+   "unit": "ENVO:06105119",
+   "curie": "ENVO:06105119",
+   "label": "weathering",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "feCitDithionate",
+   "rationale": "Pedogenic iron and oxalate extracts indicate weathering and soil development.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.weathering",
+     "modelValue": "weathering",
+     "modelLabel": "weathering",
+     "column": "feCitDithionate"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.weathering",
+     "modelValue": "weathering",
+     "modelLabel": "weathering",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "89c33cbd748edb4f",
+   "productCode": "DP1.10047.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.concentration_of_calcium_carbonate_in_soil",
+   "value": "calcium carbonate equivalent in soil",
+   "unit": "ENVO:3200070",
+   "curie": "ENVO:3200070",
+   "label": "concentration of calcium carbonate in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "caco3Conc",
+   "rationale": "Carbonate concentration reported as calcium carbonate equivalent.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_calcium_carbonate_in_soil",
+     "modelValue": "calcium carbonate equivalent in soil",
+     "modelLabel": "concentration of calcium carbonate in soil",
+     "column": "caco3Conc"
+    }
+   ]
+  },
+  {
+   "proposalId": "f87a63b0b08af844",
+   "productCode": "DP1.10047.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.concentration_of_soil_organic_matter_in_soil",
+   "value": "concentration of soil organic matter in soil",
+   "unit": "ENVO:09000030",
+   "curie": "ENVO:09000030",
+   "label": "concentration of soil organic matter in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "estimatedOC",
+   "rationale": "Estimated organic carbon is a measure of soil organic matter.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_soil_organic_matter_in_soil",
+     "modelValue": "concentration of soil organic matter in soil",
+     "modelLabel": "concentration of soil organic matter in soil",
+     "column": "estimatedOC"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

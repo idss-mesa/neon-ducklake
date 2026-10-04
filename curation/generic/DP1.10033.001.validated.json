@@ -1,0 +1,591 @@
+{
+ "productCode": "DP1.10033.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.535538+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10033.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10033.001.rep1.jsonl",
+   "card_sha256": "fac2ccdc218ddbc4b40d610471c3c21d2bd958eba7dad1c38a01ab66186b4eda",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 57.4,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6350,
+    "cache_creation_input_tokens": 19988,
+    "cache_read_input_tokens": 131550,
+    "thinking_tokens": 761
+   },
+   "total_cost_usd": 0.3133
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10033.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10033.001.rep2.jsonl",
+   "card_sha256": "fac2ccdc218ddbc4b40d610471c3c21d2bd958eba7dad1c38a01ab66186b4eda",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 52.2,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6472,
+    "cache_creation_input_tokens": 26953,
+    "cache_read_input_tokens": 88123,
+    "thinking_tokens": 582
+   },
+   "total_cost_usd": 0.3627
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 7,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "ce5f52bc824a002e",
+   "productCode": "DP1.10033.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.plant_litter",
+   "value": "plant litter",
+   "unit": "ENVO:01000628",
+   "curie": "ENVO:01000628",
+   "label": "plant litter",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "functionalGroup",
+   "rationale": "Product collects plant litter and fine woody debris, sorted by functional group.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_litter",
+     "modelValue": "plant litter",
+     "modelLabel": "plant litter",
+     "column": "functionalGroup"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_litter",
+     "modelValue": "plant litter",
+     "modelLabel": "plant litter",
+     "column": "functionalGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "b1e0b4f1da7d38b8",
+   "productCode": "DP1.10033.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.mass",
+   "value": "oven-dried mass",
+   "unit": "PATO:0000125",
+   "curie": "PATO:0000125",
+   "label": "mass",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "dryMass",
+   "rationale": "Main measurement is the oven-dried mass of litter by functional group.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.mass",
+     "modelValue": "oven-dried mass",
+     "modelLabel": "mass",
+     "column": "dryMass"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.mass",
+     "modelValue": "dry mass",
+     "modelLabel": "mass",
+     "column": "dryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "e6ec586ca74fe999",
+   "productCode": "DP1.10033.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.leaf_senescence",
+   "value": "leaf senescence",
+   "unit": "GO:0010150",
+   "curie": "GO:0010150",
+   "label": "leaf senescence",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Litterfall timing follows fall senescence; 'senescence' is a product keyword.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.leaf_senescence",
+     "modelValue": "leaf senescence",
+     "modelLabel": "leaf senescence",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.leaf_senescence",
+     "modelValue": "leaf senescence",
+     "modelLabel": "leaf senescence",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "4dc13779e84024b9",
+   "productCode": "DP1.10033.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chmo.stable_isotope_ratio_mass_spectrometry",
+   "value": "stable isotope ratio mass spectrometry",
+   "unit": "CHMO:0000514",
+   "curie": "CHMO:0000514",
+   "label": "stable isotope ratio mass spectrometry",
+   "ontologyId": "chmo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Litter chemistry includes d13C and d15N stable isotope measurements.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.stable_isotope_ratio_mass_spectrometry",
+     "modelValue": "stable isotope ratio mass spectrometry",
+     "modelLabel": "stable isotope ratio mass spectrometry",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.stable_isotope_ratio_mass_spectrometry",
+     "modelValue": "stable isotope ratio mass spectrometry",
+     "modelLabel": "stable isotope ratio mass spectrometry",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "43a6d9657dd58ac7",
+   "productCode": "DP1.10033.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.carbon_atom",
+   "value": "carbon",
+   "unit": "CHEBI:27594",
+   "curie": "CHEBI:27594",
+   "label": "carbon atom",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Carbon concentration of litter is measured periodically.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.carbon_atom",
+     "modelValue": "carbon",
+     "modelLabel": "carbon atom",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.carbon_atom",
+     "modelValue": "carbon",
+     "modelLabel": "carbon atom",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e32c4c2e4f533384",
+   "productCode": "DP1.10033.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.nitrogen_atom",
+   "value": "nitrogen",
+   "unit": "CHEBI:25555",
+   "curie": "CHEBI:25555",
+   "label": "nitrogen atom",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Nitrogen concentration of litter is measured periodically.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.nitrogen_atom",
+     "modelValue": "nitrogen",
+     "modelLabel": "nitrogen atom",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.nitrogen_atom",
+     "modelValue": "nitrogen",
+     "modelLabel": "nitrogen atom",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "03bc6548694f9d36",
+   "productCode": "DP1.10033.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.lignin",
+   "value": "lignin",
+   "unit": "CHEBI:6457",
+   "curie": "CHEBI:6457",
+   "label": "lignin",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Lignin concentration is part of the litter chemistry analysis.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.lignin",
+     "modelValue": "lignin",
+     "modelLabel": "lignin",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.lignin",
+     "modelValue": "lignin",
+     "modelLabel": "lignin",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "6071786aa573884c",
+   "productCode": "DP1.10033.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.tracheophyta",
+   "value": "Tracheophyta",
+   "unit": "NCBITaxon:58023",
+   "curie": "NCBITaxon:58023",
+   "label": "Tracheophyta",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Litterfall comes from the canopy of vascular plants.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f8bc8341e1302562",
+   "productCode": "DP1.10033.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.mass_measurement_datum",
+   "value": "mass measurement datum",
+   "unit": "IAO:0000414",
+   "curie": "IAO:0000414",
+   "label": "mass measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "dryMass",
+   "rationale": "Records are scalar mass measurements for each sample.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.mass_measurement_datum",
+     "modelValue": "mass measurement datum",
+     "modelLabel": "mass measurement datum",
+     "column": "dryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "1ea736c66c1fb80f",
+   "productCode": "DP1.10033.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.specimen_collection_process",
+   "value": "litter trap collection",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "trapType",
+   "rationale": "Litter is collected in elevated and ground traps over set periods.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "litter trap collection",
+     "modelLabel": "specimen collection process",
+     "column": "trapType"
+    }
+   ]
+  },
+  {
+   "proposalId": "d8637e91130adc6b",
+   "productCode": "DP1.10033.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.viridiplantae",
+   "value": "Viridiplantae",
+   "unit": "NCBITaxon:33090",
+   "curie": "NCBITaxon:33090",
+   "label": "Viridiplantae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Litterfall and woody debris come from plant canopies (leaves, needles, twigs, seeds, flowers).",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.viridiplantae",
+     "modelValue": "Viridiplantae",
+     "modelLabel": "Viridiplantae",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "a4fedc8bedaa1f3d",
+   "productCode": "DP1.10033.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are measurements of sample mass and chemistry.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "33e58d3e45e176e1",
+   "productCode": "DP1.10033.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chebi.carbon13_atom",
+   "value": "d13C",
+   "unit": "CHEBI:36928",
+   "curie": "CHEBI:36928",
+   "label": "carbon-13 atom",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Stable carbon isotope ratio (d13C) of litter is measured.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.carbon13_atom",
+     "modelValue": "d13C",
+     "modelLabel": "carbon-13 atom",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "69597d57cf2f1f81",
+   "productCode": "DP1.10033.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chebi.nitrogen15_atom",
+   "value": "d15N",
+   "unit": "CHEBI:36934",
+   "curie": "CHEBI:36934",
+   "label": "nitrogen-15 atom",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Stable nitrogen isotope ratio (d15N) of litter is measured.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.nitrogen15_atom",
+     "modelValue": "d15N",
+     "modelLabel": "nitrogen-15 atom",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

@@ -1,0 +1,527 @@
+{
+ "productCode": "DP1.00005.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.529305+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00005.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00005.001.rep1.jsonl",
+   "card_sha256": "bf2fa46670cb508a8df4423b247c2287e645192d065fcc3a82b1a60015200e0b",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 46.7,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5837,
+    "cache_creation_input_tokens": 25637,
+    "cache_read_input_tokens": 83179,
+    "thinking_tokens": 756
+   },
+   "total_cost_usd": 0.3385
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00005.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00005.001.rep2.jsonl",
+   "card_sha256": "bf2fa46670cb508a8df4423b247c2287e645192d065fcc3a82b1a60015200e0b",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 57.3,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6548,
+    "cache_creation_input_tokens": 21179,
+    "cache_read_input_tokens": 111170,
+    "thinking_tokens": 951
+   },
+   "total_cost_usd": 0.3227
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 5,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "de1369d3142ab737",
+   "productCode": "DP1.00005.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.temperature",
+   "value": "temperature",
+   "unit": "PATO:0000146",
+   "curie": "PATO:0000146",
+   "label": "temperature",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "bioTempMean",
+   "rationale": "Product measures IR biological (surface) temperature of soil, litter and canopy.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.temperature",
+     "modelValue": "surface temperature",
+     "modelLabel": "temperature",
+     "column": "bioTempMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.temperature",
+     "modelValue": "temperature",
+     "modelLabel": "temperature",
+     "column": "bioTempMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "6fcb0717ca28ce5b",
+   "productCode": "DP1.00005.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "IR sensors in the soil array view the ground surface.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "00cf367cf028ca66",
+   "productCode": "DP1.00005.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.plant_litter",
+   "value": "plant litter",
+   "unit": "ENVO:01000628",
+   "curie": "ENVO:01000628",
+   "label": "plant litter",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Keywords list litter; the ground-surface target includes surface litter.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_litter",
+     "modelValue": "plant litter",
+     "modelLabel": "plant litter",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_litter",
+     "modelValue": "plant litter",
+     "modelLabel": "plant litter",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "9400be35acb3937e",
+   "productCode": "DP1.00005.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.temperature_measurement_assay",
+   "value": "infrared temperature measurement assay",
+   "unit": "OBI:0002140",
+   "curie": "OBI:0002140",
+   "label": "temperature measurement assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Non-contact infrared radiometric temperature measurement by an Apogee SI-111 sensor.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_assay",
+     "modelValue": "infrared temperature measurement assay",
+     "modelLabel": "temperature measurement assay",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_assay",
+     "modelValue": "infrared temperature measurement assay",
+     "modelLabel": "temperature measurement assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "583a6d20695f8791",
+   "productCode": "DP1.00005.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.infrared_radiation",
+   "value": "infrared radiation",
+   "unit": "ENVO:21001214",
+   "curie": "ENVO:21001214",
+   "label": "infrared radiation",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Surface temperature is inferred from emitted infrared radiation.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.infrared_radiation",
+     "modelValue": "infrared radiation",
+     "modelLabel": "infrared radiation",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.infrared_radiation",
+     "modelValue": "infrared radiation",
+     "modelLabel": "infrared radiation",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "cdc5fb4ce992c0a3",
+   "productCode": "DP1.00005.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.temperature_measurement_datum",
+   "value": "temperature measurement datum",
+   "unit": "OBI:0003079",
+   "curie": "OBI:0003079",
+   "label": "temperature measurement datum",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "bioTempMean",
+   "rationale": "Records are scalar temperature measurement results.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_datum",
+     "modelValue": "temperature measurement datum",
+     "modelLabel": "temperature measurement datum",
+     "column": "bioTempMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_datum",
+     "modelValue": "temperature measurement datum",
+     "modelLabel": "temperature measurement datum",
+     "column": "bioTempMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "885f313356feba65",
+   "productCode": "DP1.00005.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "One- and thirty-minute averaged time series of sensor observations.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "0612e55baf6d17a4",
+   "productCode": "DP1.00005.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "bioTempVariance",
+   "rationale": "Variance of 1 Hz IR temperature observations within each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "bioTempVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "3bc0ff2ed721279f",
+   "productCode": "DP1.00005.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.vegetation_layer",
+   "value": "vegetation layer",
+   "unit": "ENVO:01000355",
+   "curie": "ENVO:01000355",
+   "label": "vegetation layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Tower-mounted sensors view the leaf and canopy surfaces of the vegetation.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.vegetation_layer",
+     "modelValue": "vegetation layer",
+     "modelLabel": "vegetation layer",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f483e82a6768b35d",
+   "productCode": "DP1.00005.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "to.canopy_temperature",
+   "value": "canopy temperature",
+   "unit": "TO:0000157",
+   "curie": "TO:0000157",
+   "label": "canopy temperature",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "bioTempMean",
+   "rationale": "Tower-mounted IR sensors measure the surface temperature of the leaf canopy.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.canopy_temperature",
+     "modelValue": "canopy temperature",
+     "modelLabel": "canopy temperature",
+     "column": "bioTempMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "750f3fb2d08bf034",
+   "productCode": "DP1.00005.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.canopy",
+   "value": "canopy",
+   "unit": "ENVO:01001242",
+   "curie": "ENVO:01001242",
+   "label": "canopy",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Tower sensors at several heights view the vegetation canopy.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.canopy",
+     "modelValue": "canopy",
+     "modelLabel": "canopy",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "02b0818545539417",
+   "productCode": "DP1.00005.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.evapotranspiration",
+   "value": "evapotranspiration",
+   "unit": "ENVO:02500033",
+   "curie": "ENVO:02500033",
+   "label": "evapotranspiration",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The abstract names evapotranspiration as a main use of surface temperature.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.evapotranspiration",
+     "modelValue": "evapotranspiration",
+     "modelLabel": "evapotranspiration",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

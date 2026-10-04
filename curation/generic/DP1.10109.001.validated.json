@@ -1,0 +1,589 @@
+{
+ "productCode": "DP1.10109.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.541987+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10109.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10109.001.rep1.jsonl",
+   "card_sha256": "8b68a243032e5bd4dc545ab074024f6acd75aa4fcbcaa5767ad8d10acd03372d",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 48.7,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 6499,
+    "cache_creation_input_tokens": 22717,
+    "cache_read_input_tokens": 55587,
+    "thinking_tokens": 741
+   },
+   "total_cost_usd": 0.2719
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10109.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10109.001.rep2.jsonl",
+   "card_sha256": "8b68a243032e5bd4dc545ab074024f6acd75aa4fcbcaa5767ad8d10acd03372d",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 54.5,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 6701,
+    "cache_creation_input_tokens": 18005,
+    "cache_read_input_tokens": 64776,
+    "thinking_tokens": 468
+   },
+   "total_cost_usd": 0.237
+  }
+ ],
+ "counts": {
+  "accepted": 10,
+  "human_accepted": 0,
+  "proposed": 3,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "423119e1aff8787d",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.bacteria",
+   "value": "Bacteria",
+   "unit": "NCBITaxon:2",
+   "curie": "NCBITaxon:2",
+   "label": "Bacteria",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "targetTaxonGroup",
+   "rationale": "Soil bacteria are quantified with 16S qPCR as a target taxon group.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": "targetTaxonGroup"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": "targetTaxonGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "c761b09a4d9ad4bf",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.archaea",
+   "value": "Archaea",
+   "unit": "NCBITaxon:2157",
+   "curie": "NCBITaxon:2157",
+   "label": "Archaea",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "targetTaxonGroup",
+   "rationale": "Archaea are quantified together with bacteria using the 16S marker gene.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.archaea",
+     "modelValue": "Archaea",
+     "modelLabel": "Archaea",
+     "column": "targetTaxonGroup"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.archaea",
+     "modelValue": "Archaea",
+     "modelLabel": "Archaea",
+     "column": "targetTaxonGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "eb8541f76b73c38d",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.fungi",
+   "value": "Fungi",
+   "unit": "NCBITaxon:4751",
+   "curie": "NCBITaxon:4751",
+   "label": "Fungi",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "targetTaxonGroup",
+   "rationale": "Soil fungi are quantified with ITS-targeted qPCR.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": "targetTaxonGroup"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": "targetTaxonGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "fbf363cf01b022bd",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleMaterial",
+   "rationale": "All samples are field-collected soil cores.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "sampleMaterial"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "sampleMaterial"
+    }
+   ]
+  },
+  {
+   "proposalId": "82b0d674069d4ef3",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pco.microbial_community",
+   "value": "microbial community",
+   "unit": "PCO:1000004",
+   "curie": "PCO:1000004",
+   "label": "microbial community",
+   "ontologyId": "pco",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product measures group abundances within soil microbial communities.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "microbial community",
+     "modelLabel": "microbial community",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "soil microbial community",
+     "modelLabel": "microbial community",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "9a86c7817e4c724c",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.real_time_polymerase_chain_reaction_assay",
+   "value": "real time polymerase chain reaction assay",
+   "unit": "OBI:0000893",
+   "curie": "OBI:0000893",
+   "label": "real time polymerase chain reaction assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testProtocolVersion",
+   "rationale": "Marker gene abundances are quantified by qPCR.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.real_time_polymerase_chain_reaction_assay",
+     "modelValue": "real time polymerase chain reaction assay",
+     "modelLabel": "real time polymerase chain reaction assay",
+     "column": "testProtocolVersion"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.real_time_polymerase_chain_reaction_assay",
+     "modelValue": "real time polymerase chain reaction assay",
+     "modelLabel": "real time polymerase chain reaction assay",
+     "column": "meanCopyNumber"
+    }
+   ]
+  },
+  {
+   "proposalId": "8217e7ed4495ef51",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "nucleicAcidConcentration",
+   "rationale": "DNA is extracted from frozen soil before qPCR, and extract concentration is reported.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "nucleicAcidConcentration"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "dnaSampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "219c573ed86f55fc",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "so.cytosolicrrna16sgene",
+   "value": "16S rRNA gene",
+   "unit": "SO:0002237",
+   "curie": "SO:0002237",
+   "label": "cytosolic_rRNA_16S_gene",
+   "ontologyId": "so",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "targetGene",
+   "rationale": "The 16S small-subunit rRNA gene is the marker quantified for bacteria and archaea.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.cytosolicrrna16sgene",
+     "modelValue": "16S rRNA gene",
+     "modelLabel": "cytosolic_rRNA_16S_gene",
+     "column": "targetGene"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.cytosolicrrna16sgene",
+     "modelValue": "16S rRNA gene",
+     "modelLabel": "cytosolic_rRNA_16S_gene",
+     "column": "targetGene"
+    }
+   ]
+  },
+  {
+   "proposalId": "cb5b8cfd60758a3e",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "so.internaltranscribedspacerregion",
+   "value": "ITS",
+   "unit": "SO:0000639",
+   "curie": "SO:0000639",
+   "label": "internal_transcribed_spacer_region",
+   "ontologyId": "so",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "targetGene",
+   "rationale": "The ITS region is the marker quantified for fungi.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.internaltranscribedspacerregion",
+     "modelValue": "ITS",
+     "modelLabel": "internal_transcribed_spacer_region",
+     "column": "targetGene"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.internaltranscribedspacerregion",
+     "modelValue": "ITS",
+     "modelLabel": "internal_transcribed_spacer_region",
+     "column": "targetGene"
+    }
+   ]
+  },
+  {
+   "proposalId": "5d1db237e27b0fc7",
+   "productCode": "DP1.10109.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.scalar_measurement_datum",
+   "value": "scalar measurement datum",
+   "unit": "IAO:0000032",
+   "curie": "IAO:0000032",
+   "label": "scalar measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "meanCopyNumber",
+   "rationale": "Records are numeric lab measurements, each with a unit.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.scalar_measurement_datum",
+     "modelValue": "scalar measurement datum",
+     "modelLabel": "scalar measurement datum",
+     "column": "meanCopyNumber"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.scalar_measurement_datum",
+     "modelValue": "gene copy number measurement",
+     "modelLabel": "scalar measurement datum",
+     "column": "meanCopyNumber"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "2040be7ae3af4d2f",
+   "productCode": "DP1.10109.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.amount",
+   "value": "marker gene copy number",
+   "unit": "PATO:0000070",
+   "curie": "PATO:0000070",
+   "label": "amount",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "meanCopyNumber",
+   "rationale": "Mean gene copy number per nanogram of DNA measures group abundance.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.amount",
+     "modelValue": "marker gene copy number",
+     "modelLabel": "amount",
+     "column": "meanCopyNumber"
+    }
+   ]
+  },
+  {
+   "proposalId": "246084ff71b75035",
+   "productCode": "DP1.10109.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.concentration_of",
+   "value": "nucleic acid concentration",
+   "unit": "PATO:0000033",
+   "curie": "PATO:0000033",
+   "label": "concentration of",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nucleicAcidConcentration",
+   "rationale": "The concentration of extracted nucleic acid is reported.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "nucleic acid concentration",
+     "modelLabel": "concentration of",
+     "column": "nucleicAcidConcentration"
+    }
+   ]
+  },
+  {
+   "proposalId": "c5629940d85a5d55",
+   "productCode": "DP1.10109.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.standard_deviation_calculation",
+   "value": "standard deviation calculation",
+   "unit": "OBI:0200121",
+   "curie": "OBI:0200121",
+   "label": "standard deviation calculation",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "copyNumberStandardDeviation",
+   "rationale": "The standard deviation of gene copy number across replicates is reported.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.standard_deviation_calculation",
+     "modelValue": "standard deviation calculation",
+     "modelLabel": "standard deviation calculation",
+     "column": "copyNumberStandardDeviation"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

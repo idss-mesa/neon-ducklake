@@ -1,0 +1,559 @@
+{
+ "productCode": "DP1.10064.002",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.537969+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10064.002.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10064.002.rep1.jsonl",
+   "card_sha256": "793c2e4584785c6efa22679bc0dac9015b3a0394fe9cc0de9e2b9b849fe21587",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 55.4,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6793,
+    "cache_creation_input_tokens": 23486,
+    "cache_read_input_tokens": 96531,
+    "thinking_tokens": 997
+   },
+   "total_cost_usd": 0.3431
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10064.002.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10064.002.rep2.jsonl",
+   "card_sha256": "793c2e4584785c6efa22679bc0dac9015b3a0394fe9cc0de9e2b9b849fe21587",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 56.2,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6915,
+    "cache_creation_input_tokens": 19661,
+    "cache_read_input_tokens": 84983,
+    "thinking_tokens": 1238
+   },
+   "total_cost_usd": 0.3126
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "312aebddbaaaa70a",
+   "productCode": "DP1.10064.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.rodentia",
+   "value": "Rodentia",
+   "unit": "NCBITaxon:9989",
+   "curie": "NCBITaxon:9989",
+   "label": "Rodentia",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Host organisms sampled are rodents (Cricetidae, Muridae, Dipodidae).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.rodentia",
+     "modelValue": "Rodentia",
+     "modelLabel": "Rodentia",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.rodentia",
+     "modelValue": "Rodentia",
+     "modelLabel": "Rodentia",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "cdb21b460e138765",
+   "productCode": "DP1.10064.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.bacteria",
+   "value": "Bacteria",
+   "unit": "NCBITaxon:2",
+   "curie": "NCBITaxon:2",
+   "label": "Bacteria",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "Most target tick-borne pathogens are bacteria (Borrelia, Anaplasma).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": "testPathogenName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "b02eb318441d46aa",
+   "productCode": "DP1.10064.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.pathogen_detection_assay",
+   "value": "pathogen detection assay",
+   "unit": "OBI:0002728",
+   "curie": "OBI:0002728",
+   "label": "pathogen detection assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Each sample is tested for pathogen presence or absence (positive/negative).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pathogen_detection_assay",
+     "modelValue": "pathogen detection assay",
+     "modelLabel": "pathogen detection assay",
+     "column": "testResult"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pathogen_detection_assay",
+     "modelValue": "pathogen detection assay",
+     "modelLabel": "pathogen detection assay",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "eaac3b9604e221d3",
+   "productCode": "DP1.10064.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.real_time_polymerase_chain_reaction_assay",
+   "value": "real time polymerase chain reaction assay",
+   "unit": "OBI:0000893",
+   "curie": "OBI:0000893",
+   "label": "real time polymerase chain reaction assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "cqValue",
+   "rationale": "Quantification cycle values show pathogens are detected by qPCR.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.real_time_polymerase_chain_reaction_assay",
+     "modelValue": "real time polymerase chain reaction assay",
+     "modelLabel": "real time polymerase chain reaction assay",
+     "column": "cqValue"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.real_time_polymerase_chain_reaction_assay",
+     "modelValue": "real time polymerase chain reaction assay",
+     "modelLabel": "real time polymerase chain reaction assay",
+     "column": "cqValue"
+    }
+   ]
+  },
+  {
+   "proposalId": "1b3f2c867ac12b1c",
+   "productCode": "DP1.10064.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "dnaSampleID",
+   "rationale": "DNA is extracted from blood and ear tissue before testing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "dnaSampleID"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "extractDNAConcentration"
+    }
+   ]
+  },
+  {
+   "proposalId": "0414667ae9c85fb9",
+   "productCode": "DP1.10064.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.blood_specimen",
+   "value": "blood specimen",
+   "unit": "OBI:0000655",
+   "curie": "OBI:0000655",
+   "label": "blood specimen",
+   "ontologyId": "obi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleID",
+   "rationale": "Rodent blood samples are tested for pathogens.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.blood_specimen",
+     "modelValue": "blood specimen",
+     "modelLabel": "blood specimen",
+     "column": "sampleID"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.blood_specimen",
+     "modelValue": "blood specimen",
+     "modelLabel": "blood specimen",
+     "column": "sampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "7b1d7ff99bc0123a",
+   "productCode": "DP1.10064.002",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Records are lab test results for each sample.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": "testResult"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "5013a7dfb5c1c89e",
+   "productCode": "DP1.10064.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.piroplasmida",
+   "value": "Piroplasmida",
+   "unit": "NCBITaxon:5863",
+   "curie": "NCBITaxon:5863",
+   "label": "Piroplasmida",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "Babesia protozoan pathogens are also tested; kept at order level.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.piroplasmida",
+     "modelValue": "Piroplasmida",
+     "modelLabel": "Piroplasmida",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "d6568f78d6b0071c",
+   "productCode": "DP1.10064.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "uberon.pinna",
+   "value": "pinna",
+   "unit": "UBERON:0001757",
+   "curie": "UBERON:0001757",
+   "label": "pinna",
+   "ontologyId": "uberon",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleID",
+   "rationale": "Small ear punch samples (outer ear tissue) are tested for pathogens.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.pinna",
+     "modelValue": "pinna",
+     "modelLabel": "pinna",
+     "column": "sampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "ed4b9a82b78bec79",
+   "productCode": "DP1.10064.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.concentration_of",
+   "value": "DNA concentration",
+   "unit": "PATO:0000033",
+   "curie": "PATO:0000033",
+   "label": "concentration of",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "extractDNAConcentration",
+   "rationale": "Concentration of extracted DNA is reported for each sample.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "DNA concentration",
+     "modelLabel": "concentration of",
+     "column": "extractDNAConcentration"
+    }
+   ]
+  },
+  {
+   "proposalId": "511b032921c7486f",
+   "productCode": "DP1.10064.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.apicomplexa",
+   "value": "Apicomplexa",
+   "unit": "NCBITaxon:5794",
+   "curie": "NCBITaxon:5794",
+   "label": "Apicomplexa",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "Babesia, an apicomplexan protozoan parasite, is among the tested pathogens.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.apicomplexa",
+     "modelValue": "Apicomplexa",
+     "modelLabel": "Apicomplexa",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "9907428ea2535842",
+   "productCode": "DP1.10064.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "uberon.ear",
+   "value": "ear",
+   "unit": "UBERON:0001690",
+   "curie": "UBERON:0001690",
+   "label": "ear",
+   "ontologyId": "uberon",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleID",
+   "rationale": "Ear tissue punches (about 2 mm) are also tested for pathogens.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.ear",
+     "modelValue": "ear",
+     "modelLabel": "ear",
+     "column": "sampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "07c46c6c9acffe34",
+   "productCode": "DP1.10064.002",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.prevalence_of_pathogen_in_specimens",
+   "value": "prevalence of pathogen in specimens",
+   "unit": "OBI:0002992",
+   "curie": "OBI:0002992",
+   "label": "prevalence of pathogen in specimens",
+   "ontologyId": "obi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Presence or absence of each pathogen per sample supports prevalence estimates.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.prevalence_of_pathogen_in_specimens",
+     "modelValue": "prevalence of pathogen in specimens",
+     "modelLabel": "prevalence of pathogen in specimens",
+     "column": "testResult"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

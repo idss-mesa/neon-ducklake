@@ -1,0 +1,507 @@
+{
+ "productCode": "DP1.00094.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.532781+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00094.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00094.001.rep1.jsonl",
+   "card_sha256": "20f123abbb091b21541460144c2f7d9734d6d79220998f85b1d2e7a004e0d8b5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 8,
+   "seconds": 51.8,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 22,
+    "mesa_avu_from_term": 8
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6339,
+    "cache_creation_input_tokens": 28152,
+    "cache_read_input_tokens": 110011,
+    "thinking_tokens": 1057
+   },
+   "total_cost_usd": 0.374
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00094.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00094.001.rep2.jsonl",
+   "card_sha256": "20f123abbb091b21541460144c2f7d9734d6d79220998f85b1d2e7a004e0d8b5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 54.8,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 16,
+    "output_tokens": 6348,
+    "cache_creation_input_tokens": 19144,
+    "cache_read_input_tokens": 179782,
+    "thinking_tokens": 980
+   },
+   "total_cost_usd": 0.3161
+  }
+ ],
+ "counts": {
+  "accepted": 5,
+  "human_accepted": 0,
+  "proposed": 7,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "bf612d9cc46268a1",
+   "productCode": "DP1.00094.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.concentration_of_liquid_water_in_soil",
+   "value": "volumetric soil water content",
+   "unit": "ENVO:09000026",
+   "curie": "ENVO:09000026",
+   "label": "concentration of liquid water in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "VSWCMean",
+   "rationale": "Main measured quantity: volumetric soil water content at depth profiles.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_liquid_water_in_soil",
+     "modelValue": "volumetric soil water content",
+     "modelLabel": "concentration of liquid water in soil",
+     "column": "VSWCMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_liquid_water_in_soil",
+     "modelValue": "volumetric soil water content",
+     "modelLabel": "concentration of liquid water in soil",
+     "column": "VSWCMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "bded72cb437c0b99",
+   "productCode": "DP1.00094.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.salinity",
+   "value": "soil water salinity index",
+   "unit": "PATO:0085001",
+   "curie": "PATO:0085001",
+   "label": "salinity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "VSICMean",
+   "rationale": "Volumetric soil ion content is reported as a salinity index.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.salinity",
+     "modelValue": "soil water salinity index",
+     "modelLabel": "salinity",
+     "column": "VSICMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.salinity",
+     "modelValue": "soil water salinity index",
+     "modelLabel": "salinity",
+     "column": "VSICMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "8a8ca5f156d75191",
+   "productCode": "DP1.00094.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Sensors are buried in soil profiles about 6 to 200 cm deep.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e0b522936cdb6a37",
+   "productCode": "DP1.00094.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.liquid_water",
+   "value": "liquid water",
+   "unit": "ENVO:00002006",
+   "curie": "ENVO:00002006",
+   "label": "liquid water",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Sensors measure liquid water only; frozen soil water is flagged or missing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.liquid_water",
+     "modelValue": "liquid water",
+     "modelLabel": "liquid water",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.liquid_water",
+     "modelValue": "soil water",
+     "modelLabel": "liquid water",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "791d80251f77c69d",
+   "productCode": "DP1.00094.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "1-minute and 30-minute averaged sensor time series",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "Continuous sensor data given as 1-minute and 30-minute averages.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "1-minute and 30-minute averaged sensor time series",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "1-minute and 30-minute averaged time series",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "81f309a8117fa1c7",
+   "productCode": "DP1.00094.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chebi.ion",
+   "value": "soil water ions",
+   "unit": "CHEBI:24870",
+   "curie": "CHEBI:24870",
+   "label": "ion",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "VSICMinimum",
+   "rationale": "The salinity index measures the ion content of soil water.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.ion",
+     "modelValue": "soil water ions",
+     "modelLabel": "ion",
+     "column": "VSICMinimum"
+    }
+   ]
+  },
+  {
+   "proposalId": "73aa664a1df9b371",
+   "productCode": "DP1.00094.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.vadose_zone",
+   "value": "vadose zone",
+   "unit": "ENVO:00000328",
+   "curie": "ENVO:00000328",
+   "label": "vadose zone",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil moisture is the water held in the unsaturated vadose zone.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.vadose_zone",
+     "modelValue": "vadose zone",
+     "modelLabel": "vadose zone",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "efe5ce10accc327d",
+   "productCode": "DP1.00094.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.water_infiltration_into_soil",
+   "value": "water infiltration into soil",
+   "unit": "ENVO:06105231",
+   "curie": "ENVO:06105231",
+   "label": "water infiltration into soil",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil water content changes over depth and time follow infiltration in the ecohydrology cycle.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.water_infiltration_into_soil",
+     "modelValue": "water infiltration into soil",
+     "modelLabel": "water infiltration into soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "06a53dae94e18595",
+   "productCode": "DP1.00094.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.electrical_conductivity",
+   "value": "soil ion content (conductivity-based)",
+   "unit": "PATO:0001757",
+   "curie": "PATO:0001757",
+   "label": "electrical conductivity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "VSICMean",
+   "rationale": "Ion content index reflects soil water's ionic conductance; supports conductivity-based discovery.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.electrical_conductivity",
+     "modelValue": "soil ion content (conductivity-based)",
+     "modelLabel": "electrical conductivity",
+     "column": "VSICMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "cbd9a18c6a91a8e5",
+   "productCode": "DP1.00094.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.average_value",
+   "value": "arithmetic mean",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "VSWCMean",
+   "rationale": "Reported values are arithmetic means over each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "arithmetic mean",
+     "modelLabel": "average value",
+     "column": "VSWCMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "d2133db2fe893550",
+   "productCode": "DP1.00094.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "VSWCStdErMean",
+   "rationale": "Standard error of the mean is reported for each averaged value.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "VSWCStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "efe8b08708b9e62a",
+   "productCode": "DP1.00094.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.drought",
+   "value": "drought",
+   "unit": "ENVO:1000745",
+   "curie": "ENVO:1000745",
+   "label": "drought",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil moisture is described as a key indicator of drought.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.drought",
+     "modelValue": "drought",
+     "modelLabel": "drought",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

@@ -1,0 +1,623 @@
+{
+ "productCode": "DP1.10092.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.540238+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10092.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10092.001.rep1.jsonl",
+   "card_sha256": "ae0a89647a5054bdf1f5756a01334596c0b1c9f7884f3e6847a4822e8d99ee88",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 54.7,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 7003,
+    "cache_creation_input_tokens": 28153,
+    "cache_read_input_tokens": 107506,
+    "thinking_tokens": 889
+   },
+   "total_cost_usd": 0.3208
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10092.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10092.001.rep2.jsonl",
+   "card_sha256": "ae0a89647a5054bdf1f5756a01334596c0b1c9f7884f3e6847a4822e8d99ee88",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 57.0,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6710,
+    "cache_creation_input_tokens": 20101,
+    "cache_read_input_tokens": 83829,
+    "thinking_tokens": 812
+   },
+   "total_cost_usd": 0.2515
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 8,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "3afd13d7920b66d6",
+   "productCode": "DP1.10092.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.ixodida",
+   "value": "Ixodida",
+   "unit": "NCBITaxon:6935",
+   "curie": "NCBITaxon:6935",
+   "label": "Ixodida",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Individual ticks (Ixodes, Amblyomma, Dermacentor nymphs) are the tested hosts.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.ixodida",
+     "modelValue": "Ixodida",
+     "modelLabel": "Ixodida",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.ixodida",
+     "modelValue": "Ixodida",
+     "modelLabel": "Ixodida",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "fa35f3d04949eb88",
+   "productCode": "DP1.10092.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.bacteria",
+   "value": "Bacteria",
+   "unit": "NCBITaxon:2",
+   "curie": "NCBITaxon:2",
+   "label": "Bacteria",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "Borrelia, Anaplasma, Ehrlichia, Rickettsia and Francisella are bacterial target pathogens.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": "testPathogenName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "cd7c7acaba1a6bee",
+   "productCode": "DP1.10092.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.apicomplexa",
+   "value": "Apicomplexa",
+   "unit": "NCBITaxon:5794",
+   "curie": "NCBITaxon:5794",
+   "label": "Apicomplexa",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "Babesia, the protozoan target pathogen, belongs to Apicomplexa.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.apicomplexa",
+     "modelValue": "Apicomplexa",
+     "modelLabel": "Apicomplexa",
+     "column": "testPathogenName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.apicomplexa",
+     "modelValue": "Apicomplexa",
+     "modelLabel": "Apicomplexa",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "ace492e264868736",
+   "productCode": "DP1.10092.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.present",
+   "value": "present",
+   "unit": "PATO:0000467",
+   "curie": "PATO:0000467",
+   "label": "present",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Core measurement is pathogen presence or absence in each tick.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.present",
+     "modelValue": "pathogen presence/absence",
+     "modelLabel": "present",
+     "column": "testResult"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.present",
+     "modelValue": "present",
+     "modelLabel": "present",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "dc339d067185eec4",
+   "productCode": "DP1.10092.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.real_time_polymerase_chain_reaction_assay",
+   "value": "real time polymerase chain reaction assay",
+   "unit": "OBI:0000893",
+   "curie": "OBI:0000893",
+   "label": "real time polymerase chain reaction assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testProtocolVersion",
+   "rationale": "Pathogens are detected by PCR, and the Cq values show it is real-time PCR.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.real_time_polymerase_chain_reaction_assay",
+     "modelValue": "real time polymerase chain reaction assay",
+     "modelLabel": "real time polymerase chain reaction assay",
+     "column": "testProtocolVersion"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.real_time_polymerase_chain_reaction_assay",
+     "modelValue": "real time polymerase chain reaction assay",
+     "modelLabel": "real time polymerase chain reaction assay",
+     "column": "cqValue"
+    }
+   ]
+  },
+  {
+   "proposalId": "fab7401b2e5313b3",
+   "productCode": "DP1.10092.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.pathogen_detection_assay",
+   "value": "pathogen detection assay",
+   "unit": "OBI:0002728",
+   "curie": "OBI:0002728",
+   "label": "pathogen detection assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "The product tests individual ticks for named bacterial and protozoan pathogens.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pathogen_detection_assay",
+     "modelValue": "pathogen detection assay",
+     "modelLabel": "pathogen detection assay",
+     "column": "testPathogenName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pathogen_detection_assay",
+     "modelValue": "pathogen detection assay",
+     "modelLabel": "pathogen detection assay",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "f05cc70b0ab9ea5a",
+   "productCode": "DP1.10092.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "dnaSampleID",
+   "rationale": "DNA is extracted from tick specimens before PCR testing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "dnaSampleID"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "extractDNAConcentration"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "01ace4b1275e86f2",
+   "productCode": "DP1.10092.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.threshold_cycle",
+   "value": "threshold cycle",
+   "unit": "STATO:0000190",
+   "curie": "STATO:0000190",
+   "label": "threshold cycle",
+   "ontologyId": "stato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "cqValue",
+   "rationale": "The quantification cycle (Cq) value comes from the qPCR test.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.threshold_cycle",
+     "modelValue": "threshold cycle",
+     "modelLabel": "threshold cycle",
+     "column": "cqValue"
+    }
+   ]
+  },
+  {
+   "proposalId": "abaac3055b3597dc",
+   "productCode": "DP1.10092.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.concentration_of",
+   "value": "extracted DNA concentration",
+   "unit": "PATO:0000033",
+   "curie": "PATO:0000033",
+   "label": "concentration of",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "extractDNAConcentration",
+   "rationale": "DNA concentration is recorded for each tick DNA extract.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "extracted DNA concentration",
+     "modelLabel": "concentration of",
+     "column": "extractDNAConcentration"
+    }
+   ]
+  },
+  {
+   "proposalId": "2eea38219a93bfff",
+   "productCode": "DP1.10092.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.categorical_measurement_datum",
+   "value": "categorical measurement datum",
+   "unit": "OBI:0000938",
+   "curie": "OBI:0000938",
+   "label": "categorical measurement datum",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Test results are the categories Positive or Negative.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.categorical_measurement_datum",
+     "modelValue": "categorical measurement datum",
+     "modelLabel": "categorical measurement datum",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "6742c271d7035921",
+   "productCode": "DP1.10092.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.biological_process_involved_in_symbiotic_interaction",
+   "value": "tick-pathogen symbiotic interaction",
+   "unit": "GO:0044403",
+   "curie": "GO:0044403",
+   "label": "biological process involved in symbiotic interaction",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Pathogen carriage by ticks is a parasitic symbiotic interaction.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.biological_process_involved_in_symbiotic_interaction",
+     "modelValue": "tick-pathogen symbiotic interaction",
+     "modelLabel": "biological process involved in symbiotic interaction",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "bf0bb429beae0aa3",
+   "productCode": "DP1.10092.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.dna_extract",
+   "value": "DNA extract",
+   "unit": "OBI:0001051",
+   "curie": "OBI:0001051",
+   "label": "DNA extract",
+   "ontologyId": "obi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "dnaSampleID",
+   "rationale": "The assayed material is the DNA extract from each tick specimen.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extract",
+     "modelValue": "DNA extract",
+     "modelLabel": "DNA extract",
+     "column": "dnaSampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "3cca5c5934ae69d1",
+   "productCode": "DP1.10092.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.individual_organism_specimen",
+   "value": "individual organism specimen",
+   "unit": "OBI:0002648",
+   "curie": "OBI:0002648",
+   "label": "individual organism specimen",
+   "ontologyId": "obi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "subsampleID",
+   "rationale": "Pathogen testing is done on single tick specimens collected with drag cloths.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.individual_organism_specimen",
+     "modelValue": "individual organism specimen",
+     "modelLabel": "individual organism specimen",
+     "column": "subsampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "f4b2d8b12e9f1ed9",
+   "productCode": "DP1.10092.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.pathogen_role",
+   "value": "pathogen role",
+   "unit": "OBI:0000718",
+   "curie": "OBI:0000718",
+   "label": "pathogen role",
+   "ontologyId": "obi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "The organisms detected are tested because they are tick-borne disease pathogens.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pathogen_role",
+     "modelValue": "pathogen role",
+     "modelLabel": "pathogen role",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "4ee6667c9aa938dd",
+   "productCode": "DP1.10092.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are lab assay results for each specimen and pathogen pair.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

@@ -1,0 +1,667 @@
+{
+ "productCode": "DP1.10098.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.540797+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10098.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10098.001.rep1.jsonl",
+   "card_sha256": "8ac344590530bd04219c1a2217fd3a57ad1ab469b29d85147f720f7ae20fcfd5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 66.9,
+   "tool_calls": 36,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 24,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 14,
+    "output_tokens": 7974,
+    "cache_creation_input_tokens": 43982,
+    "cache_read_input_tokens": 208184,
+    "thinking_tokens": 1283
+   },
+   "total_cost_usd": 0.4704
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10098.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10098.001.rep2.jsonl",
+   "card_sha256": "8ac344590530bd04219c1a2217fd3a57ad1ab469b29d85147f720f7ae20fcfd5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 54.6,
+   "tool_calls": 31,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 21,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6564,
+    "cache_creation_input_tokens": 26635,
+    "cache_read_input_tokens": 183502,
+    "thinking_tokens": 952
+   },
+   "total_cost_usd": 0.3012
+  }
+ ],
+ "counts": {
+  "accepted": 5,
+  "human_accepted": 0,
+  "proposed": 12,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "e14402c87755ad04",
+   "productCode": "DP1.10098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.tracheophyta",
+   "value": "Tracheophyta",
+   "unit": "NCBITaxon:58023",
+   "curie": "NCBITaxon:58023",
+   "label": "Tracheophyta",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product measures vascular plants: trees, shrubs, lianas, ferns, palms, yuccas, cacti.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "d20f39b7cb36d051",
+   "productCode": "DP1.10098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.plant_height",
+   "value": "plant height",
+   "unit": "TO:0000207",
+   "curie": "TO:0000207",
+   "label": "plant height",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "height",
+   "rationale": "Height of each individual or patch is measured.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.plant_height",
+     "modelValue": "plant height",
+     "modelLabel": "plant height",
+     "column": "height"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.plant_height",
+     "modelValue": "plant height",
+     "modelLabel": "plant height",
+     "column": "height"
+    }
+   ]
+  },
+  {
+   "proposalId": "cf04a8ba52116187",
+   "productCode": "DP1.10098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.stem_diameter",
+   "value": "stem diameter",
+   "unit": "TO:0020083",
+   "curie": "TO:0020083",
+   "label": "stem diameter",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "stemDiameter",
+   "rationale": "Stem diameter is measured at breast height and at the stem base.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.stem_diameter",
+     "modelValue": "stem diameter",
+     "modelLabel": "stem diameter",
+     "column": "stemDiameter"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.stem_diameter",
+     "modelValue": "stem diameter",
+     "modelLabel": "stem diameter",
+     "column": "stemDiameter"
+    }
+   ]
+  },
+  {
+   "proposalId": "f05f59ff65e6efea",
+   "productCode": "DP1.10098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.diameter",
+   "value": "crown diameter",
+   "unit": "PATO:0001334",
+   "curie": "PATO:0001334",
+   "label": "diameter",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "maxCrownDiameter",
+   "rationale": "Maximum and perpendicular crown diameters are recorded for shrub volume and biomass.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.diameter",
+     "modelValue": "crown diameter",
+     "modelLabel": "diameter",
+     "column": "maxCrownDiameter"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.diameter",
+     "modelValue": "crown diameter",
+     "modelLabel": "diameter",
+     "column": "maxCrownDiameter"
+    }
+   ]
+  },
+  {
+   "proposalId": "c41be0ee61f82d62",
+   "productCode": "DP1.10098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "flopo.whole_plant_growth_form",
+   "value": "whole plant growth form",
+   "unit": "FLOPO:0900032",
+   "curie": "FLOPO:0900032",
+   "label": "whole plant growth form",
+   "ontologyId": "flopo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "growthForm",
+   "rationale": "Each individual gets a growth form class, which sets what is measured.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "flopo.whole_plant_growth_form",
+     "modelValue": "whole plant growth form",
+     "modelLabel": "whole plant growth form",
+     "column": "growthForm"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "flopo.whole_plant_growth_form",
+     "modelValue": "whole plant growth form",
+     "modelLabel": "whole plant growth form",
+     "column": "growthForm"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "9715373f024a61f5",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.viability",
+   "value": "plant live or dead status",
+   "unit": "PATO:0000169",
+   "curie": "PATO:0000169",
+   "label": "viability",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "plantStatus",
+   "rationale": "Records whether each plant is live or standing dead.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.viability",
+     "modelValue": "plant live or dead status",
+     "modelLabel": "viability",
+     "column": "plantStatus"
+    }
+   ]
+  },
+  {
+   "proposalId": "e8029d77e8ec2828",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.shape",
+   "value": "plant crown shape",
+   "unit": "PATO:0000052",
+   "curie": "PATO:0000052",
+   "label": "shape",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "shape",
+   "rationale": "Three-dimensional crown form (cylinder, sphere, cone) is recorded to estimate volume.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.shape",
+     "modelValue": "plant crown shape",
+     "modelLabel": "shape",
+     "column": "shape"
+    }
+   ]
+  },
+  {
+   "proposalId": "66511a37bb99c572",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.distance",
+   "value": "stem distance from reference point",
+   "unit": "PATO:0000040",
+   "curie": "PATO:0000040",
+   "label": "distance",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "stemDistance",
+   "rationale": "Stems are mapped by distance and azimuth from plot reference points.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.distance",
+     "modelValue": "stem distance from reference point",
+     "modelLabel": "distance",
+     "column": "stemDistance"
+    }
+   ]
+  },
+  {
+   "proposalId": "c2a28793e9d03833",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.canopy",
+   "value": "canopy",
+   "unit": "ENVO:01001242",
+   "curie": "ENVO:01001242",
+   "label": "canopy",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "canopyPosition",
+   "rationale": "Plant crowns and their position in the canopy are measured.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.canopy",
+     "modelValue": "canopy",
+     "modelLabel": "canopy",
+     "column": "canopyPosition"
+    }
+   ]
+  },
+  {
+   "proposalId": "2b7e3b932e9491b8",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "bco.human_observation_process",
+   "value": "human observation process",
+   "unit": "BCO:0000065",
+   "curie": "BCO:0000065",
+   "label": "human observation process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Field technicians tag, map and measure individual plants in plots.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.human_observation_process",
+     "modelValue": "human observation process",
+     "modelLabel": "human observation process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "4648d567ad8e4411",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are measurements of individual plants, reported per plot.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "802fc8be286ec8d6",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ecocore.terrestrial_primary_production",
+   "value": "terrestrial primary production",
+   "unit": "ECOCORE:00000183",
+   "curie": "ECOCORE:00000183",
+   "label": "terrestrial primary production",
+   "ontologyId": "ecocore",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product exists to estimate plant biomass and net primary productivity.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ecocore.terrestrial_primary_production",
+     "modelValue": "terrestrial primary production",
+     "modelLabel": "terrestrial primary production",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ac0d8229e1400d88",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.dead",
+   "value": "standing dead",
+   "unit": "PATO:0001422",
+   "curie": "PATO:0001422",
+   "label": "dead",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "plantStatus",
+   "rationale": "Records whether each individual is live or standing dead.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.dead",
+     "modelValue": "standing dead",
+     "modelLabel": "dead",
+     "column": "plantStatus"
+    }
+   ]
+  },
+  {
+   "proposalId": "9ef6bb5e8eec3c41",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "po.whole_plant",
+   "value": "whole plant",
+   "unit": "PO:0000003",
+   "curie": "PO:0000003",
+   "label": "whole plant",
+   "ontologyId": "po",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "individualID",
+   "rationale": "The sampling unit is the individual plant, which is tagged, mapped and measured.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "po.whole_plant",
+     "modelValue": "whole plant",
+     "modelLabel": "whole plant",
+     "column": "individualID"
+    }
+   ]
+  },
+  {
+   "proposalId": "453e2d67cb862b05",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.vegetation_layer",
+   "value": "vegetation layer",
+   "unit": "ENVO:01000355",
+   "curie": "ENVO:01000355",
+   "label": "vegetation layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "canopyPosition",
+   "rationale": "Describes vertical vegetation structure and each individual's canopy position.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.vegetation_layer",
+     "modelValue": "vegetation layer",
+     "modelLabel": "vegetation layer",
+     "column": "canopyPosition"
+    }
+   ]
+  },
+  {
+   "proposalId": "5483c1f860eaa9e6",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.length_measurement_datum",
+   "value": "length measurement datum",
+   "unit": "IAO:0000408",
+   "curie": "IAO:0000408",
+   "label": "length measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are mostly length measurements: heights, diameters and stem distances.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.length_measurement_datum",
+     "modelValue": "length measurement datum",
+     "modelLabel": "length measurement datum",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "3548dac771359b6f",
+   "productCode": "DP1.10098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.multicellular_organism_growth",
+   "value": "multicellular organism growth",
+   "unit": "GO:0035264",
+   "curie": "GO:0035264",
+   "label": "multicellular organism growth",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Repeated size measurements support estimates of biomass increment and productivity.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.multicellular_organism_growth",
+     "modelValue": "multicellular organism growth",
+     "modelLabel": "multicellular organism growth",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

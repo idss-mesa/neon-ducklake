@@ -1,0 +1,551 @@
+{
+ "productCode": "DP1.10064.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.537710+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10064.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10064.001.rep1.jsonl",
+   "card_sha256": "b0aab013be82564bc3809fefd39457a7e44a3a90f78a42327f6431b0233687ce",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 60.3,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6605,
+    "cache_creation_input_tokens": 24713,
+    "cache_read_input_tokens": 103978,
+    "thinking_tokens": 975
+   },
+   "total_cost_usd": 0.3506
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10064.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10064.001.rep2.jsonl",
+   "card_sha256": "b0aab013be82564bc3809fefd39457a7e44a3a90f78a42327f6431b0233687ce",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 8,
+   "seconds": 48.8,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 8
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5907,
+    "cache_creation_input_tokens": 19042,
+    "cache_read_input_tokens": 103906,
+    "thinking_tokens": 691
+   },
+   "total_cost_usd": 0.2913
+  }
+ ],
+ "counts": {
+  "accepted": 3,
+  "human_accepted": 0,
+  "proposed": 11,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "a8681aa8d73b848e",
+   "productCode": "DP1.10064.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.rodentia",
+   "value": "Rodentia",
+   "unit": "NCBITaxon:9989",
+   "curie": "NCBITaxon:9989",
+   "label": "Rodentia",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Blood samples come from small rodents (Cricetidae, Muridae, Dipodidae) caught in box traps.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.rodentia",
+     "modelValue": "Rodentia",
+     "modelLabel": "Rodentia",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.rodentia",
+     "modelValue": "Rodentia",
+     "modelLabel": "Rodentia",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "b2cb4052a597b1d7",
+   "productCode": "DP1.10064.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.igg_immunoglobulin_complex_circulating",
+   "value": "IgG immunoglobulin complex, circulating",
+   "unit": "GO:0071736",
+   "curie": "GO:0071736",
+   "label": "IgG immunoglobulin complex, circulating",
+   "ontologyId": "go",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "The product records whether circulating IgG antibodies to hantavirus are present or absent.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.igg_immunoglobulin_complex_circulating",
+     "modelValue": "IgG immunoglobulin complex, circulating",
+     "modelLabel": "IgG immunoglobulin complex, circulating",
+     "column": "testResult"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.igg_immunoglobulin_complex_circulating",
+     "modelValue": "IgG antibodies to hantavirus",
+     "modelLabel": "IgG immunoglobulin complex, circulating",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "8843887180125305",
+   "productCode": "DP1.10064.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.blood_specimen",
+   "value": "blood specimen",
+   "unit": "OBI:0000655",
+   "curie": "OBI:0000655",
+   "label": "blood specimen",
+   "ontologyId": "obi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "bloodSampleID",
+   "rationale": "The material tested is a blood sample from each individual small mammal.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.blood_specimen",
+     "modelValue": "blood specimen",
+     "modelLabel": "blood specimen",
+     "column": "bloodSampleID"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.blood_specimen",
+     "modelValue": "blood specimen",
+     "modelLabel": "blood specimen",
+     "column": "bloodSampleID"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "6d00364f774ec234",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.orthohantavirus",
+   "value": "Orthohantavirus",
+   "unit": "NCBITaxon:1980442",
+   "curie": "NCBITaxon:1980442",
+   "label": "Orthohantavirus",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "Genus-level group of the hantavirus pathogen whose antibodies are tested.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.orthohantavirus",
+     "modelValue": "Orthohantavirus",
+     "modelLabel": "Orthohantavirus",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "fc6ac1ea946404ff",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.pathogen_role",
+   "value": "pathogen role",
+   "unit": "OBI:0000718",
+   "curie": "OBI:0000718",
+   "label": "pathogen role",
+   "ontologyId": "obi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "Records the pathogen status of each rodent host; the tested virus has a pathogen role.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pathogen_role",
+     "modelValue": "pathogen role",
+     "modelLabel": "pathogen role",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "17b33d0a5142429b",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.antigen_specific_antibodies_in_blood_assay",
+   "value": "antigen specific antibodies in blood assay",
+   "unit": "OBI:0003418",
+   "curie": "OBI:0003418",
+   "label": "antigen specific antibodies in blood assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testProtocolVersion",
+   "rationale": "Blood is tested in the lab for antibodies to Hantaan virus, i.e. seroprevalence.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.antigen_specific_antibodies_in_blood_assay",
+     "modelValue": "antigen specific antibodies in blood assay",
+     "modelLabel": "antigen specific antibodies in blood assay",
+     "column": "testProtocolVersion"
+    }
+   ]
+  },
+  {
+   "proposalId": "0eff04a1a93c325f",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.specimen_collection_process",
+   "value": "specimen collection process",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "collectDate",
+   "rationale": "Blood is collected in the field from live-trapped rodents during mark-recapture bouts.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "collectDate"
+    }
+   ]
+  },
+  {
+   "proposalId": "0bf71594f5d0cee5",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.antigen_specific_antibodies_in_blood_assay_datum",
+   "value": "antigen specific antibodies in blood assay datum",
+   "unit": "OBI:0003420",
+   "curie": "OBI:0003420",
+   "label": "antigen specific antibodies in blood assay datum",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Each record is one positive or negative antibody test result for one blood sample.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.antigen_specific_antibodies_in_blood_assay_datum",
+     "modelValue": "antigen specific antibodies in blood assay datum",
+     "modelLabel": "antigen specific antibodies in blood assay datum",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "b4d9ea43fefae00e",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.humoral_immune_response_mediated_by_circulating_immunoglobulin",
+   "value": "humoral immune response mediated by circulating immunoglobulin",
+   "unit": "GO:0002455",
+   "curie": "GO:0002455",
+   "label": "humoral immune response mediated by circulating immunoglobulin",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "A positive test shows a past antibody-based immune response in the host to hantavirus exposure.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.humoral_immune_response_mediated_by_circulating_immunoglobulin",
+     "modelValue": "humoral immune response mediated by circulating immunoglobulin",
+     "modelLabel": "humoral immune response mediated by circulating immunoglobulin",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "aac0c56410126a4f",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.hantaviridae",
+   "value": "Hantaviridae",
+   "unit": "NCBITaxon:1980413",
+   "curie": "NCBITaxon:1980413",
+   "label": "Hantaviridae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "The pathogen group tested for is hantaviruses.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.hantaviridae",
+     "modelValue": "Hantaviridae",
+     "modelLabel": "Hantaviridae",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "4602b0db17e69bef",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.blood_specimen_collection",
+   "value": "blood specimen collection",
+   "unit": "OBI:1110095",
+   "curie": "OBI:1110095",
+   "label": "blood specimen collection",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "collectDate",
+   "rationale": "Blood is collected from captured rodents during box trapping bouts.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.blood_specimen_collection",
+     "modelValue": "blood specimen collection",
+     "modelLabel": "blood specimen collection",
+     "column": "collectDate"
+    }
+   ]
+  },
+  {
+   "proposalId": "3029c645b2fa405e",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.enzymelinked_immunosorbent_assay",
+   "value": "enzyme-linked immunosorbent assay",
+   "unit": "OBI:0000661",
+   "curie": "OBI:0000661",
+   "label": "enzyme-linked immunosorbent assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testProtocolVersion",
+   "rationale": "Serological antibody test used by the lab to find IgG seropositivity.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.enzymelinked_immunosorbent_assay",
+     "modelValue": "enzyme-linked immunosorbent assay",
+     "modelLabel": "enzyme-linked immunosorbent assay",
+     "column": "testProtocolVersion"
+    }
+   ]
+  },
+  {
+   "proposalId": "9842ea2a199c25f0",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.categorical_measurement_datum",
+   "value": "categorical measurement datum",
+   "unit": "OBI:0000938",
+   "curie": "OBI:0000938",
+   "label": "categorical measurement datum",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Each record reports a categorical Positive or Negative test result.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.categorical_measurement_datum",
+     "modelValue": "categorical measurement datum",
+     "modelLabel": "categorical measurement datum",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "8ea052a4120859db",
+   "productCode": "DP1.10064.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.humoral_immune_response",
+   "value": "humoral immune response",
+   "unit": "GO:0006959",
+   "curie": "GO:0006959",
+   "label": "humoral immune response",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Seropositivity reflects the host's antibody response to hantavirus exposure.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.humoral_immune_response",
+     "modelValue": "humoral immune response",
+     "modelLabel": "humoral immune response",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

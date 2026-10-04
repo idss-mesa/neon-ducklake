@@ -1,0 +1,517 @@
+{
+ "productCode": "DP1.10066.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.538233+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10066.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10066.001.rep1.jsonl",
+   "card_sha256": "e56d18d93cabc585f52c585634d5d76cad08426fcc896895d6a2cf403e8f6d7f",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 54.0,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6653,
+    "cache_creation_input_tokens": 33165,
+    "cache_read_input_tokens": 109039,
+    "thinking_tokens": 986
+   },
+   "total_cost_usd": 0.4202
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10066.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10066.001.rep2.jsonl",
+   "card_sha256": "e56d18d93cabc585f52c585634d5d76cad08426fcc896895d6a2cf403e8f6d7f",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 7,
+   "seconds": 56.6,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 23,
+    "mesa_avu_from_term": 7
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6740,
+    "cache_creation_input_tokens": 19786,
+    "cache_read_input_tokens": 130598,
+    "thinking_tokens": 1618
+   },
+   "total_cost_usd": 0.3193
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "45806c32a895fdde",
+   "productCode": "DP1.10066.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.tracheophyta",
+   "value": "Tracheophyta",
+   "unit": "NCBITaxon:58023",
+   "curie": "NCBITaxon:58023",
+   "label": "Tracheophyta",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Roots sampled belong to the vascular plants in the plant community",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "c4f2b7889d56698d",
+   "productCode": "DP1.10066.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Root samples are taken from soil blocks cut from Megapit profiles",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "702d42c2bba9fb4d",
+   "productCode": "DP1.10066.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "agro.belowground_biomass",
+   "value": "below-ground biomass",
+   "unit": "AGRO:00000547",
+   "curie": "AGRO:00000547",
+   "label": "below-ground biomass",
+   "ontologyId": "agro",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "totalRootBiomass",
+   "rationale": "Standing stock of root biomass per area and per depth increment",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.belowground_biomass",
+     "modelValue": "below-ground biomass",
+     "modelLabel": "below-ground biomass",
+     "column": "totalRootBiomass"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.belowground_biomass",
+     "modelValue": "below-ground biomass",
+     "modelLabel": "below-ground biomass",
+     "column": "incrementRootBiomass"
+    }
+   ]
+  },
+  {
+   "proposalId": "2035a1763740a34f",
+   "productCode": "DP1.10066.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chmo.elemental_analysis_isotope_ratio_mass_spectrometry",
+   "value": "elemental analysis isotope ratio mass spectrometry",
+   "unit": "CHMO:0000507",
+   "curie": "CHMO:0000507",
+   "label": "elemental analysis isotope ratio mass spectrometry",
+   "ontologyId": "chmo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testMethod",
+   "rationale": "EA-IRMS measures C%, N%, d13C and d15N of roots",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.elemental_analysis_isotope_ratio_mass_spectrometry",
+     "modelValue": "elemental analysis isotope ratio mass spectrometry",
+     "modelLabel": "elemental analysis isotope ratio mass spectrometry",
+     "column": "testMethod"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.elemental_analysis_isotope_ratio_mass_spectrometry",
+     "modelValue": "elemental analysis isotope ratio mass spectrometry",
+     "modelLabel": "elemental analysis isotope ratio mass spectrometry",
+     "column": "d13C"
+    }
+   ]
+  },
+  {
+   "proposalId": "93485e24121e893d",
+   "productCode": "DP1.10066.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are laboratory measurements taken once from sampled roots",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "006704ea988c2180",
+   "productCode": "DP1.10066.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.carbon_cycling",
+   "value": "carbon cycling",
+   "unit": "ENVO:02500010",
+   "curie": "ENVO:02500010",
+   "label": "carbon cycling",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Root carbon stocks inform belowground productivity and the carbon cycle",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.carbon_cycling",
+     "modelValue": "carbon cycling",
+     "modelLabel": "carbon cycling",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.carbon_cycling",
+     "modelValue": "carbon cycling",
+     "modelLabel": "carbon cycling",
+     "column": "carbonPercent"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "54a188d98d7046b8",
+   "productCode": "DP1.10066.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "po.root",
+   "value": "root",
+   "unit": "PO:0009005",
+   "curie": "PO:0009005",
+   "label": "root",
+   "ontologyId": "po",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleID",
+   "rationale": "Plant root tissue is the sampled and analyzed material",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "po.root",
+     "modelValue": "root",
+     "modelLabel": "root",
+     "column": "sampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "871e3790a48cd1d5",
+   "productCode": "DP1.10066.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "to.root_dry_weight",
+   "value": "root dry weight",
+   "unit": "TO:0000078",
+   "curie": "TO:0000078",
+   "label": "root dry weight",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "rootDryMass",
+   "rationale": "Oven-dried root mass is measured for each sample",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.root_dry_weight",
+     "modelValue": "root dry weight",
+     "modelLabel": "root dry weight",
+     "column": "rootDryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "80e248969dc4bce7",
+   "productCode": "DP1.10066.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "to.carbon_content",
+   "value": "carbon content",
+   "unit": "TO:0000466",
+   "curie": "TO:0000466",
+   "label": "carbon content",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "carbonPercent",
+   "rationale": "Percent carbon of root tissue on a dry weight basis",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.carbon_content",
+     "modelValue": "carbon content",
+     "modelLabel": "carbon content",
+     "column": "carbonPercent"
+    }
+   ]
+  },
+  {
+   "proposalId": "f5e5311ccdcc563e",
+   "productCode": "DP1.10066.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "to.nitrogen_content",
+   "value": "nitrogen content",
+   "unit": "TO:0020093",
+   "curie": "TO:0020093",
+   "label": "nitrogen content",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nitrogenPercent",
+   "rationale": "Percent nitrogen of root tissue on a dry weight basis",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.nitrogen_content",
+     "modelValue": "nitrogen content",
+     "modelLabel": "nitrogen content",
+     "column": "nitrogenPercent"
+    }
+   ]
+  },
+  {
+   "proposalId": "04ac967b6c467b14",
+   "productCode": "DP1.10066.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.depth",
+   "value": "depth",
+   "unit": "PATO:0001595",
+   "curie": "PATO:0001595",
+   "label": "depth",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "topDepth",
+   "rationale": "Root biomass is resolved by soil depth increment down to 2 m",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.depth",
+     "modelValue": "depth",
+     "modelLabel": "depth",
+     "column": "topDepth"
+    }
+   ]
+  },
+  {
+   "proposalId": "1884e08a5b719687",
+   "productCode": "DP1.10066.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.viability",
+   "value": "viability",
+   "unit": "PATO:0000169",
+   "curie": "PATO:0000169",
+   "label": "viability",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "rootStatus",
+   "rationale": "Roots are classified as live or dead.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.viability",
+     "modelValue": "viability",
+     "modelLabel": "viability",
+     "column": "rootStatus"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

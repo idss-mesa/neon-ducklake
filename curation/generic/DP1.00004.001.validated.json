@@ -1,0 +1,559 @@
+{
+ "productCode": "DP1.00004.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.528990+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00004.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00004.001.rep1.jsonl",
+   "card_sha256": "56e146660f4f2d2e9ed6fc6003b49b929b6d9dddaf56f8636d3464939b042cea",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 53.1,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 14,
+    "output_tokens": 6327,
+    "cache_creation_input_tokens": 25770,
+    "cache_read_input_tokens": 131241,
+    "thinking_tokens": 498
+   },
+   "total_cost_usd": 0.359
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00004.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00004.001.rep2.jsonl",
+   "card_sha256": "56e146660f4f2d2e9ed6fc6003b49b929b6d9dddaf56f8636d3464939b042cea",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 43.7,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5561,
+    "cache_creation_input_tokens": 20627,
+    "cache_read_input_tokens": 88113,
+    "thinking_tokens": 538
+   },
+   "total_cost_usd": 0.2939
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "594e52a67cb92fa7",
+   "productCode": "DP1.00004.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.pressure",
+   "value": "barometric pressure",
+   "unit": "PATO:0001025",
+   "curie": "PATO:0001025",
+   "label": "pressure",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "staPresMean",
+   "rationale": "Product measures static atmospheric pressure at the station and also corrected to sea level.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.pressure",
+     "modelValue": "barometric pressure",
+     "modelLabel": "pressure",
+     "column": "staPresMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.pressure",
+     "modelValue": "barometric pressure",
+     "modelLabel": "pressure",
+     "column": "staPresMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "da002574fcd19ef5",
+   "productCode": "DP1.00004.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.air",
+   "value": "air",
+   "unit": "ENVO:00002005",
+   "curie": "ENVO:00002005",
+   "label": "air",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Barometer measures the pressure exerted by ambient air.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "369cb128481b4291",
+   "productCode": "DP1.00004.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "One- and thirty-minute time series of pressure measurements.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "4787d262dbd776ff",
+   "productCode": "DP1.00004.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.maximum_observed_value",
+   "value": "maximum observed value",
+   "unit": "STATO:0000151",
+   "curie": "STATO:0000151",
+   "label": "maximum observed value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "staPresMaximum",
+   "rationale": "Maximum station pressure within each interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.maximum_observed_value",
+     "modelValue": "maximum observed value",
+     "modelLabel": "maximum observed value",
+     "column": "staPresMaximum"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.maximum_observed_value",
+     "modelValue": "maximum observed value",
+     "modelLabel": "maximum observed value",
+     "column": "staPresMaximum"
+    }
+   ]
+  },
+  {
+   "proposalId": "ed12260cba4edd92",
+   "productCode": "DP1.00004.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "staPresVariance",
+   "rationale": "Variance of station pressure within each interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "staPresVariance"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "staPresVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "95932532fba121a1",
+   "productCode": "DP1.00004.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "staPresStdErMean",
+   "rationale": "Standard error of the mean station pressure.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "staPresStdErMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "staPresStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "c5f165873d8b7ece",
+   "productCode": "DP1.00004.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "expanded uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "staPresExpUncert",
+   "rationale": "Expanded uncertainty given for station and sea-level-corrected pressure.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "staPresExpUncert"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "staPresExpUncert"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "9afb67cbec2d63dd",
+   "productCode": "DP1.00004.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.atmosphere",
+   "value": "atmosphere",
+   "unit": "ENVO:01000267",
+   "curie": "ENVO:01000267",
+   "label": "atmosphere",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Atmosphere theme; the pressure comes from the weight of the overlying atmosphere.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmosphere",
+     "modelValue": "atmosphere",
+     "modelLabel": "atmosphere",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f07b33b94935841f",
+   "productCode": "DP1.00004.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.scalar_measurement_datum",
+   "value": "scalar measurement datum",
+   "unit": "IAO:0000032",
+   "curie": "IAO:0000032",
+   "label": "scalar measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "corPres",
+   "rationale": "Numeric pressure values with units, recorded by a digital barometer.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.scalar_measurement_datum",
+     "modelValue": "scalar measurement datum",
+     "modelLabel": "scalar measurement datum",
+     "column": "corPres"
+    }
+   ]
+  },
+  {
+   "proposalId": "51300074327d82c3",
+   "productCode": "DP1.00004.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.averaging_data_transformation",
+   "value": "averaging data transformation",
+   "unit": "OBI:0200170",
+   "curie": "OBI:0200170",
+   "label": "averaging data transformation",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "0.1 Hz observations are averaged into one- and thirty-minute values.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.averaging_data_transformation",
+     "modelValue": "averaging data transformation",
+     "modelLabel": "averaging data transformation",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "dfc459515c1ab87c",
+   "productCode": "DP1.00004.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.average_value",
+   "value": "average value",
+   "unit": "OBI:0000679",
+   "curie": "OBI:0000679",
+   "label": "average value",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "staPresMean",
+   "rationale": "Arithmetic mean of station pressure over each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "staPresMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "49e0e8f0c86e1347",
+   "productCode": "DP1.00004.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "staPresMean",
+   "rationale": "Arithmetic mean of station pressure over each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "staPresMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "a809fc51267b252c",
+   "productCode": "DP1.00004.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.minimum_observed_value",
+   "value": "minimum observed value",
+   "unit": "STATO:0000150",
+   "curie": "STATO:0000150",
+   "label": "minimum observed value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "staPresMinimum",
+   "rationale": "Minimum station pressure within each interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.minimum_observed_value",
+     "modelValue": "minimum observed value",
+     "modelLabel": "minimum observed value",
+     "column": "staPresMinimum"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

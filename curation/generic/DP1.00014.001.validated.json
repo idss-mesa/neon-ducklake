@@ -1,0 +1,442 @@
+{
+ "productCode": "DP1.00014.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.530161+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00014.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00014.001.rep1.jsonl",
+   "card_sha256": "b9b33eea87fa9e11800d541a8d139bd34e5cbd77f5c3f7f36d572c704baea783",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 8,
+   "seconds": 45.4,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 8
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5702,
+    "cache_creation_input_tokens": 30392,
+    "cache_read_input_tokens": 114706,
+    "thinking_tokens": 752
+   },
+   "total_cost_usd": 0.3802
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00014.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00014.001.rep2.jsonl",
+   "card_sha256": "b9b33eea87fa9e11800d541a8d139bd34e5cbd77f5c3f7f36d572c704baea783",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 45.8,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5640,
+    "cache_creation_input_tokens": 22128,
+    "cache_read_input_tokens": 130641,
+    "thinking_tokens": 478
+   },
+   "total_cost_usd": 0.316
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 1,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "f5cda39b32af7c41",
+   "productCode": "DP1.00014.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.shortwave_radiation",
+   "value": "shortwave radiation",
+   "unit": "ENVO:01001861",
+   "curie": "ENVO:01001861",
+   "label": "shortwave radiation",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "gloRadMean",
+   "rationale": "Product measures total, direct and diffuse shortwave radiation received at the surface.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.shortwave_radiation",
+     "modelValue": "shortwave radiation",
+     "modelLabel": "shortwave radiation",
+     "column": "gloRadMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.shortwave_radiation",
+     "modelValue": "shortwave radiation",
+     "modelLabel": "shortwave radiation",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "0301e9c93ad23cfe",
+   "productCode": "DP1.00014.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmosphere",
+   "value": "atmosphere",
+   "unit": "ENVO:01000267",
+   "curie": "ENVO:01000267",
+   "label": "atmosphere",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "difRadMean",
+   "rationale": "Diffuse radiation is sunlight scattered by particles in the atmosphere; Atmosphere theme.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmosphere",
+     "modelValue": "atmosphere",
+     "modelLabel": "atmosphere",
+     "column": "difRadMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmosphere",
+     "modelValue": "atmosphere",
+     "modelLabel": "atmosphere",
+     "column": "difRadMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "0e01b7effd9be521",
+   "productCode": "DP1.00014.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "One- and thirty-minute averages of 1 Hz sensor observations form a time series.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "f88d7860c288e51e",
+   "productCode": "DP1.00014.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "gloRadMean",
+   "rationale": "Radiation values are reported as arithmetic means over each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "gloRadMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "gloRadMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "4316cdbdb94f04c4",
+   "productCode": "DP1.00014.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "gloRadVariance",
+   "rationale": "Variance of radiation observations is reported for each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "gloRadVariance"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "gloRadVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "a1bdbfa9cfb1f369",
+   "productCode": "DP1.00014.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "gloRadStdErMean",
+   "rationale": "Standard error of the mean is reported for each radiation component.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "gloRadStdErMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "gloRadStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "f62db5f3d625a312",
+   "productCode": "DP1.00014.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "gloRadExpUncert",
+   "rationale": "Expanded measurement uncertainty is provided for each radiation component.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "gloRadExpUncert"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "gloRadExpUncert"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "939679857903ed7d",
+   "productCode": "DP1.00014.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.insolation_process",
+   "value": "direct beam insolation",
+   "unit": "ENVO:01001734",
+   "curie": "ENVO:01001734",
+   "label": "insolation process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "dirRadMean",
+   "rationale": "Direct beam solar radiation reaching Earth's surface is insolation.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.insolation_process",
+     "modelValue": "direct beam insolation",
+     "modelLabel": "insolation process",
+     "column": "dirRadMean"
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "a624835b3a29ec63",
+   "productCode": "DP1.00014.001",
+   "status": "rejected",
+   "reason": "unresolved",
+   "attribute": "",
+   "value": "Solar radiation",
+   "unit": "",
+   "curie": "ENVO:01001862",
+   "label": "Solar radiation",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "dirRadMean",
+   "rationale": "Direct beam radiation is solar radiation traveling straight from the sun.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "unresolved",
+     "grounded": true,
+     "modelAttribute": "envo.solar_radiation",
+     "modelValue": "Solar radiation",
+     "modelLabel": "Solar radiation",
+     "column": "dirRadMean"
+    },
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "unresolved",
+     "grounded": true,
+     "modelAttribute": "envo.solar_radiation",
+     "modelValue": "global solar radiation",
+     "modelLabel": "Solar radiation",
+     "column": "gloRadMean"
+    }
+   ]
+  }
+ ]
+}

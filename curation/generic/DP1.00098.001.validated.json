@@ -1,0 +1,508 @@
+{
+ "productCode": "DP1.00098.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.533614+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00098.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00098.001.rep1.jsonl",
+   "card_sha256": "02c78cfbe3eb84318a2c59ce293f698e9a3b19c13d21b38030b241dbddbdee14",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 43.7,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5601,
+    "cache_creation_input_tokens": 27416,
+    "cache_read_input_tokens": 87257,
+    "thinking_tokens": 498
+   },
+   "total_cost_usd": 0.3488
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00098.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00098.001.rep2.jsonl",
+   "card_sha256": "02c78cfbe3eb84318a2c59ce293f698e9a3b19c13d21b38030b241dbddbdee14",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 8,
+   "seconds": 45.1,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_ols_get_term": 2,
+    "mesa_avu_from_term": 8
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5643,
+    "cache_creation_input_tokens": 18597,
+    "cache_read_input_tokens": 123275,
+    "thinking_tokens": 592
+   },
+   "total_cost_usd": 0.2863
+  }
+ ],
+ "counts": {
+  "accepted": 5,
+  "human_accepted": 0,
+  "proposed": 7,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "a2200d67c5465e0c",
+   "productCode": "DP1.00098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.humidity",
+   "value": "relative humidity",
+   "unit": "PATO:0015009",
+   "curie": "PATO:0015009",
+   "label": "humidity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "RHMean",
+   "rationale": "Main measured quality: relative humidity of air. PATO had no separate relative humidity term.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.humidity",
+     "modelValue": "relative humidity",
+     "modelLabel": "humidity",
+     "column": "RHMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.humidity",
+     "modelValue": "relative humidity",
+     "modelLabel": "humidity",
+     "column": "RHMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "84c6835d2417a704",
+   "productCode": "DP1.00098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.dew_point",
+   "value": "dew or frost point temperature",
+   "unit": "ENVO:01001859",
+   "curie": "ENVO:01001859",
+   "label": "dew point",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "dewTempMean",
+   "rationale": "Dew or frost point temperature is reported alongside humidity.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.dew_point",
+     "modelValue": "dew or frost point temperature",
+     "modelLabel": "dew point",
+     "column": "dewTempMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.dew_point",
+     "modelValue": "dew or frost point temperature",
+     "modelLabel": "dew point",
+     "column": "dewTempMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "daee0be4cc775f2d",
+   "productCode": "DP1.00098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.air",
+   "value": "air",
+   "unit": "ENVO:00002005",
+   "curie": "ENVO:00002005",
+   "label": "air",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Sensors measure the air at the tower top, soil array and aquatic met station.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "8fbd4f8b1cb6a11f",
+   "productCode": "DP1.00098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_water_vapour",
+   "value": "atmospheric water vapour",
+   "unit": "ENVO:01000268",
+   "curie": "ENVO:01000268",
+   "label": "atmospheric water vapour",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Humidity and dew point describe how much water vapour is in the atmosphere.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_water_vapour",
+     "modelValue": "atmospheric water vapour",
+     "modelLabel": "atmospheric water vapour",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_water_vapour",
+     "modelValue": "atmospheric water vapour",
+     "modelLabel": "atmospheric water vapour",
+     "column": "RHMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "d95b0bc275d575dc",
+   "productCode": "DP1.00098.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "1-minute and 30-minute averaged time series",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "Measurements are aggregated into regular time intervals, forming a time series.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "1-minute and 30-minute averaged time series",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "1-minute and 30-minute mean time series",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "a4db54a7bb3685f0",
+   "productCode": "DP1.00098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.temperature_of_air",
+   "value": "temperature of air",
+   "unit": "ENVO:09200001",
+   "curie": "ENVO:09200001",
+   "label": "temperature of air",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "tempRHMean",
+   "rationale": "Air temperature measured by the humidity probe.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_air",
+     "modelValue": "temperature of air",
+     "modelLabel": "temperature of air",
+     "column": "tempRHMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "95dad4e56085279b",
+   "productCode": "DP1.00098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.average_value",
+   "value": "arithmetic mean of 1 Hz observations",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "RHMean",
+   "rationale": "Values are arithmetic means of 1 Hz sensor readings.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "arithmetic mean of 1 Hz observations",
+     "modelLabel": "average value",
+     "column": "RHMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "cd69176cfb8c4b3f",
+   "productCode": "DP1.00098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.variance_for_sample",
+   "value": "variance for sample",
+   "unit": "STATO:0000643",
+   "curie": "STATO:0000643",
+   "label": "variance for sample",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "RHVariance",
+   "rationale": "Variance is reported for every averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance_for_sample",
+     "modelValue": "variance for sample",
+     "modelLabel": "variance for sample",
+     "column": "RHVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "d246c6c2a45978ee",
+   "productCode": "DP1.00098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "RHStdErMean",
+   "rationale": "Standard error of the mean is reported for every averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "RHStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "c13de9ffda21b496",
+   "productCode": "DP1.00098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.temperature",
+   "value": "air temperature",
+   "unit": "PATO:0000146",
+   "curie": "PATO:0000146",
+   "label": "temperature",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "tempRHMean",
+   "rationale": "Air temperature measured by the RH sensor; the ENVO air temperature term is obsolete.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.temperature",
+     "modelValue": "air temperature",
+     "modelLabel": "temperature",
+     "column": "tempRHMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "e16875accf4105cf",
+   "productCode": "DP1.00098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.temperature_measurement_assay",
+   "value": "temperature measurement assay",
+   "unit": "OBI:0002140",
+   "curie": "OBI:0002140",
+   "label": "temperature measurement assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "tempRHMean",
+   "rationale": "Sensor-based assay of air temperature; no OBO hygrometer/humidity sensor term was found.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.temperature_measurement_assay",
+     "modelValue": "temperature measurement assay",
+     "modelLabel": "temperature measurement assay",
+     "column": "tempRHMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "1f6fb852e60e9da2",
+   "productCode": "DP1.00098.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.hydrological_condensation_process",
+   "value": "hydrological condensation process",
+   "unit": "ENVO:01000624",
+   "curie": "ENVO:01000624",
+   "label": "hydrological condensation process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "dewTempMean",
+   "rationale": "Dew or frost point marks where atmospheric water vapour condenses or deposits.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_condensation_process",
+     "modelValue": "hydrological condensation process",
+     "modelLabel": "hydrological condensation process",
+     "column": "dewTempMean"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

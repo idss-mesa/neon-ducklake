@@ -1,0 +1,623 @@
+{
+ "productCode": "DP1.10111.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.542260+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10111.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10111.001.rep1.jsonl",
+   "card_sha256": "87e0b6e5604127865b03ad3cc6a6639f0a6c8761e83de2223b2105dce43fbba1",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 47.5,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5800,
+    "cache_creation_input_tokens": 30410,
+    "cache_read_input_tokens": 122144,
+    "thinking_tokens": 679
+   },
+   "total_cost_usd": 0.3127
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10111.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10111.001.rep2.jsonl",
+   "card_sha256": "87e0b6e5604127865b03ad3cc6a6639f0a6c8761e83de2223b2105dce43fbba1",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 51.8,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6726,
+    "cache_creation_input_tokens": 18411,
+    "cache_read_input_tokens": 84652,
+    "thinking_tokens": 925
+   },
+   "total_cost_usd": 0.2435
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 8,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "b9ac831354784ea8",
+   "productCode": "DP1.10111.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.planned_burn",
+   "value": "planned burn",
+   "unit": "ENVO:03000122",
+   "curie": "ENVO:03000122",
+   "label": "planned burn",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "eventType",
+   "rationale": "Prescribed burning is a reported land management activity.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.planned_burn",
+     "modelValue": "planned burn",
+     "modelLabel": "planned burn",
+     "column": "eventType"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.planned_burn",
+     "modelValue": "planned burn",
+     "modelLabel": "planned burn",
+     "column": "eventType"
+    }
+   ]
+  },
+  {
+   "proposalId": "cec18879cd79d192",
+   "productCode": "DP1.10111.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.flood",
+   "value": "flood",
+   "unit": "ENVO:01000710",
+   "curie": "ENVO:01000710",
+   "label": "flood",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "eventType",
+   "rationale": "Flooding is a reported natural disturbance event type.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.flood",
+     "modelValue": "flood",
+     "modelLabel": "flood",
+     "column": "eventType"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.flood",
+     "modelValue": "flood",
+     "modelLabel": "flood",
+     "column": "eventType"
+    }
+   ]
+  },
+  {
+   "proposalId": "4b77d66204a6d584",
+   "productCode": "DP1.10111.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.drought",
+   "value": "drought",
+   "unit": "ENVO:1000745",
+   "curie": "ENVO:1000745",
+   "label": "drought",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "eventType",
+   "rationale": "Drought is a reported natural disturbance event type.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.drought",
+     "modelValue": "drought",
+     "modelLabel": "drought",
+     "column": "eventType"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.drought",
+     "modelValue": "drought",
+     "modelLabel": "drought",
+     "column": "eventType"
+    }
+   ]
+  },
+  {
+   "proposalId": "5e8c3eac8a40cdb9",
+   "productCode": "DP1.10111.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.frost",
+   "value": "frost",
+   "unit": "ENVO:01001850",
+   "curie": "ENVO:01001850",
+   "label": "frost",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "eventType",
+   "rationale": "Frost is a reported natural disturbance event type.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.frost",
+     "modelValue": "frost",
+     "modelLabel": "frost",
+     "column": "eventType"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.frost",
+     "modelValue": "frost",
+     "modelLabel": "frost",
+     "column": "eventType"
+    }
+   ]
+  },
+  {
+   "proposalId": "ee8e471244a8bfe4",
+   "productCode": "DP1.10111.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ecocore.grazing",
+   "value": "grazing",
+   "unit": "ECOCORE:00000139",
+   "curie": "ECOCORE:00000139",
+   "label": "grazing",
+   "ontologyId": "ecocore",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "eventType",
+   "rationale": "Grazing is a reported management and disturbance event type, with herd quantities.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ecocore.grazing",
+     "modelValue": "grazing",
+     "modelLabel": "grazing",
+     "column": "eventType"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ecocore.grazing",
+     "modelValue": "grazing",
+     "modelLabel": "grazing",
+     "column": "eventType"
+    }
+   ]
+  },
+  {
+   "proposalId": "aa58581dc7dbdf7c",
+   "productCode": "DP1.10111.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "agro.tillage",
+   "value": "tillage",
+   "unit": "AGRO:01000015",
+   "curie": "AGRO:01000015",
+   "label": "tillage",
+   "ontologyId": "agro",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "eventType",
+   "rationale": "Tillage is a reported land management activity type.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.tillage",
+     "modelValue": "tillage",
+     "modelLabel": "tillage",
+     "column": "eventType"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.tillage",
+     "modelValue": "tillage",
+     "modelLabel": "tillage",
+     "column": "methodTypeChoice"
+    }
+   ]
+  },
+  {
+   "proposalId": "6984485e3e25689f",
+   "productCode": "DP1.10111.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "soilTypeOrder",
+   "rationale": "Sampling locations are described by their soil taxonomic order.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "soilTypeOrder"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "soilTypeOrder"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "13abfa05c2fe6c0f",
+   "productCode": "DP1.10111.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.fire",
+   "value": "fire",
+   "unit": "ENVO:01000786",
+   "curie": "ENVO:01000786",
+   "label": "fire",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "fireSeverity",
+   "rationale": "Fire is a reported natural disturbance event type, with its severity classified.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.fire",
+     "modelValue": "fire",
+     "modelLabel": "fire",
+     "column": "fireSeverity"
+    }
+   ]
+  },
+  {
+   "proposalId": "eae5dccc0900470f",
+   "productCode": "DP1.10111.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "agro.environmental_feature_grade",
+   "value": "slope gradient",
+   "unit": "AGRO:00000340",
+   "curie": "AGRO:00000340",
+   "label": "environmental feature grade",
+   "ontologyId": "agro",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "slopeGradient",
+   "rationale": "The slope inclination of each sampling location is recorded.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.environmental_feature_grade",
+     "modelValue": "slope gradient",
+     "modelLabel": "environmental feature grade",
+     "column": "slopeGradient"
+    }
+   ]
+  },
+  {
+   "proposalId": "a9fb20e4aae9f93a",
+   "productCode": "DP1.10111.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.documenting",
+   "value": "site management and disturbance event reporting",
+   "unit": "IAO:0000572",
+   "curie": "IAO:0000572",
+   "label": "documenting",
+   "ontologyId": "iao",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Events are documented from staff observation and secondary reports.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.documenting",
+     "modelValue": "site management and disturbance event reporting",
+     "modelLabel": "documenting",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "cf209ce6b222a617",
+   "productCode": "DP1.10111.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.land_use_process",
+   "value": "land use process",
+   "unit": "ENVO:01001431",
+   "curie": "ENVO:01001431",
+   "label": "land use process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "eventType",
+   "rationale": "Product records land management activities affecting sampling locations.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.land_use_process",
+     "modelValue": "land use process",
+     "modelLabel": "land use process",
+     "column": "eventType"
+    }
+   ]
+  },
+  {
+   "proposalId": "5245f36d83968fa9",
+   "productCode": "DP1.10111.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.disturbed_ecosystem",
+   "value": "disturbed ecosystem",
+   "unit": "ENVO:01000445",
+   "curie": "ENVO:01000445",
+   "label": "disturbed ecosystem",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "eventType",
+   "rationale": "Reports natural and human disturbances at sampling locations.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.disturbed_ecosystem",
+     "modelValue": "disturbed ecosystem",
+     "modelLabel": "disturbed ecosystem",
+     "column": "eventType"
+    }
+   ]
+  },
+  {
+   "proposalId": "5794adf222b6cc92",
+   "productCode": "DP1.10111.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.wildfire",
+   "value": "wildfire",
+   "unit": "ENVO:01000787",
+   "curie": "ENVO:01000787",
+   "label": "wildfire",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "fireSeverity",
+   "rationale": "Fire is a reported disturbance type, with severity classification.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.wildfire",
+     "modelValue": "wildfire",
+     "modelLabel": "wildfire",
+     "column": "fireSeverity"
+    }
+   ]
+  },
+  {
+   "proposalId": "ea2b6e6078648cf0",
+   "productCode": "DP1.10111.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.sloped",
+   "value": "slope gradient",
+   "unit": "PATO:0001481",
+   "curie": "PATO:0001481",
+   "label": "sloped",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "slopeGradient",
+   "rationale": "Slope inclination recorded per sampling location.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.sloped",
+     "modelValue": "slope gradient",
+     "modelLabel": "sloped",
+     "column": "slopeGradient"
+    }
+   ]
+  },
+  {
+   "proposalId": "ba035ae7ec5f2e4b",
+   "productCode": "DP1.10111.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.report",
+   "value": "site management and event report",
+   "unit": "IAO:0000088",
+   "curie": "IAO:0000088",
+   "label": "report",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are event reports from staff and secondary sources.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.report",
+     "modelValue": "site management and event report",
+     "modelLabel": "report",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

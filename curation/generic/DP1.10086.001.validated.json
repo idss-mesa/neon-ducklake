@@ -1,0 +1,624 @@
+{
+ "productCode": "DP1.10086.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.539951+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10086.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10086.001.rep1.jsonl",
+   "card_sha256": "e59b1328f55ae8a876589316b0de9c4e191e86cc5e2cc4edec81cbbfd4099ce5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 56.9,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_ols_get_term": 1,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 7028,
+    "cache_creation_input_tokens": 35328,
+    "cache_read_input_tokens": 116265,
+    "thinking_tokens": 1334
+   },
+   "total_cost_usd": 0.3864
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10086.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10086.001.rep2.jsonl",
+   "card_sha256": "e59b1328f55ae8a876589316b0de9c4e191e86cc5e2cc4edec81cbbfd4099ce5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 51.3,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6692,
+    "cache_creation_input_tokens": 20378,
+    "cache_read_input_tokens": 132005,
+    "thinking_tokens": 808
+   },
+   "total_cost_usd": 0.2622
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 8,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "65846256b4ebfd92",
+   "productCode": "DP1.10086.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product samples soil cores from the upper 30 cm of the profile.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "9f9e794c7e155685",
+   "productCode": "DP1.10086.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.concentration_of_liquid_water_in_soil",
+   "value": "concentration of liquid water in soil",
+   "unit": "ENVO:09000026",
+   "curie": "ENVO:09000026",
+   "label": "concentration of liquid water in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "soilMoisture",
+   "rationale": "Gravimetric water content, in grams of water per gram of dry soil.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_liquid_water_in_soil",
+     "modelValue": "gravimetric soil water content",
+     "modelLabel": "concentration of liquid water in soil",
+     "column": "soilMoisture"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_liquid_water_in_soil",
+     "modelValue": "concentration of liquid water in soil",
+     "modelLabel": "concentration of liquid water in soil",
+     "column": "soilMoisture"
+    }
+   ]
+  },
+  {
+   "proposalId": "a7451ad51c2f987e",
+   "productCode": "DP1.10086.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.acidity_of_soil",
+   "value": "acidity of soil",
+   "unit": "ENVO:09200010",
+   "curie": "ENVO:09200010",
+   "label": "acidity of soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "soilInWaterpH",
+   "rationale": "Soil pH is measured in water and in calcium chloride solutions.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.acidity_of_soil",
+     "modelValue": "soil pH",
+     "modelLabel": "acidity of soil",
+     "column": "soilInWaterpH"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.acidity_of_soil",
+     "modelValue": "acidity of soil",
+     "modelLabel": "acidity of soil",
+     "column": "soilInWaterpH"
+    }
+   ]
+  },
+  {
+   "proposalId": "0c88f07b9d762e0b",
+   "productCode": "DP1.10086.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.temperature_of_soil",
+   "value": "temperature of soil",
+   "unit": "ENVO:09200012",
+   "curie": "ENVO:09200012",
+   "label": "temperature of soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "soilTemp",
+   "rationale": "In-situ soil temperature is measured at about 10 cm depth.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_soil",
+     "modelValue": "in-situ soil temperature",
+     "modelLabel": "temperature of soil",
+     "column": "soilTemp"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_soil",
+     "modelValue": "temperature of soil",
+     "modelLabel": "temperature of soil",
+     "column": "soilTemp"
+    }
+   ]
+  },
+  {
+   "proposalId": "2785849ddb41d584",
+   "productCode": "DP1.10086.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.ph_meter",
+   "value": "pH meter",
+   "unit": "OBI:0001047",
+   "curie": "OBI:0001047",
+   "label": "pH meter",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "soilInCaClpH",
+   "rationale": "Soil pH in the lab is measured on soil slurries with a pH meter.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.ph_meter",
+     "modelValue": "pH meter",
+     "modelLabel": "pH meter",
+     "column": "soilInCaClpH"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.ph_meter",
+     "modelValue": "pH meter",
+     "modelLabel": "pH meter",
+     "column": "soilInCaClpH"
+    }
+   ]
+  },
+  {
+   "proposalId": "4d392b20d5b66d68",
+   "productCode": "DP1.10086.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are lab and field measurements taken on soil samples.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f5a5300588a8e877",
+   "productCode": "DP1.10086.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.nitrogen_cycle_metabolic_process",
+   "value": "nitrogen cycle metabolic process",
+   "unit": "GO:0071941",
+   "curie": "GO:0071941",
+   "label": "nitrogen cycle metabolic process",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product measures net nitrogen mineralization and nitrification rates using incubations.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.nitrogen_cycle_metabolic_process",
+     "modelValue": "soil nitrogen transformation",
+     "modelLabel": "nitrogen cycle metabolic process",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.nitrogen_cycle_metabolic_process",
+     "modelValue": "nitrogen cycle metabolic process",
+     "modelLabel": "nitrogen cycle metabolic process",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "c09555a5dfeee73d",
+   "productCode": "DP1.10086.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.soil_horizon",
+   "value": "soil horizon",
+   "unit": "ENVO:03600030",
+   "curie": "ENVO:03600030",
+   "label": "soil horizon",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "horizon",
+   "rationale": "Samples are reported by horizon type, organic or mineral.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_horizon",
+     "modelValue": "soil horizon",
+     "modelLabel": "soil horizon",
+     "column": "horizon"
+    }
+   ]
+  },
+  {
+   "proposalId": "f93db962fd72de75",
+   "productCode": "DP1.10086.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.plant_litter",
+   "value": "plant litter",
+   "unit": "ENVO:01000628",
+   "curie": "ENVO:01000628",
+   "label": "plant litter",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "litterDepth",
+   "rationale": "The depth of the litter layer above the soil is recorded at each core.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_litter",
+     "modelValue": "plant litter",
+     "modelLabel": "plant litter",
+     "column": "litterDepth"
+    }
+   ]
+  },
+  {
+   "proposalId": "e9131f57c0393838",
+   "productCode": "DP1.10086.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "agro.soil_sampling_depth",
+   "value": "soil sampling depth",
+   "unit": "AGRO:00000701",
+   "curie": "AGRO:00000701",
+   "label": "soil sampling depth",
+   "ontologyId": "agro",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sampleBottomDepth",
+   "rationale": "The top and bottom depths of each soil sample are recorded.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.soil_sampling_depth",
+     "modelValue": "soil sampling depth",
+     "modelLabel": "soil sampling depth",
+     "column": "sampleBottomDepth"
+    }
+   ]
+  },
+  {
+   "proposalId": "d3fa1b67b8917a10",
+   "productCode": "DP1.10086.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "agro.soil_sampling_process",
+   "value": "soil core sampling",
+   "unit": "AGRO:00000699",
+   "curie": "AGRO:00000699",
+   "label": "soil sampling process",
+   "ontologyId": "agro",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "soilSamplingDevice",
+   "rationale": "Soil cores are collected periodically with coring devices such as augers.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.soil_sampling_process",
+     "modelValue": "soil core sampling",
+     "modelLabel": "soil sampling process",
+     "column": "soilSamplingDevice"
+    }
+   ]
+  },
+  {
+   "proposalId": "c1dfe7e38a365da1",
+   "productCode": "DP1.10086.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.mineral_horizon",
+   "value": "mineral horizon",
+   "unit": "ENVO:03600011",
+   "curie": "ENVO:03600011",
+   "label": "mineral horizon",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "horizon",
+   "rationale": "Samples are reported by horizon type, mineral or organic.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.mineral_horizon",
+     "modelValue": "mineral horizon",
+     "modelLabel": "mineral horizon",
+     "column": "horizon"
+    }
+   ]
+  },
+  {
+   "proposalId": "9c616ee197c09be5",
+   "productCode": "DP1.10086.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.concentration_of_nitrogen_atom_in_soil",
+   "value": "concentration of nitrogen atom in soil",
+   "unit": "ENVO:09000017",
+   "curie": "ENVO:09000017",
+   "label": "concentration of nitrogen atom in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Total soil nitrogen and inorganic N pools are measured on a subset of samples.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_nitrogen_atom_in_soil",
+     "modelValue": "concentration of nitrogen atom in soil",
+     "modelLabel": "concentration of nitrogen atom in soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "189ccd3876da0653",
+   "productCode": "DP1.10086.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.concentration_of_carbon_atom_in_soil",
+   "value": "concentration of carbon atom in soil",
+   "unit": "ENVO:09000008",
+   "curie": "ENVO:09000008",
+   "label": "concentration of carbon atom in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Total soil organic carbon concentrations and isotopes are measured by external labs.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_carbon_atom_in_soil",
+     "modelValue": "concentration of carbon atom in soil",
+     "modelLabel": "concentration of carbon atom in soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "457d5a82fae017bf",
+   "productCode": "DP1.10086.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "genepio.soil_coring",
+   "value": "soil coring",
+   "unit": "GENEPIO:0100934",
+   "curie": "GENEPIO:0100934",
+   "label": "soil coring",
+   "ontologyId": "genepio",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "soilSamplingDevice",
+   "rationale": "Samples are collected as soil cores with coring devices or augers.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "genepio.soil_coring",
+     "modelValue": "soil coring",
+     "modelLabel": "soil coring",
+     "column": "soilSamplingDevice"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

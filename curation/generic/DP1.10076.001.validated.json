@@ -1,0 +1,656 @@
+{
+ "productCode": "DP1.10076.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.539073+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10076.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10076.001.rep1.jsonl",
+   "card_sha256": "2c43c70ac98e13715951cd4fa25fa5fad166f2b1e38068ac9af5de4d8b26992c",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 13,
+   "seconds": 55.8,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 13
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 7341,
+    "cache_creation_input_tokens": 30616,
+    "cache_read_input_tokens": 93285,
+    "thinking_tokens": 950
+   },
+   "total_cost_usd": 0.3468
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10076.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10076.001.rep2.jsonl",
+   "card_sha256": "2c43c70ac98e13715951cd4fa25fa5fad166f2b1e38068ac9af5de4d8b26992c",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 50.5,
+   "tool_calls": 26,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 5715,
+    "cache_creation_input_tokens": 17920,
+    "cache_read_input_tokens": 76884,
+    "thinking_tokens": 407
+   },
+   "total_cost_usd": 0.2193
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 9,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "793fd9589bd40e9a",
+   "productCode": "DP1.10076.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "DNA is extracted from ear punch tissue before sequencing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "458a51d10ea3ad4b",
+   "productCode": "DP1.10076.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.polymerase_chain_reaction",
+   "value": "polymerase chain reaction",
+   "unit": "OBI:0000415",
+   "curie": "OBI:0000415",
+   "label": "polymerase chain reaction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Target COI sequences are amplified via PCR.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.polymerase_chain_reaction",
+     "modelValue": "polymerase chain reaction",
+     "modelLabel": "polymerase chain reaction",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.polymerase_chain_reaction",
+     "modelValue": "polymerase chain reaction",
+     "modelLabel": "polymerase chain reaction",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e9f27116b61408d4",
+   "productCode": "DP1.10076.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.specimen_from_organism",
+   "value": "specimen from organism",
+   "unit": "OBI:0001479",
+   "curie": "OBI:0001479",
+   "label": "specimen from organism",
+   "ontologyId": "obi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleID",
+   "rationale": "Each record is a tissue specimen taken from a live animal.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_from_organism",
+     "modelValue": "specimen from organism",
+     "modelLabel": "specimen from organism",
+     "column": "sampleID"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_from_organism",
+     "modelValue": "ear punch tissue specimen",
+     "modelLabel": "specimen from organism",
+     "column": "tissueDescriptor"
+    }
+   ]
+  },
+  {
+   "proposalId": "2135442ed629eaa9",
+   "productCode": "DP1.10076.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.biological_sex",
+   "value": "biological sex",
+   "unit": "PATO:0000047",
+   "curie": "PATO:0000047",
+   "label": "biological sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sex",
+   "rationale": "The sex of each specimen is recorded.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.biological_sex",
+     "modelValue": "biological sex",
+     "modelLabel": "biological sex",
+     "column": "sex"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.biological_sex",
+     "modelValue": "biological sex",
+     "modelLabel": "biological sex",
+     "column": "sex"
+    }
+   ]
+  },
+  {
+   "proposalId": "64708ea04074829c",
+   "productCode": "DP1.10076.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "bco.taxonomic_identification_process",
+   "value": "taxonomic identification process",
+   "unit": "BCO:0000042",
+   "curie": "BCO:0000042",
+   "label": "taxonomic identification process",
+   "ontologyId": "bco",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "identificationMethod",
+   "rationale": "Barcoding verifies the taxonomy of specimens and clarifies it for cryptic ones.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "identificationMethod"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "identificationMethod"
+    }
+   ]
+  },
+  {
+   "proposalId": "b04b0dee32f4e5c4",
+   "productCode": "DP1.10076.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.specimen_collection_process",
+   "value": "specimen collection process",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "collectDate",
+   "rationale": "Tissue is collected in the field from live specimens without harming them.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "collectDate"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "samplingProtocol"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "eaec664c9bf35d34",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.rodentia",
+   "value": "Rodentia",
+   "unit": "NCBITaxon:9989",
+   "curie": "NCBITaxon:9989",
+   "label": "Rodentia",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "order",
+   "rationale": "The small mammals barcoded are rodents (Cricetidae, Muridae, Dipodidae, Heteromyidae).",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.rodentia",
+     "modelValue": "Rodentia",
+     "modelLabel": "Rodentia",
+     "column": "order"
+    }
+   ]
+  },
+  {
+   "proposalId": "8db1a304ff6e1cdd",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "genepio.cytochrome_c_oxidase_i_barcoding",
+   "value": "Cytochrome c oxidase I barcoding",
+   "unit": "GENEPIO:0102189",
+   "curie": "GENEPIO:0102189",
+   "label": "Cytochrome c oxidase I barcoding",
+   "ontologyId": "genepio",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Core assay: COI DNA barcoding of small mammal tissue.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "genepio.cytochrome_c_oxidase_i_barcoding",
+     "modelValue": "Cytochrome c oxidase I barcoding",
+     "modelLabel": "Cytochrome c oxidase I barcoding",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "df77214fa26472df",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.dna_sequence_data",
+   "value": "DNA sequence data",
+   "unit": "OBI:0001573",
+   "curie": "OBI:0001573",
+   "label": "DNA sequence data",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product delivers COI barcode sequence records linked to BOLD.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_sequence_data",
+     "modelValue": "DNA sequence data",
+     "modelLabel": "DNA sequence data",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "b559ce7383827ad4",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "uberon.pinna",
+   "value": "pinna",
+   "unit": "UBERON:0001757",
+   "curie": "UBERON:0001757",
+   "label": "pinna",
+   "ontologyId": "uberon",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "tissueDescriptor",
+   "rationale": "The tissue analysed is an ear punch taken from the pinna.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.pinna",
+     "modelValue": "pinna",
+     "modelLabel": "pinna",
+     "column": "tissueDescriptor"
+    }
+   ]
+  },
+  {
+   "proposalId": "d3f327d9280044f7",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "uberon.life_cycle_stage",
+   "value": "life cycle stage",
+   "unit": "UBERON:0000105",
+   "curie": "UBERON:0000105",
+   "label": "life cycle stage",
+   "ontologyId": "uberon",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "lifeStage",
+   "rationale": "The age class (adult, subadult, juvenile) of each specimen is recorded.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.life_cycle_stage",
+     "modelValue": "life cycle stage",
+     "modelLabel": "life cycle stage",
+     "column": "lifeStage"
+    }
+   ]
+  },
+  {
+   "proposalId": "9abb449304023945",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.animal_trap",
+   "value": "animal trap",
+   "unit": "ENVO:01000975",
+   "curie": "ENVO:01000975",
+   "label": "animal trap",
+   "ontologyId": "envo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "samplingProtocol",
+   "rationale": "Small mammals are live-captured in Sherman traps.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.animal_trap",
+     "modelValue": "animal trap",
+     "modelLabel": "animal trap",
+     "column": "samplingProtocol"
+    }
+   ]
+  },
+  {
+   "proposalId": "cdc56f198624e203",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.dna_sequencing_assay",
+   "value": "COI DNA barcode sequencing",
+   "unit": "OBI:0000626",
+   "curie": "OBI:0000626",
+   "label": "DNA sequencing assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Cytochrome oxidase I barcodes are made by sequencing DNA from tissue samples.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_sequencing_assay",
+     "modelValue": "COI DNA barcode sequencing",
+     "modelLabel": "DNA sequencing assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "0284c222f758ef42",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.sequence_data",
+   "value": "COI sequence data",
+   "unit": "OBI:0000973",
+   "curie": "OBI:0000973",
+   "label": "sequence data",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product delivers COI barcode sequences, linked through BOLD.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.sequence_data",
+     "modelValue": "COI sequence data",
+     "modelLabel": "sequence data",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "db5d205ebf12a51a",
+   "productCode": "DP1.10076.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "bco.identification_assertion",
+   "value": "identification assertion",
+   "unit": "BCO:0000084",
+   "curie": "BCO:0000084",
+   "label": "identification assertion",
+   "ontologyId": "bco",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "taxonID",
+   "rationale": "Taxonomy table links each specimen to an assigned taxon.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.identification_assertion",
+     "modelValue": "identification assertion",
+     "modelLabel": "identification assertion",
+     "column": "taxonID"
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "9a97a55797f65500",
+   "productCode": "DP1.10076.001",
+   "status": "rejected",
+   "reason": "duplicate_deterministic",
+   "attribute": "",
+   "value": "Mammalia",
+   "unit": "",
+   "curie": "NCBITaxon:40674",
+   "label": "Mammalia",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "class",
+   "rationale": "Product barcodes small mammals; the class is Mammalia.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.mammalia",
+     "modelValue": "Mammalia",
+     "modelLabel": "Mammalia",
+     "column": "class"
+    },
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.mammalia",
+     "modelValue": "Mammalia",
+     "modelLabel": "Mammalia",
+     "column": "class"
+    }
+   ]
+  }
+ ]
+}

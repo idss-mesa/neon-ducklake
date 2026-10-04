@@ -1,0 +1,584 @@
+{
+ "productCode": "DP1.10041.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.536087+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10041.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10041.001.rep1.jsonl",
+   "card_sha256": "0114b4436a35e6e490e61ac854e61bca69bf37d9b8a608986510d6d628cce03b",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 52.1,
+   "tool_calls": 26,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6169,
+    "cache_creation_input_tokens": 24456,
+    "cache_read_input_tokens": 78810,
+    "thinking_tokens": 1037
+   },
+   "total_cost_usd": 0.3348
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10041.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10041.001.rep2.jsonl",
+   "card_sha256": "0114b4436a35e6e490e61ac854e61bca69bf37d9b8a608986510d6d628cce03b",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 50.2,
+   "tool_calls": 25,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6158,
+    "cache_creation_input_tokens": 17383,
+    "cache_read_input_tokens": 89773,
+    "thinking_tokens": 1013
+   },
+   "total_cost_usd": 0.2802
+  }
+ ],
+ "counts": {
+  "accepted": 3,
+  "human_accepted": 0,
+  "proposed": 9,
+  "rejected": 3
+ },
+ "accepted": [
+  {
+   "proposalId": "3dd05cc9c0cd0d00",
+   "productCode": "DP1.10041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.culicidae",
+   "value": "Culicidae",
+   "unit": "NCBITaxon:7157",
+   "curie": "NCBITaxon:7157",
+   "label": "Culicidae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Mosquito pools are the vector specimens tested for pathogens.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.culicidae",
+     "modelValue": "Culicidae",
+     "modelLabel": "Culicidae",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.culicidae",
+     "modelValue": "Culicidae",
+     "modelLabel": "Culicidae",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "7ccdca52e84e5e8d",
+   "productCode": "DP1.10041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.reverse_transcription_polymerase_chain_reaction_assay",
+   "value": "reverse transcription polymerase chain reaction assay",
+   "unit": "OBI:0001170",
+   "curie": "OBI:0001170",
+   "label": "reverse transcription polymerase chain reaction assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testMethod",
+   "rationale": "The abstract names RT-PCR as a test method for these RNA arboviruses.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.reverse_transcription_polymerase_chain_reaction_assay",
+     "modelValue": "reverse transcription polymerase chain reaction assay",
+     "modelLabel": "reverse transcription polymerase chain reaction assay",
+     "column": "testMethod"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.reverse_transcription_polymerase_chain_reaction_assay",
+     "modelValue": "reverse transcription polymerase chain reaction assay",
+     "modelLabel": "reverse transcription polymerase chain reaction assay",
+     "column": "testMethod"
+    }
+   ]
+  },
+  {
+   "proposalId": "4da2d4cbf435e239",
+   "productCode": "DP1.10041.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "cqValue",
+   "rationale": "Records hold lab test outputs such as quantification cycle values and results.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": "cqValue"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": "testResult"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "5d8647875b9bb6e2",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.viruses",
+   "value": "Viruses",
+   "unit": "NCBITaxon:10239",
+   "curie": "NCBITaxon:10239",
+   "label": "Viruses",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "Pathogens screened are arboviruses (alphaviruses, flaviviruses, orthobunyaviruses).",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.viruses",
+     "modelValue": "Viruses",
+     "modelLabel": "Viruses",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "060774984df181a5",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.pathogen_detection_assay",
+   "value": "pathogen detection assay",
+   "unit": "OBI:0002728",
+   "curie": "OBI:0002728",
+   "label": "pathogen detection assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Product reports the results of pathogen detection tests on mosquito pools.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pathogen_detection_assay",
+     "modelValue": "pathogen detection assay",
+     "modelLabel": "pathogen detection assay",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "a05c9a9df999079f",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.cell_culture",
+   "value": "Vero cell culture",
+   "unit": "OBI:0001876",
+   "curie": "OBI:0001876",
+   "label": "cell culture",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The abstract lists Vero cell culture as a general virus screening method.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.cell_culture",
+     "modelValue": "Vero cell culture",
+     "modelLabel": "cell culture",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "2f3b1939588d86d6",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.pool_of_specimens",
+   "value": "pool of specimens",
+   "unit": "OBI:0302716",
+   "curie": "OBI:0302716",
+   "label": "pool of specimens",
+   "ontologyId": "obi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "poolSize",
+   "rationale": "Female mosquitoes of one species are homogenized into pools for testing.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pool_of_specimens",
+     "modelValue": "pool of specimens",
+     "modelLabel": "pool of specimens",
+     "column": "poolSize"
+    }
+   ]
+  },
+  {
+   "proposalId": "6ea7600c1fb2f42d",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.amount",
+   "value": "pathogen presence/absence",
+   "unit": "PATO:0000070",
+   "curie": "PATO:0000070",
+   "label": "amount",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "Product records whether a pathogen is present or absent in each pool.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.amount",
+     "modelValue": "pathogen presence/absence",
+     "modelLabel": "amount",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "b6d976e4d32e9ae0",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.female",
+   "value": "female",
+   "unit": "PATO:0000383",
+   "curie": "PATO:0000383",
+   "label": "female",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Only female mosquitoes are eligible for pathogen testing.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.female",
+     "modelValue": "female",
+     "modelLabel": "female",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "a432881410e0d170",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.present",
+   "value": "pathogen presence/absence",
+   "unit": "PATO:0000467",
+   "curie": "PATO:0000467",
+   "label": "present",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "testResult",
+   "rationale": "The main measurement is whether each mosquito pool tests positive or negative for a pathogen.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.present",
+     "modelValue": "pathogen presence/absence",
+     "modelLabel": "present",
+     "column": "testResult"
+    }
+   ]
+  },
+  {
+   "proposalId": "b867b3f1a89cec57",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.pooling_specimens",
+   "value": "pooling specimens",
+   "unit": "OBI:0600016",
+   "curie": "OBI:0600016",
+   "label": "pooling specimens",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "poolSize",
+   "rationale": "Female mosquitoes of the same species are homogenized into pools before testing.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.pooling_specimens",
+     "modelValue": "pooling specimens",
+     "modelLabel": "pooling specimens",
+     "column": "poolSize"
+    }
+   ]
+  },
+  {
+   "proposalId": "bb990fea0a94cecc",
+   "productCode": "DP1.10041.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.viral_process",
+   "value": "viral process",
+   "unit": "GO:0016032",
+   "curie": "GO:0016032",
+   "label": "viral process",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product tests for arbovirus infection carried by mosquito vectors.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.viral_process",
+     "modelValue": "viral process",
+     "modelLabel": "viral process",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "d32f696a6700fea0",
+   "productCode": "DP1.10041.001",
+   "status": "rejected",
+   "reason": "duplicate_deterministic",
+   "attribute": "",
+   "value": "Alphavirus",
+   "unit": "",
+   "curie": "NCBITaxon:11019",
+   "label": "Alphavirus",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "The product screens for arbovirus pathogens at the genus level.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.alphavirus",
+     "modelValue": "Alphavirus",
+     "modelLabel": "Alphavirus",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "c17ea8d5b95c4b64",
+   "productCode": "DP1.10041.001",
+   "status": "rejected",
+   "reason": "duplicate_deterministic",
+   "attribute": "",
+   "value": "Orthobunyavirus",
+   "unit": "",
+   "curie": "NCBITaxon:11572",
+   "label": "Orthobunyavirus",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "The product screens for arbovirus pathogens at the genus level, covering the bunyavirus target group.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.orthobunyavirus",
+     "modelValue": "Orthobunyavirus",
+     "modelLabel": "Orthobunyavirus",
+     "column": "testPathogenName"
+    }
+   ]
+  },
+  {
+   "proposalId": "f6cbb51c31dadf5b",
+   "productCode": "DP1.10041.001",
+   "status": "rejected",
+   "reason": "duplicate_deterministic",
+   "attribute": "",
+   "value": "Orthoflavivirus",
+   "unit": "",
+   "curie": "NCBITaxon:3044782",
+   "label": "Orthoflavivirus",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "testPathogenName",
+   "rationale": "The product screens for arbovirus pathogens at the genus level, covering the flavivirus target group.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.orthoflavivirus",
+     "modelValue": "Orthoflavivirus",
+     "modelLabel": "Orthoflavivirus",
+     "column": "testPathogenName"
+    }
+   ]
+  }
+ ]
+}

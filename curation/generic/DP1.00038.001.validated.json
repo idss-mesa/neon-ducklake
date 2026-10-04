@@ -1,0 +1,527 @@
+{
+ "productCode": "DP1.00038.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.531232+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00038.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00038.001.rep1.jsonl",
+   "card_sha256": "5397af67ec31a8105e8abb2243319acb851ffb46b7e1e2d6f358186a28ba874a",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 53.1,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6776,
+    "cache_creation_input_tokens": 32512,
+    "cache_read_input_tokens": 97122,
+    "thinking_tokens": 1281
+   },
+   "total_cost_usd": 0.4151
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00038.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00038.001.rep2.jsonl",
+   "card_sha256": "5397af67ec31a8105e8abb2243319acb851ffb46b7e1e2d6f358186a28ba874a",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 44.7,
+   "tool_calls": 25,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5788,
+    "cache_creation_input_tokens": 18197,
+    "cache_read_input_tokens": 100507,
+    "thinking_tokens": 917
+   },
+   "total_cost_usd": 0.2815
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 5,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "2c99dc329bdad936",
+   "productCode": "DP1.00038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.rainwater",
+   "value": "rainwater",
+   "unit": "ENVO:01000600",
+   "curie": "ENVO:01000600",
+   "label": "rainwater",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Wet deposition collector gathers precipitation water during rain events for isotope analysis.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.rainwater",
+     "modelValue": "rainwater",
+     "modelLabel": "rainwater",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.rainwater",
+     "modelValue": "rainwater",
+     "modelLabel": "rainwater",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "2b710b32d00fe3e0",
+   "productCode": "DP1.00038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.hydrological_precipitation_process",
+   "value": "hydrological precipitation process",
+   "unit": "ENVO:01000703",
+   "curie": "ENVO:01000703",
+   "label": "hydrological precipitation process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product characterizes isotopic signature of precipitation events (wet deposition).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_precipitation_process",
+     "modelValue": "hydrological precipitation process",
+     "modelLabel": "hydrological precipitation process",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_precipitation_process",
+     "modelValue": "hydrological precipitation process",
+     "modelLabel": "hydrological precipitation process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "b0732fff0ca864fd",
+   "productCode": "DP1.00038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.oxygen18_atom",
+   "value": "oxygen-18 atom",
+   "unit": "CHEBI:33815",
+   "curie": "CHEBI:33815",
+   "label": "oxygen-18 atom",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "d18OWater",
+   "rationale": "d18O ratio (18O:16O) of precipitation water relative to VSMOW.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.oxygen18_atom",
+     "modelValue": "oxygen-18 atom",
+     "modelLabel": "oxygen-18 atom",
+     "column": "d18OWater"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.oxygen18_atom",
+     "modelValue": "oxygen-18 atom",
+     "modelLabel": "oxygen-18 atom",
+     "column": "d18OWater"
+    }
+   ]
+  },
+  {
+   "proposalId": "7eea579538db829d",
+   "productCode": "DP1.00038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.deuterium_atom",
+   "value": "deuterium atom",
+   "unit": "CHEBI:29237",
+   "curie": "CHEBI:29237",
+   "label": "deuterium atom",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "d2HWater",
+   "rationale": "d2H ratio (2H:1H) of precipitation water relative to VSMOW.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.deuterium_atom",
+     "modelValue": "deuterium atom",
+     "modelLabel": "deuterium atom",
+     "column": "d2HWater"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.deuterium_atom",
+     "modelValue": "deuterium atom",
+     "modelLabel": "deuterium atom",
+     "column": "d2HWater"
+    }
+   ]
+  },
+  {
+   "proposalId": "aac9844070378bec",
+   "productCode": "DP1.00038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.specimen_collection_process",
+   "value": "specimen collection process",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "collectDate",
+   "rationale": "Biweekly retrieval of precipitation samples from automated wet deposition collector.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "collectDate"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "942cebe1c0ecfdf3",
+   "productCode": "DP1.00038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.mass",
+   "value": "mass",
+   "unit": "PATO:0000125",
+   "curie": "PATO:0000125",
+   "label": "mass",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "isoSubsampleMass",
+   "rationale": "Mass of the isotope subsample of collected precipitation.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.mass",
+     "modelValue": "mass",
+     "modelLabel": "mass",
+     "column": "isoSubsampleMass"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.mass",
+     "modelValue": "mass",
+     "modelLabel": "mass",
+     "column": "isoSubsampleMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "ffc69e24738688e4",
+   "productCode": "DP1.00038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are per-sample lab and field measurement results.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "d2efc32e86672e78",
+   "productCode": "DP1.00038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chebi.water",
+   "value": "water",
+   "unit": "CHEBI:15377",
+   "curie": "CHEBI:15377",
+   "label": "water",
+   "ontologyId": "chebi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Isotope ratios are measured on the H2O molecule itself.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.water",
+     "modelValue": "water",
+     "modelLabel": "water",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "cf01a36e6b5e8516",
+   "productCode": "DP1.00038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.water_filtration",
+   "value": "water filtration",
+   "unit": "OBI:0003656",
+   "curie": "OBI:0003656",
+   "label": "water filtration",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Retrieved precipitation samples are filtered before shipment for isotope analysis.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.water_filtration",
+     "modelValue": "water filtration",
+     "modelLabel": "water filtration",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "a817c18a564f8c38",
+   "productCode": "DP1.00038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "d18OWaterUncert",
+   "rationale": "Reported uncertainty for d18O and d2H isotope measurements.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "d18OWaterUncert"
+    }
+   ]
+  },
+  {
+   "proposalId": "c25b34ee664a709e",
+   "productCode": "DP1.00038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.volume",
+   "value": "volume",
+   "unit": "PATO:0000918",
+   "curie": "PATO:0000918",
+   "label": "volume",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "isoTestSubsampleVolume",
+   "rationale": "Volume of liquid poured into the isotope analysis subsample bottle.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.volume",
+     "modelValue": "volume",
+     "modelLabel": "volume",
+     "column": "isoTestSubsampleVolume"
+    }
+   ]
+  },
+  {
+   "proposalId": "a11fb66343d2671d",
+   "productCode": "DP1.00038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.filtration",
+   "value": "filtration",
+   "unit": "OBI:0302885",
+   "curie": "OBI:0302885",
+   "label": "filtration",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Retrieved samples are filtered before being sent for isotope analysis.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.filtration",
+     "modelValue": "filtration",
+     "modelLabel": "filtration",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

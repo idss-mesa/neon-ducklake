@@ -1,0 +1,549 @@
+{
+ "productCode": "DP1.00095.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.533024+00:00",
+ "validatedBy": {
+  "vm": "sparky-1",
+  "host": null
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00095.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00095.001.rep1.jsonl",
+   "card_sha256": "ccbf5bb1ded7405bb27b6a9c8e3195f198a72bb5d0ddf690f08139c1653635cb",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 48.1,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6134,
+    "cache_creation_input_tokens": 28297,
+    "cache_read_input_tokens": 86691,
+    "thinking_tokens": 652
+   },
+   "total_cost_usd": 0.3664
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00095.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00095.001.rep2.jsonl",
+   "card_sha256": "ccbf5bb1ded7405bb27b6a9c8e3195f198a72bb5d0ddf690f08139c1653635cb",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 46.8,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5875,
+    "cache_creation_input_tokens": 24511,
+    "cache_read_input_tokens": 102510,
+    "thinking_tokens": 816
+   },
+   "total_cost_usd": 0.3341
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 7,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "562c441a1984f6fe",
+   "productCode": "DP1.00095.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.carbon_dioxide",
+   "value": "carbon dioxide",
+   "unit": "CHEBI:16526",
+   "curie": "CHEBI:16526",
+   "label": "carbon dioxide",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "soilCO2concentrationMean",
+   "rationale": "The gas measured in the soil is CO2.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.carbon_dioxide",
+     "modelValue": "carbon dioxide",
+     "modelLabel": "carbon dioxide",
+     "column": "soilCO2concentrationMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.carbon_dioxide",
+     "modelValue": "carbon dioxide",
+     "modelLabel": "carbon dioxide",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "d2a5378cbc22aee1",
+   "productCode": "DP1.00095.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Sensors are buried at several depths in soil.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "37db027ab3bcd873",
+   "productCode": "DP1.00095.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.infrared_gas_analyzer",
+   "value": "infrared gas analyzer",
+   "unit": "OBI:0003708",
+   "curie": "OBI:0003708",
+   "label": "infrared gas analyzer",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The Vaisala GMP343 is a nondispersive infrared CO2 probe.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.infrared_gas_analyzer",
+     "modelValue": "infrared gas analyzer",
+     "modelLabel": "infrared gas analyzer",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.infrared_gas_analyzer",
+     "modelValue": "infrared gas analyzer",
+     "modelLabel": "infrared gas analyzer",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "aeb99c94793599ab",
+   "productCode": "DP1.00095.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilCO2concentrationVariance",
+   "rationale": "Variance of CO2 concentration within each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "soilCO2concentrationVariance"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "soilCO2concentrationVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "3d449635ef893ea8",
+   "productCode": "DP1.00095.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilCO2concentrationStdErMean",
+   "rationale": "Standard error of the mean CO2 concentration.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "soilCO2concentrationStdErMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "soilCO2concentrationStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "c811edcc127b66da",
+   "productCode": "DP1.00095.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.cellular_respiration",
+   "value": "cellular respiration",
+   "unit": "GO:0045333",
+   "curie": "GO:0045333",
+   "label": "cellular respiration",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil CO2 comes mostly from microbial, root and soil fauna respiration.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.cellular_respiration",
+     "modelValue": "cellular respiration",
+     "modelLabel": "cellular respiration",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.cellular_respiration",
+     "modelValue": "cellular respiration",
+     "modelLabel": "cellular respiration",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "0a7f41e534876aa6",
+   "productCode": "DP1.00095.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.concentration_of",
+   "value": "soil CO2 concentration",
+   "unit": "PATO:0000033",
+   "curie": "PATO:0000033",
+   "label": "concentration of",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "soilCO2concentrationMean",
+   "rationale": "The product reports CO2 concentration in soil air.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "soil CO2 concentration",
+     "modelLabel": "concentration of",
+     "column": "soilCO2concentrationMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "97d171241dbb3da4",
+   "productCode": "DP1.00095.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.vadose_zone",
+   "value": "vadose zone",
+   "unit": "ENVO:00000328",
+   "curie": "ENVO:00000328",
+   "label": "vadose zone",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The soil air sampled lies in the unsaturated zone near the surface.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.vadose_zone",
+     "modelValue": "vadose zone",
+     "modelLabel": "vadose zone",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f5b13a11f008a0f1",
+   "productCode": "DP1.00095.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Sensor measurements averaged over 1-minute and 30-minute intervals.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "5803d0c9abcd82b8",
+   "productCode": "DP1.00095.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.carbon_dioxide_emission_process",
+   "value": "carbon dioxide emission process",
+   "unit": "ENVO:01000769",
+   "curie": "ENVO:01000769",
+   "label": "carbon dioxide emission process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "CO2 depth gradients are used to estimate soil CO2 efflux to the atmosphere.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.carbon_dioxide_emission_process",
+     "modelValue": "carbon dioxide emission process",
+     "modelLabel": "carbon dioxide emission process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "87b996e184297568",
+   "productCode": "DP1.00095.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.concentration_of_carbon_dioxide_in_soil",
+   "value": "concentration of carbon dioxide in soil",
+   "unit": "ENVO:04000003",
+   "curie": "ENVO:04000003",
+   "label": "concentration of carbon dioxide in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "soilCO2concentrationMean",
+   "rationale": "The core measurement is CO2 concentration in soil air at several depths.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_carbon_dioxide_in_soil",
+     "modelValue": "concentration of carbon dioxide in soil",
+     "modelLabel": "concentration of carbon dioxide in soil",
+     "column": "soilCO2concentrationMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "db9b4e7c8258c76b",
+   "productCode": "DP1.00095.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Continuous sensor data given as 1-minute and 30-minute averages.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "8d95c25c0413b11f",
+   "productCode": "DP1.00095.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "soilCO2concentrationMean",
+   "rationale": "This column is the arithmetic mean over each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "soilCO2concentrationMean"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}
