@@ -587,6 +587,10 @@ class SiteVerifier:
                  bare=_sample(c[len(self.S):] or "/" for c in bare), n_bare=len(bare), unreadable=_sample(failed))
 
     def coll_ok(self, c: str) -> bool:
+        # dot collections (.mesa-journal/v/<push>, staged/, retired/) are the pipeline's own bookkeeping, not
+        # NEON data: they never carry neon.*/mesa.* AVUs
+        if any(part.startswith(".") for part in c[len(self.S):].split("/")):
+            return False
         raw = f"{self.S}/raw/"
         if not c.startswith(raw):
             return True

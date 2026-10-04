@@ -137,6 +137,20 @@ def test_bad_replica_missing_core_and_bare_collection_fail(world) -> None:
     assert r["_report"]["ok"] is False
 
 
+def test_journal_collections_are_out_of_scope(world) -> None:
+    """The pipeline's own .mesa-journal backups carry no neon.*/mesa.* AVU and are never checked (or read)."""
+    _f, con, data, store = world
+    for c in (f"{S}/.mesa-journal", f"{S}/.mesa-journal/v", f"{S}/.mesa-journal/v/20260929T160345Z-vm-1",
+              f"{S}/.mesa-journal/staged", f"{S}/.mesa-journal/retired"):
+        store.add_coll(c)
+    r = run(con, data, store)
+    assert r["avu collections"]["status"] == "pass", r["avu collections"]["summary"]
+    assert r["avu collections"]["details"]["n_bare"] == 0
+    store.colls[f"{S}/raw"]["avus"] = {("ipc_UUID", "c", "")}  # a bare data collection still fails
+    r = run(con, data, store)
+    assert r["avu collections"]["status"] == "fail" and r["avu collections"]["details"]["bare"] == ["/raw"]
+
+
 def test_not_uploaded_is_counted_not_failed(world, site_env: Path) -> None:  # noqa: F811
     _f, con, data, store = world
     # the journal said 'present' for these objects: their absence is a failure
