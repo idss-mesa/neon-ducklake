@@ -3,8 +3,7 @@
  "site": "KONZ",
  "validatedAt": "2026-09-29T16:48:55.534085+00:00",
  "validatedBy": {
-  "vm": "sparky-1",
-  "host": null
+  "vm": "sparky-1"
  },
  "runId": "20260929T164802Z",
  "model": "claude-opus-5-5",

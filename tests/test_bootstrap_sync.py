@@ -10,7 +10,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from neon_ducklake import bootstrap, coord, env
+from neon_ducklake import bootstrap, env
 from neon_ducklake.site import ontology_store
 
 from .test_coord_fakes import ROOT, DSIrods, DSSession, hermetic_ds, put
@@ -116,7 +116,7 @@ def test_curation_generic_synced_both_ways_and_imported(ds: DSIrods) -> None:
     put(ds, f"{ROOT}/curation/generic/DP1.00001.001.validated.json", json.dumps(remote_doc).encode())
     local_only = env.ROOT / "curation" / "generic" / "DP1.00002.001.validated.json"
     env.write_json(local_only, {"productCode": "DP1.00002.001", "accepted": [], "validatedAt": "2026-09-01T00:00:00",
-                                "validatedBy": {"vm": env.vm_id(), "host": coord.host()}})
+                                "validatedBy": {"vm": env.vm_id()}})
     git_copy = env.ROOT / "curation" / "generic" / "DP1.00003.001.validated.json"  # from a checkout: not ours
     env.write_json(git_copy, {"productCode": "DP1.00003.001", "accepted": [], "validatedAt": "2026-08-01T00:00:00"})
     out = bootstrap.sync_curation(session=DSSession(ds))

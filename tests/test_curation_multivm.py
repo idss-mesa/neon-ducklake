@@ -61,7 +61,8 @@ def test_generic_results_carry_their_content_version(store: DSIrods, fake_ols: d
     standard_proposals()
     assert validate.main(SITE) == 0
     doc = json.loads(curate.generic_path(P).read_text())
-    assert doc["validatedBy"] == {"vm": env.vm_id(), "host": socket.gethostname()} and doc["runId"]
+    assert doc["validatedBy"] == {"vm": env.vm_id()} and doc["runId"]  # the VM id only: no host name
+    assert socket.gethostname() not in curate.generic_path(P).read_text()
     assert coord.validated_here(doc) and coord.generic_version(doc)[1] == doc["runId"]
     remote = json.loads(store.content(coord.generic_remote_path(P)))
     assert remote["runId"] == doc["runId"]
@@ -82,8 +83,11 @@ def test_validate_never_overwrites_a_newer_result_on_the_data_store(store: DSIro
     assert summary["dataStore"]["skipped"] == {P: "remote-newer"}
 
 
-@pytest.mark.parametrize("by", [None, {"vm": "someone", "host": "else"}])
-def test_validated_here_needs_this_vm_and_host(by, monkeypatch) -> None:
+@pytest.mark.parametrize("by", [None, {"vm": "someone"}, {"vm": "someone", "host": "else"}])
+def test_validated_here_needs_this_vm(by, monkeypatch) -> None:
     monkeypatch.setenv("NEON_DUCKLAKE_VM_ID", "vm-a")
     assert not coord.validated_here({"validatedBy": by} if by else {})
-    assert coord.validated_here({"validatedBy": {"vm": "vm-a", "host": coord.host()}})
+    assert coord.validated_here({"validatedBy": {"vm": "vm-a"}})
+    # results written before the host name was dropped (or with it blanked) still match on the VM id
+    assert coord.validated_here({"validatedBy": {"vm": "vm-a", "host": "old-host.example"}})
+    assert coord.validated_here({"validatedBy": {"vm": "vm-a", "host": None}})

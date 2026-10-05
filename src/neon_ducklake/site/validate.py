@@ -64,7 +64,7 @@ are never replaced. Every replicate choice is kept in ``site_envo_proposals`` (s
 ``human``), and ``curation/site/_site.validated.json`` records the outcome.
 
 **Shared generic results (multi-VM).** Every generic result records its content version: ``validatedAt``
-and ``runId`` (the ``site validate`` run), plus ``validatedBy`` ``{vm, host}`` (these three are ignored when
+and ``runId`` (the ``site validate`` run), plus ``validatedBy`` ``{vm}`` (these three are ignored when
 deciding whether the file changed). When ``coord.curation_sync_enabled()`` (workers), every product
 validated here is published to ``<IRODS_ROOT>/curation/generic/<code>.validated.json`` (checksum-verified;
 never over a Data Store copy with a newer version) and this VM's curation claim on it is released
@@ -667,14 +667,12 @@ GENERIC_VOLATILE: tuple[str, ...] = ("validatedAt", "validatedBy", "runId")
 
 def write_generic(site: str, product: str, reps: list[Replicate], items: list[dict[str, Any]],
                   run_id: str | None = None) -> Path:
-    import socket
-
     def pick(status: set[str]) -> list[dict[str, Any]]:
         return [it for it in items if it["status"] in status]
 
     doc = {
         "productCode": product, "site": site, "validatedAt": env.utcnow().isoformat(),
-        "validatedBy": {"vm": env.vm_id(), "host": socket.gethostname()}, "runId": run_id,
+        "validatedBy": {"vm": env.vm_id()}, "runId": run_id,  # the VM id only: no host name in shared results
         "model": next((r.data.get("model") for r in reps), MODEL),
         "rules": {"maxPerProduct": MAX_PER_PRODUCT, "replicates": REPLICATES,
                   "accepted": "valid in every replicate and grounded in at least one"},

@@ -1104,9 +1104,10 @@ def generic_version(doc: Any) -> tuple[datetime, str]:
 
 
 def validated_here(doc: Any) -> bool:
-    """True when ``doc`` (a generic result) was validated by this VM on this host (``validatedBy``)."""
+    """True when ``doc`` (a generic result) was validated by this VM (``validatedBy.vm``; results record the VM id
+    only, never a host name, so each VM needs its own ``NEON_DUCKLAKE_VM_ID``)."""
     by = doc.get("validatedBy") if isinstance(doc, dict) else None
-    return isinstance(by, dict) and by.get("vm") == vm_id() and by.get("host") == host()
+    return isinstance(by, dict) and by.get("vm") == vm_id()
 
 
 def _local_doc(local: Path) -> Any:

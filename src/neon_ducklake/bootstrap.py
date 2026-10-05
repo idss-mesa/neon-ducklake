@@ -17,8 +17,8 @@ A DE VM starts with a clone of the code and nothing else. Everything it needs co
 ``curation``
     Syncs ``curation/generic/*.validated.json`` both ways by content version (``validatedAt``, then ``runId``;
     never file modify times): a result only on the Data Store, or newer there, is fetched and imported into
-    ``curation_avus``; a result only here, or newer here, is published only when it was validated on this
-    host (``validatedBy``), so a git checkout never overwrites newer results of other VMs.
+    ``curation_avus``; a result only here, or newer here, is published only when this VM validated it
+    (``validatedBy.vm``), so a git checkout never overwrites newer results of other VMs.
 
 :func:`publish_ontology` (called by the orchestrator at a site's finalize) exports this VM's ontology store
 to ``work/ontology_export/vm/<vm>/`` and uploads it to ``<IRODS_ROOT>/ref/ontology_maps/vm/<vm>/``: each VM
