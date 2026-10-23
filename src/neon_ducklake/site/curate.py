@@ -98,7 +98,7 @@ PRODUCT_TOOLS = ("mesa_ols_search_terms", "mesa_ols_get_term", "mesa_avu_from_te
 UNIT_TOOLS = ("mesa_ols_search_terms", "mesa_ols_get_term")
 # Groundedness: only these tools *retrieve* terms. mesa_avu_from_term echoes whatever CURIE it is given.
 RETRIEVAL_TOOLS = frozenset({"mesa_ols_search_terms", "mesa_ols_get_term"})
-# Every other mesa-mcp tool (registry as of mesa-mcp 8fbaedf). They are hidden from the model, and
+# Every other mesa-mcp tool (registry as of mesa-mcp 8fbaedf, unchanged in 0.2.0 / 0e2e561). They are hidden from the model, and
 # dontAsk denies anything not listed here that a newer mesa-mcp might add.
 HIDDEN_TOOLS = (
     "ds_add_avu", "ds_add_avus", "ds_copy_file", "ds_create_ticket", "ds_delete_avu", "ds_delete_file",

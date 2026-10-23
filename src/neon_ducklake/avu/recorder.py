@@ -55,7 +55,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from .. import coord, env, state
+from .. import coord, duck, env, state
 from . import history
 
 log = logging.getLogger("neon_ducklake.avu.recorder")
@@ -212,13 +212,13 @@ class SeenIndex:
             return set()
         import pyarrow as pa
 
-        self.con.register("probe", pa.table({"key": pa.array(keys, pa.string())}))
+        duck.register(self.con, "probe", pa.table({"key": pa.array(keys, pa.string())}))
         try:
             return {str(r[0]) for r in self.con.execute(
                 "SELECT DISTINCT s.key FROM seen s JOIN (SELECT DISTINCT key::UUID AS key FROM probe) p"
                 " ON s.key = p.key").fetchall()}
         finally:
-            self.con.unregister("probe")
+            duck.unregister(self.con, "probe")
 
     def has_batch(self, batch_id: str) -> bool:
         return self.con.execute("SELECT 1 FROM seen WHERE batch_id=? LIMIT 1", [batch_id]).fetchone() is not None
@@ -230,11 +230,11 @@ class SeenIndex:
         if not ks:
             return 0
         bids = [b for b, ks_ in keys_by_batch.items() for _ in ks_]
-        self.con.register("incoming", pa.table({"key": pa.array(ks, pa.string()), "batch_id": pa.array(bids)}))
+        duck.register(self.con, "incoming", pa.table({"key": pa.array(ks, pa.string()), "batch_id": pa.array(bids)}))
         try:
             self.con.execute("INSERT INTO seen SELECT key::UUID, batch_id, ?, now() FROM incoming", [snapshot_id])
         finally:
-            self.con.unregister("incoming")
+            duck.unregister(self.con, "incoming")
         return len(ks)
 
     def count(self) -> int:

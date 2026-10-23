@@ -57,7 +57,7 @@ from typing import Any
 
 import duckdb
 
-from .. import env, state
+from .. import duck, env, state
 from . import site_lake
 from .site_lake import ident, sql_str
 
@@ -295,7 +295,7 @@ def register_fmeta(con: duckdb.DuckDBPyConnection, site: str, domain: str | None
         "localRelPath": pa.array([f.local_path for f in files]),
         "size": pa.array([f.size for f in files], type=pa.int64()),
     })
-    con.register(name, tbl)
+    duck.register(con, name, tbl)
 
 
 # ---------------------------------------------------------------- typing
@@ -491,7 +491,7 @@ def _catalog_row(ctx: Ctx, table: str, product: str, neon_table: str, kind: str,
            "rowsBeforeDedup": extra.get("rowsBeforeDedup"), "dedupRemoved": extra.get("dedupRemoved")}
     name = f"tc_{ctx.n_stage}"
     ctx.n_stage += 1
-    ctx.con.register(name, site_lake.arrow_table([row], site_lake.STACK_SCHEMAS["table_catalog"]))
+    duck.register(ctx.con, name, site_lake.arrow_table([row], site_lake.STACK_SCHEMAS["table_catalog"]))
     return name
 
 
@@ -707,7 +707,7 @@ def stage_index(ctx: Ctx, name: str, product: str, files: list[SrcFile]) -> int:
               ("md5", pa.string()), ("md5Verified", pa.bool_()), ("localRelPath", pa.string())]
     if name == "eml_index":
         fields += [("emlStart", pa.date32()), ("emlEnd", pa.date32())]
-    ctx.con.register(f"src_{name}", pa.Table.from_pylist(rows, schema=pa.schema(fields)))
+    duck.register(ctx.con, f"src_{name}", pa.Table.from_pylist(rows, schema=pa.schema(fields)))
     return len(rows)
 
 
@@ -744,7 +744,7 @@ def stack_support(ctx: Ctx, product: str, by_kind: dict[str, list[SrcFile]]) -> 
         stats["sensor_positions"], sp_drift, sp_extra = stage_sensor_positions(ctx, product,
                                                                               by_kind["sensor_positions"])
         sources.append(("sensor_positions", "stage.sensor_positions"))
-        con.register("src_sp_drift", site_lake.arrow_table(sp_drift, site_lake.STACK_SCHEMAS["schema_drift"]))
+        duck.register(con, "src_sp_drift", site_lake.arrow_table(sp_drift, site_lake.STACK_SCHEMAS["schema_drift"]))
     for kind, table in DISTINCT_SUPPORT.items():
         if by_kind.get(kind):
             stats[table] = stage_distinct(ctx, table, product, by_kind[kind])
@@ -851,7 +851,7 @@ def stack_table(ctx: Ctx, product: str, neon_table: str, files: list[SrcFile],
                        missing=[c for c in data_cols if c not in cols],
                        not_in_variables=[c for c in cols if var_fields and c not in var_fields])
              for h, cols, fs in groups]
-    con.register("src_drift", site_lake.arrow_table(drift, site_lake.STACK_SCHEMAS["schema_drift"]))
+    duck.register(con, "src_drift", site_lake.arrow_table(drift, site_lake.STACK_SCHEMAS["schema_drift"]))
     # ---- final typed select (+ added columns, uid dedup)
     select = [f"{decided[c][0]} AS {ident(c)}" for c in data_cols]
     added = ["siteID", "domainID", "month", "release", "publicationDate", "sourceFile"]
@@ -867,7 +867,7 @@ def stack_table(ctx: Ctx, product: str, neon_table: str, files: list[SrcFile],
     n_varchar_kept = sum(1 for c in typed if decided[c][1] == "VARCHAR")
     months = sorted({f.month for f in files})
     if fail_rows:
-        con.register("src_cast", site_lake.arrow_table(fail_rows, site_lake.STACK_SCHEMAS["cast_errors"]))
+        duck.register(con, "src_cast", site_lake.arrow_table(fail_rows, site_lake.STACK_SCHEMAS["cast_errors"]))
     extra = {"product": product, "neonTable": neon_table, "files": len(files), "headerGroups": len(groups),
              "rowsStaged": n_raw, "inputSha256": fp, "lenientRead": lenient}
     with site_lake.commit(con, f"stack {ctx.site} {product} {neon_table}", extra):
@@ -901,7 +901,7 @@ def stack_table(ctx: Ctx, product: str, neon_table: str, files: list[SrcFile],
 def register_lab_meta(con: duckdb.DuckDBPyConnection, files: list[SrcFile], name: str = "fmeta_lab") -> None:
     import pyarrow as pa
 
-    con.register(name, pa.table({
+    duck.register(con, name, pa.table({
         "filename": pa.array([str(f.path) for f in files]),
         "sourceFile": pa.array([f.name for f in files]),
         "labName": pa.array([f.lab_name for f in files], type=pa.string()),
@@ -945,9 +945,9 @@ def stack_lab(ctx: Ctx, product: str, neon_table: str, files: list[SrcFile],
                        missing=[c for c in data_cols if c not in cols],
                        not_in_variables=[c for c in cols if var_fields and c not in var_fields])
              for h, cols, fs in groups]
-    con.register("src_lab_drift", site_lake.arrow_table(drift, site_lake.STACK_SCHEMAS["schema_drift"]))
+    duck.register(con, "src_lab_drift", site_lake.arrow_table(drift, site_lake.STACK_SCHEMAS["schema_drift"]))
     if fail_rows:
-        con.register("src_lab_cast", site_lake.arrow_table(fail_rows, site_lake.STACK_SCHEMAS["cast_errors"]))
+        duck.register(con, "src_lab_cast", site_lake.arrow_table(fail_rows, site_lake.STACK_SCHEMAS["cast_errors"]))
     n_typed = sum(1 for c in data_cols if decided[c][1] != "VARCHAR")
     months = sorted({f.month for f in files})
     labs = sorted({f.lab_name for f in files if f.lab_name})
@@ -1029,11 +1029,11 @@ def stack_h5(ctx: Ctx, product: str, files: list[SrcFile]) -> dict[str, Any]:
     names = [f.name for f in files]
     months = sorted({f.month for f in files})
     if out["h5_attrs"] is not None:
-        con.register("src_h5_attrs", out["h5_attrs"])
+        duck.register(con, "src_h5_attrs", out["h5_attrs"])
     if out["h5_datasets"] is not None:
-        con.register("src_h5_datasets", out["h5_datasets"])
-    con.register("src_h5_stats", site_lake.arrow_table(out["stats"], site_lake.STACK_SCHEMAS["file_stats"]))
-    con.register("src_h5_objdesc", objdesc_table(product, files))
+        duck.register(con, "src_h5_datasets", out["h5_datasets"])
+    duck.register(con, "src_h5_stats", site_lake.arrow_table(out["stats"], site_lake.STACK_SCHEMAS["file_stats"]))
+    duck.register(con, "src_h5_objdesc", objdesc_table(product, files))
     n_rows = 0
     with site_lake.commit(con, f"stack {ctx.site} {product} {h5.NEON_TABLE} (h5)",
                           {"product": product, "files": len(files), "missing": out["missing"], "inputSha256": fp}):
@@ -1043,7 +1043,7 @@ def stack_h5(ctx: Ctx, product: str, files: list[SrcFile]) -> dict[str, Any]:
         if out["h5_datasets"] is not None:
             site_lake.replace_where(con, "h5_datasets", "src_h5_datasets", where, [product, *names])
         if out["flux"] is not None:
-            con.register("src_h5_flux", out["flux"])
+            duck.register(con, "src_h5_flux", out["flux"])
             con.execute(f"CREATE OR REPLACE TABLE {site_lake.ALIAS}.{h5.LAKE_TABLE} AS SELECT * FROM src_h5_flux")
             n_rows = out["flux"].num_rows
         site_lake.replace_where(con, "file_stats", "src_h5_stats", "productCode = ? AND tableName = ?",
@@ -1343,7 +1343,7 @@ def _names(ctx: Ctx, names: set[str] | list[str]) -> str:
 
     name = f"names_{ctx.n_stage}"
     ctx.n_stage += 1
-    ctx.con.register(name, pa.table({"sourceFile": pa.array(sorted(set(names)), type=pa.string())}))
+    duck.register(ctx.con, name, pa.table({"sourceFile": pa.array(sorted(set(names)), type=pa.string())}))
     return name
 
 
@@ -1557,7 +1557,7 @@ def content_key(cols: list[str] | set[str], qual: str = "") -> str:
 def _register_counts(ctx: Ctx, rows: list[dict[str, Any]]) -> str:
     name = f"counts_{ctx.n_stage}"
     ctx.n_stage += 1
-    ctx.con.register(name, site_lake.arrow_table(rows, COUNTS_COLUMNS))
+    duck.register(ctx.con, name, site_lake.arrow_table(rows, COUNTS_COLUMNS))
     return name
 
 
@@ -1681,12 +1681,13 @@ def grouped_counts(ctx: Ctx, table: str, product: str, names: str, per_file_sql:
     rep = ", ".join(f"coalesce(c.{ident(c)}, t.{ident(c)}) AS {ident(c)}" for c in ("nFiles", "nRecords")
                     if c in cols)
     sel = f"t.* REPLACE ({rep})" if rep else "t.*"
-    tbl = con.execute(f"SELECT {sel} FROM {merged} t LEFT JOIN (SELECT groupKey, {COUNT_SUMS} FROM "
-                      f"{site_lake.ALIAS}.{COUNTS_TABLE} WHERE productCode = ? AND scope = ? GROUP BY groupKey) c "
-                      f"ON c.groupKey = {content_key(content, 't.')}", [product, table]).to_arrow_table()
+    # con.sql, not con.execute: DuckDB 2.0 warns that Arrow output from a DB-API result copies the rows.
+    tbl = con.sql(f"SELECT {sel} FROM {merged} t LEFT JOIN (SELECT groupKey, {COUNT_SUMS} FROM "
+                  f"{site_lake.ALIAS}.{COUNTS_TABLE} WHERE productCode = ? AND scope = ? GROUP BY groupKey) c "
+                  f"ON c.groupKey = {content_key(content, 't.')}", params=[product, table]).to_arrow_table()
     name = f"recount_{ctx.n_stage}"
     ctx.n_stage += 1
-    con.register(name, tbl)
+    duck.register(con, name, tbl)
     return name
 
 
@@ -1769,7 +1770,7 @@ def _merge_drift(ctx: Ctx, product: str, key_col: str, key_val: str, new_rows: l
                 r["notInVariables"] = [c for c in cols if var_fields and c not in var_fields]
     name = f"drift_{ctx.n_stage}"
     ctx.n_stage += 1
-    con.register(name, site_lake.arrow_table(rows, site_lake.STACK_SCHEMAS["schema_drift"]))
+    duck.register(con, name, site_lake.arrow_table(rows, site_lake.STACK_SCHEMAS["schema_drift"]))
     site_lake.replace_where(con, "schema_drift", name, f"productCode = ? AND {ident(key_col)} = ?", [product, key_val])
 
 
@@ -1813,7 +1814,7 @@ def _merge_cast(ctx: Ctx, product: str, lake_table: str, new_rows: list[dict[str
         r.update(nonNull=nn, failures=bad, failPct=round(100.0 * bad / nn, 6) if nn else 0.0)
     name = f"cast_{ctx.n_stage}"
     ctx.n_stage += 1
-    con.register(name, site_lake.arrow_table(list(by_col.values()), site_lake.STACK_SCHEMAS["cast_errors"]))
+    duck.register(con, name, site_lake.arrow_table(list(by_col.values()), site_lake.STACK_SCHEMAS["cast_errors"]))
     site_lake.replace_where(con, "cast_errors", name, "productCode = ? AND tableName = ?", [product, lake_table])
 
 
@@ -2107,11 +2108,11 @@ def append_h5(ctx: Ctx, product: str, files: list[SrcFile], chunk_id: str, fp: s
     names = _names(ctx, {f.name for f in files} | superseded)
     by_name = f"productCode = ? AND sourceFile IN (SELECT sourceFile FROM {names})"
     if out["h5_attrs"] is not None:
-        con.register("src_h5_attrs", out["h5_attrs"])
+        duck.register(con, "src_h5_attrs", out["h5_attrs"])
     if out["h5_datasets"] is not None:
-        con.register("src_h5_datasets", out["h5_datasets"])
-    con.register("src_h5_stats", site_lake.arrow_table(out["stats"], site_lake.STACK_SCHEMAS["file_stats"]))
-    con.register("src_h5_objdesc", objdesc_table(product, files))
+        duck.register(con, "src_h5_datasets", out["h5_datasets"])
+    duck.register(con, "src_h5_stats", site_lake.arrow_table(out["stats"], site_lake.STACK_SCHEMAS["file_stats"]))
+    duck.register(con, "src_h5_objdesc", objdesc_table(product, files))
     tq = f"{site_lake.ALIAS}.{ident(h5.LAKE_TABLE)}"
     with site_lake.commit(con, unit_message(site, chunk_id, "h5"),
                           _commit_extra(ctx, chunk_id, "h5", product, fp, files=len(files), missing=out["missing"])):
@@ -2120,7 +2121,7 @@ def append_h5(ctx: Ctx, product: str, files: list[SrcFile], chunk_id: str, fp: s
         if out["h5_datasets"] is not None:
             site_lake.replace_where(con, "h5_datasets", "src_h5_datasets", by_name, [product])
         if out["flux"] is not None:
-            con.register("src_h5_flux", out["flux"])
+            duck.register(con, "src_h5_flux", out["flux"])
             append_rows(con, h5.LAKE_TABLE, "src_h5_flux", f"sourceFile IN (SELECT sourceFile FROM {names})")
         elif site_lake.table_exists(con, h5.LAKE_TABLE):
             con.execute(f"DELETE FROM {tq} WHERE sourceFile IN (SELECT sourceFile FROM {names})")

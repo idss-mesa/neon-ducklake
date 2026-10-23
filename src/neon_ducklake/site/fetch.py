@@ -77,7 +77,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from .. import env, state
+from .. import duck, env, state
 from ..filenames import REGENERATED_KINDS, classify
 from ..tuning import AsyncAdaptiveLimit
 from . import plan as planmod
@@ -1170,15 +1170,15 @@ class Fetcher:
             try:
                 for name, rows, cols, _keys in tables:
                     if rows:
-                        con.register(f"src_{name}", site_lake.arrow_table(rows, cols))
+                        duck.register(con, f"src_{name}", site_lake.arrow_table(rows, cols))
                 sup = [dict(r) for r in self.con.execute(
                     "SELECT product AS productCode, month, name FROM fetch_superseded WHERE site=?", (self.site,))]
                 if sup:
-                    con.register("src_superseded", site_lake.arrow_table(
+                    duck.register(con, "src_superseded", site_lake.arrow_table(
                         sup, {"productCode": "VARCHAR", "month": "VARCHAR", "name": "VARCHAR"}))
                 journal = [dict(r) for r in self.con.execute(
                     "SELECT product AS productCode, month, name FROM site_files WHERE site=?", (self.site,))]
-                con.register("src_journal_keys", site_lake.arrow_table(
+                duck.register(con, "src_journal_keys", site_lake.arrow_table(
                     journal, {"productCode": "VARCHAR", "month": "VARCHAR", "name": "VARCHAR"}))
                 extra = {"runId": self.run_id, "products": sorted(products or self.listed_products)}
                 with site_lake.commit(con, f"site {step} {self.site}", extra):

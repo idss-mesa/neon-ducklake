@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-3776ab)](pyproject.toml)
-[![DuckDB 1.5.5 + DuckLake](https://img.shields.io/badge/DuckDB-1.5.5%20%2B%20DuckLake-fff000)](https://ducklake.select/)
+[![DuckDB 2.0.0 + DuckLake](https://img.shields.io/badge/DuckDB-2.0.0%20%2B%20DuckLake-fff000)](https://ducklake.select/)
 
 A metadata lakehouse of the [NEON Data API](https://data.neonscience.org/data-api/) together with fully
 annotated copies of NEON's field-site data on [CyVerse](https://cyverse.org/) iRODS. Everything is managed
@@ -118,8 +118,9 @@ site A uploads. Stream chunk stages use the same classes.
 
 - **Linux, Python 3.11 and [uv](https://docs.astral.sh/uv/).** It was built and measured on an aarch64
   host with 3.3 TB of free NVMe.
-- **DuckDB 1.5.5 with the `ducklake` and `spatial` extensions installed.** The code only `LOAD`s them and
-  never installs anything. See [Install](#install).
+- **DuckDB 2.0.0 with the `ducklake` and `spatial` extensions installed.** The code only `LOAD`s them and
+  never installs anything. See [Install](#install). A lake that DuckDB 2.0 has written to can no longer be
+  opened by DuckDB 1.x, so readers of these lakes need DuckDB 2.0 too.
 - **A NEON API token.** It is free with a NEON account: open <https://data.neonscience.org/myaccount>
   and choose **GET API TOKEN**. NEON requires it for file listings and downloads.
 - **A CyVerse account with Data Store access.** The iRODS project defaults to
