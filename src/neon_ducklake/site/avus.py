@@ -8,8 +8,9 @@ Levels (plan § AVU vocabulary + Data-object profiles; ``neon.<lowerCamelCase>``
                  sites only; canonical ``datacite.*``. TypeEco is never used for an aquatic site (NEON copied a
                  shortgrass-steppe TypeEco to all of them): no ``neon.typeEco``, and the biome value is HABITAT.
 - ``container``  ``sites/<SITE>/{raw,ducklake,cards,curation,reports}`` and ``ref/`` (if uploaded).
-- ``lake-dir`` / ``side-dir``  sub-collections of ``ducklake/data/**`` and of cards/curation/reports, so that
-                 every collection of the subtree carries a ``neon.*``/``mesa.*`` AVU (verify rule).
+- ``lake-dir`` / ``side-dir``  sub-collections of ``ducklake/data/**`` (and ``ducklake/catalogs`` once the lake
+                 was pushed in the versioned layout) and of cards/curation/reports, so that every collection of
+                 the subtree carries a ``neon.*``/``mesa.*`` AVU (verify rule).
 - ``product``    ``raw/<DP>``: record, releases (DOI units), month ranges, counts, tables, ``uo.*``,
                  ``ncbitaxon.*`` (union of resolved taxa), accepted curated terms, canonical ``datacite.*``.
 - ``month``      ``raw/<DP>/<YYYY-MM>``: release, generation date, counts, coverage, IS/OS summaries.
@@ -27,6 +28,17 @@ store (``site/ontology_store.open_store(read_only=True)``); a missing ontology t
 Filters: ``products``/``months`` restrict which product, month and object units are rebuilt; site-level units
 are always rebuilt (they summarise the whole lake). ``avu.bulk.replace_desired`` replaces a whole scope, so a
 filtered build deletes exactly the rebuilt ``unit_id``s (and re-inserted paths) and inserts, in one transaction.
+
+``levels`` (docs/STREAMING.md) restricts the build to some levels: a stream chunk builds ``{'month', 'object'}``
+of its product and months (no site/container/product rows, so nothing churns per chunk) and the site finalize
+builds ``{'site', 'container', 'product', 'lake', 'side'}``; ``lake`` stands for lake-dir/lake-file/lake-catalog
+and ``side`` for side-dir/side-file/ref-file. A levels build deletes only rows of those levels in the rebuilt
+units, so the other levels' rows (e.g. other months, or the month rows during finalize) are untouched.
+
+Object facts come from the site lake only (``neon.variableCount`` from ``variables_files``; the local CSV is
+read only for lakes stacked before that table existed), so a build works after the raw files are gone. After
+``cleanup_site`` removed the local lake data, cards and curation, the units under those directories are
+preserved as they are (never rebuilt from an absent tree).
 """
 
 from __future__ import annotations
@@ -92,6 +104,17 @@ CONTAINER_TEXT = {
     "reports": ("Pipeline reports of site {site}: plan, list, download, stack, upload and verify summaries.",
                 "neon-ducklake site verify"),
 }
+# docs/STREAMING.md level names -> the builder's levels
+LEVEL_GROUPS: dict[str, frozenset[str]] = {
+    "site": frozenset({"site"}), "container": frozenset({"container"}), "product": frozenset({"product"}),
+    "month": frozenset({"month"}), "object": frozenset({"object"}),
+    "lake": frozenset({"lake-dir", "lake-file", "lake-catalog"}), "side": frozenset({"side-dir", "side-file",
+                                                                                     "ref-file"}),
+}
+ALL_LEVELS: frozenset[str] = frozenset().union(*LEVEL_GROUPS.values())
+CHUNK_LEVELS: frozenset[str] = frozenset({"month", "object"})
+FINALIZE_LEVELS: frozenset[str] = frozenset({"site", "container", "product", "lake", "side"})
+CLEANED_DIRS = ("ducklake/data", "cards", "curation")  # removed locally by stream cleanup_site
 REPORT_GENERATORS = {"plan": "site plan", "list": "site list", "download": "site download", "stack": "site stack",
                      "upload": "site upload", "verify": "verify site", "avus": "site build-avus",
                      "terms": "site terms", "unresolved": "site terms", "review": "site validate"}
@@ -218,6 +241,22 @@ def md5_state(r: dict[str, Any], download: dict[str, Any] | None = None) -> tupl
     return md5_ok, transfer, neon_md5
 
 
+def normalize_levels(levels: Iterable[str] | None) -> frozenset[str] | None:
+    """Builder levels of a ``levels`` argument (group names and builder level names both accepted)."""
+    if levels is None:
+        return None
+    out: set[str] = set()
+    for lv in levels:
+        lv = str(lv).strip()
+        if lv in LEVEL_GROUPS:
+            out |= LEVEL_GROUPS[lv]
+        elif lv in ALL_LEVELS:
+            out.add(lv)
+        else:
+            raise ValueError(f"unknown AVU level {lv!r} (use {sorted(LEVEL_GROUPS)} or {sorted(ALL_LEVELS)})")
+    return frozenset(out)
+
+
 def norm_key(s: str | None) -> str:
     return re.sub(r"[^a-z0-9]", "", (s or "").lower())
 
@@ -276,6 +315,7 @@ class Facts:
     h5_tower: dict[str, tuple[Any, Any]] = field(default_factory=dict)
     lake_tables: dict[str, list[str]] = field(default_factory=dict)
     variables: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
+    variable_counts: dict[str, int] = field(default_factory=dict)  # variables file name -> records (lake)
     downloads: dict[tuple[str, str, str], dict[str, Any]] = field(default_factory=dict)
     uploaded_ref: set[str] = field(default_factory=set)
     ontology: Ontology = field(default_factory=Ontology)
@@ -301,21 +341,47 @@ def _lake_rows(con: Any, table: str, want: Iterable[str], where: str = "", param
     return _rows(con, f"SELECT {sel} FROM {site_lake.ALIAS}.{site_lake.ident(table)} {where}", params)
 
 
-def _load_site_lake(con: Any, f: Facts) -> None:
+def _where(con: Any, table: str, products: list[str] | None, months: list[str] | None,
+           month_col: str | None = "month") -> tuple[str, list[Any]]:
+    """``WHERE`` restricting a lake table to products/months (only the filter columns the table has)."""
+    if not (products or months) or not site_lake.table_exists(con, table):
+        return "", []
+    have = site_lake.table_columns(con, table)
+    conds, args = [], []
+    if products and "productCode" in have:
+        conds.append("list_contains(?, productCode)")
+        args.append(list(products))
+    if months and month_col and month_col in have:
+        conds.append(f"list_contains(?, {site_lake.ident(month_col)})")
+        args.append(list(months))
+    return ("WHERE " + " AND ".join(conds), args) if conds else ("", [])
+
+
+def _load_site_lake(con: Any, f: Facts, products: list[str] | None = None, months: list[str] | None = None) -> None:
+    """Site-lake facts; ``products``/``months`` limit the per-file tables (a chunk build reads only its slice)."""
     site = f.site
-    f.files = _lake_rows(con, "files", list(dict.fromkeys([*site_lake.FILES_COLUMNS, *INTEGRITY_COLUMNS])),
-                         "ORDER BY productCode, month, name")
-    f.site_months = _lake_rows(con, "site_months", site_lake.SITE_MONTHS_COLUMNS, "ORDER BY productCode, month")
-    f.external_links = _lake_rows(con, "external_links", site_lake.EXTERNAL_LINKS_COLUMNS,
-                                  "ORDER BY productCode, url")
-    for r in _lake_rows(con, "file_stats", site_lake.STACK_SCHEMAS["file_stats"]):
+
+    def rows(table: str, want: Iterable[str], order: str = "", *, by_month: bool = True) -> list[dict[str, Any]]:
+        where, args = _where(con, table, products, months if by_month else None)
+        return _lake_rows(con, table, want, f"{where} {order}", args)
+
+    f.files = rows("files", list(dict.fromkeys([*site_lake.FILES_COLUMNS, *INTEGRITY_COLUMNS])),
+                   "ORDER BY productCode, month, name")
+    f.site_months = rows("site_months", site_lake.SITE_MONTHS_COLUMNS, "ORDER BY productCode, month")
+    f.external_links = rows("external_links", site_lake.EXTERNAL_LINKS_COLUMNS, "ORDER BY productCode, url",
+                            by_month=False)
+    for r in rows("file_stats", site_lake.STACK_SCHEMAS["file_stats"]):
         f.file_stats[r["sourceFile"]] = r
-    for r in _lake_rows(con, "file_taxa", site_lake.STACK_SCHEMAS["file_taxa"], "ORDER BY sourceFile, taxonID"):
-        f.file_taxa.setdefault(r["sourceFile"], []).append(r)
-    sp = _lake_rows(con, "sensor_positions", ["productCode", "month", "sourceFile", "HOR.VER", "sensorLocationID",
-                                              "sensorLocationDescription", "positionStartDateTime",
-                                              "positionEndDateTime", "sensorLatitude", "sensorLongitude",
-                                              "sensorElevation", "zOffset"])
+    names = {r["name"] for r in f.files} if (products or months) else None
+    for r in rows("file_taxa", site_lake.STACK_SCHEMAS["file_taxa"], "ORDER BY sourceFile, taxonID", by_month=False):
+        if names is None or r["sourceFile"] in names:
+            f.file_taxa.setdefault(r["sourceFile"], []).append(r)
+    for r in rows("variables_files", site_lake.STACK_SCHEMAS["variables_files"]):
+        if r.get("sourceFile") and r.get("nVariables") is not None:
+            f.variable_counts[r["sourceFile"]] = int(r["nVariables"])
+    sp = rows("sensor_positions", ["productCode", "month", "sourceFile", "HOR.VER", "sensorLocationID",
+                                   "sensorLocationDescription", "positionStartDateTime", "positionEndDateTime",
+                                   "sensorLatitude", "sensorLongitude", "sensorElevation", "zOffset"])
     by_file: dict[str, set[str]] = defaultdict(set)
     for r in sp:
         hv = r.get("HOR.VER")
@@ -328,13 +394,14 @@ def _load_site_lake(con: Any, f: Facts) -> None:
     towers: dict[str, dict[str, str]] = defaultdict(dict)
     for r in _lake_rows(con, "h5_attrs", ["sourceFile", "path", "attr", "value"],
                         "WHERE attr IN ('LatTow', 'LonTow') AND path = ?", [f"/{site}"]):
-        towers[r["sourceFile"]][r["attr"]] = r["value"]
+        if names is None or r["sourceFile"] in names:
+            towers[r["sourceFile"]][r["attr"]] = r["value"]
     f.h5_tower = {k: (v.get("LatTow"), v.get("LonTow")) for k, v in towers.items()
                   if v.get("LatTow") and v.get("LonTow")}
-    for r in _lake_rows(con, "table_catalog", ["tableName", "productCode"], "ORDER BY productCode, tableName"):
+    for r in rows("table_catalog", ["tableName", "productCode"], "ORDER BY productCode, tableName", by_month=False):
         f.lake_tables.setdefault(r["productCode"], []).append(r["tableName"])
-    for r in _lake_rows(con, "variables", ["productCode", "tableName", "fieldName", "units", "downloadPkg",
-                                           "dataType"], "ORDER BY productCode, tableName, fieldName"):
+    for r in rows("variables", ["productCode", "tableName", "fieldName", "units", "downloadPkg", "dataType"],
+                  "ORDER BY productCode, tableName, fieldName", by_month=False):
         f.variables.setdefault(r["productCode"], []).append(r)
 
 
@@ -474,8 +541,13 @@ def load_ontology(site: str, store: Any | None = None) -> Ontology:
     return o
 
 
-def load_facts(site: str, *, ontology_store: Any | None = None) -> Facts:
-    """Everything the builder needs, read once (site lake + catalog lake READ_ONLY, journal, ontology store)."""
+def load_facts(site: str, *, ontology_store: Any | None = None, products: list[str] | None = None,
+               months: list[str] | None = None) -> Facts:
+    """Everything the builder needs, read once (site lake + catalog lake READ_ONLY, journal, ontology store).
+
+    ``products``/``months`` limit the site-lake reads to that slice: only for builds of month/object levels
+    (product and site levels summarise every month).
+    """
     import neon_mcp
 
     site = site.upper()
@@ -485,29 +557,31 @@ def load_facts(site: str, *, ontology_store: Any | None = None) -> Facts:
         raise SystemExit(f"site lake {paths.catalog_file} missing: run `site list {site}` first")
     import duckdb
 
-    con = site_lake.connect(site)
-    try:
+    # the site-lake lock: a chunk download or stack writing the lake meanwhile would fail this read-only attach
+    with env.file_lock(f"site-lake-{site}", blocking=True):
+        con = site_lake.connect(site)
         try:
-            site_lake.attach(con, site, read_only=True)
-        except duckdb.Error as exc:
-            raise SystemExit(f"site lake {paths.catalog_file} not readable (a writer holds it?): "
-                             f"{str(exc).splitlines()[0][:200]}") from exc
-        _load_site_lake(con, f)
-        codes = sorted({r["productCode"] for r in f.files} | {r["productCode"] for r in f.site_months}
-                       | {r["productCode"] for r in f.external_links})
-        taxon_ids = sorted({t["taxonID"] for ts in f.file_taxa.values() for t in ts if t.get("taxonID")})
-        f.catalog_ok = site_lake.attach_catalog(con)
-        if f.catalog_ok:
             try:
-                _load_catalog(con, f, codes, taxon_ids)
-            except Exception as exc:  # noqa: BLE001 - never crash on a catalog schema surprise
-                log.warning("catalog lake read failed (%s); catalog-derived AVUs skipped",
-                            str(exc).splitlines()[0][:200])
-                f.catalog_ok = False
-        else:
-            log.warning("catalog lake not attachable: site/product records, DOIs and NLCD are skipped")
-    finally:
-        con.close()
+                site_lake.attach(con, site, read_only=True)
+            except duckdb.Error as exc:
+                raise SystemExit(f"site lake {paths.catalog_file} not readable (a writer holds it?): "
+                                 f"{str(exc).splitlines()[0][:200]}") from exc
+            _load_site_lake(con, f, products, months)
+            codes = sorted({r["productCode"] for r in f.files} | {r["productCode"] for r in f.site_months}
+                           | {r["productCode"] for r in f.external_links})
+            taxon_ids = sorted({t["taxonID"] for ts in f.file_taxa.values() for t in ts if t.get("taxonID")})
+            f.catalog_ok = site_lake.attach_catalog(con)
+            if f.catalog_ok:
+                try:
+                    _load_catalog(con, f, codes, taxon_ids)
+                except Exception as exc:  # noqa: BLE001 - never crash on a catalog schema surprise
+                    log.warning("catalog lake read failed (%s); catalog-derived AVUs skipped",
+                                str(exc).splitlines()[0][:200])
+                    f.catalog_ok = False
+            else:
+                log.warning("catalog lake not attachable: site/product records, DOIs and NLCD are skipped")
+        finally:
+            con.close()
     _load_state(f)
     f.ontology = load_ontology(site, ontology_store)
     return f
@@ -518,12 +592,15 @@ def load_facts(site: str, *, ontology_store: Any | None = None) -> Facts:
 class Builder:
     """Pure row builder over :class:`Facts` (no I/O except small local reads of the site tree)."""
 
-    def __init__(self, facts: Facts, products: list[str] | None = None, months: list[str] | None = None) -> None:
+    def __init__(self, facts: Facts, products: list[str] | None = None, months: list[str] | None = None,
+                 levels: Iterable[str] | None = None, preserve: Iterable[str] = ()) -> None:
         self.f = facts
         self.site = facts.site
         self.P = set(products) if products else None
         self.M = set(months) if months else None
+        self.L = normalize_levels(levels)
         self.S = f"{env.IRODS_ROOT}/sites/{self.site}"
+        self.preserve = tuple(f"{self.S}/{d}" for d in preserve)  # unit prefixes never rebuilt
         self.lake_rel = f"sites/{self.site}/ducklake/neon_{self.site.lower()}.ducklake"
         self.lake_unit = f"ducklake:{self.lake_rel}"
         self.rows: list[Row] = []
@@ -549,17 +626,32 @@ class Builder:
     def month_ok(self, p: str, m: str) -> bool:
         return self.product_ok(p) and (self.M is None or m in self.M)
 
+    def wants(self, *levels: str) -> bool:
+        return self.L is None or any(lv in self.L for lv in levels)
+
+    def preserved(self, unit_id: str) -> bool:
+        return any(unit_id == p or unit_id.startswith(p + "/") for p in self.preserve)
+
     def rebuilds(self, unit_id: str) -> bool:
-        """Whether an existing ``unit_id`` of this scope is rebuilt by this (possibly filtered) build."""
+        """Whether an existing ``unit_id`` of this scope is rebuilt by this (possibly filtered) build.
+
+        With ``levels`` only the rows of those levels are deleted in a rebuilt unit (see ``replace_units``).
+        """
+        if self.preserved(unit_id):
+            return False
         raw = f"{self.S}/raw/"
         if not unit_id.startswith(raw):
-            return True
+            return self.L is None or bool(self.L - {"product", "month", "object"})
         parts = unit_id[len(raw):].split("/")
-        return self.product_ok(parts[0]) if len(parts) == 1 else self.month_ok(parts[0], parts[1])
+        if len(parts) == 1:
+            return self.wants("product") and self.product_ok(parts[0])
+        return self.wants("month", "object") and self.month_ok(parts[0], parts[1])
 
     # ------------------------------------------------------------ emit
     def _emit(self, unit: str, path: str, ttype: str, level: str, avus: Iterable[Avu | None],
               generator: str = GENERATOR, profile: str = "") -> None:
+        if (self.L is not None and level not in self.L) or self.preserved(unit):
+            return
         self.targets.setdefault(path, (level, profile))
         for t in avus:
             if t is None or t[1] is None or t[1] == "":
@@ -834,7 +926,8 @@ class Builder:
         s = self.site
         for name in CONTAINERS:
             d = self.local.site_dir / name
-            if not d.is_dir():
+            # raw/ exists in iRODS whenever the lake lists files, even after every raw file left the local disk
+            if not d.is_dir() and not (name == "raw" and self.f.files):
                 continue
             text, gen = CONTAINER_TEXT[name]
             self.coll(f"{self.S}/{name}", "container", [
@@ -859,6 +952,15 @@ class Builder:
         keep = {root, *dirs}
         return dirs, [f for f in files if f.parent in keep]
 
+    def lake_pushed(self) -> bool:
+        """Whether this host pushed (or restored) the site lake in the versioned layout (``lake_pushes``)."""
+        from .chunks import last_lake_push
+
+        try:
+            return last_lake_push(self.site) is not None
+        except sqlite3.Error:  # no journal table yet: a whole-site (--no-stream) lake has no catalogs/
+            return False
+
     def irods_of(self, local: Path) -> str:
         return f"{env.IRODS_ROOT}/{local.relative_to(env.ROOT).as_posix()}"
 
@@ -873,6 +975,13 @@ class Builder:
             self.obj(self.irods_of(cat), "lake-catalog", [
                 ("mesa.ducklake.catalog", self.lake_rel, "relative path"), ("dc.format", MIME["ducklake"]),
                 ("provenance.generator", "neon-ducklake site list + site stack")])
+            if self.lake_pushed():  # stream push_lake publishes versioned catalogs under ducklake/catalogs/
+                from .upload import VERSIONS_DIR
+
+                self.coll(f"{self.irods_of(cat.parent)}/{VERSIONS_DIR}", "lake-dir", [
+                    ("neon.siteCode", s), ("provenance.generator", "neon-ducklake site upload (push_lake)"),
+                    ("dc.description", (f"Versioned DuckLake catalogs of {self.lake_rel}, one per push; the "
+                                        "CURRENT pointer next to them names the current one."))])
         dirs, files = self._tree(data)
         if not data.is_dir():
             return
@@ -1308,13 +1417,20 @@ class Builder:
         return name if name in self.f.lake_tables.get(p, []) else None
 
     def variable_count(self, r: dict[str, Any]) -> int | None:
+        """Records of a variables file: the lake's ``variables_files`` count; the local CSV only for older lakes."""
+        n = self.f.variable_counts.get(r["name"])
+        if n is not None:
+            return n
         rel = r.get("localRelPath") or self.local.raw_rel(r["productCode"], r["month"], r["name"])
-        return csv_records(env.ROOT / rel)
+        path = env.ROOT / rel
+        return csv_records(path) if path.is_file() else None
 
     # ------------------------------------------------------------ driver
     def build(self) -> list[Row]:
-        self.site_level()
-        self.containers()
+        if self.wants("site"):
+            self.site_level()
+        if self.wants("container", "lake-dir", "lake-file", "lake-catalog", "side-dir", "side-file", "ref-file"):
+            self.containers()
         products = sorted({r["productCode"] for r in self.f.site_months} | set(self._files_by_product)
                           | set(self._links))
         self.info["products_built"] = []
@@ -1322,8 +1438,12 @@ class Builder:
         for p in products:
             if not self.product_ok(p):
                 continue
-            self.product_level(p)
-            self.info["products_built"].append(p)
+            if self.wants("product"):
+                self.product_level(p)
+            if self.wants("product", "month", "object"):
+                self.info["products_built"].append(p)
+            if not self.wants("month", "object"):
+                continue
             for m in sorted({mm for (pp, mm) in self._files_by_month if pp == p}):
                 if self.month_ok(p, m):
                     self.month_level(p, m)
@@ -1356,21 +1476,26 @@ def _normalise(scope: str, rows: Iterable[Row]) -> tuple[dict[tuple[str, str, st
     return out, dropped, protected
 
 
-def replace_units(con: sqlite3.Connection, scope: str, rows: list[Row], rebuilds: Callable[[str], bool]
-                  ) -> dict[str, int]:
-    """Filtered replace: delete the rebuilt units (and re-inserted paths) of ``scope``, insert ``rows``; one txn."""
+def replace_units(con: sqlite3.Connection, scope: str, rows: list[Row], rebuilds: Callable[[str], bool],
+                  levels: Iterable[str] | None = None) -> dict[str, int]:
+    """Filtered replace: delete the rebuilt units (and re-inserted paths) of ``scope``, insert ``rows``; one txn.
+
+    With ``levels`` (builder level names) only the rows of those levels are deleted in the rebuilt units.
+    """
     bulk.ensure_desired(con)
     out, dropped, protected = _normalise(scope, rows)
     existing = [r[0] for r in con.execute("SELECT DISTINCT unit_id FROM avu_desired WHERE scope=?", (scope,))]
     units = sorted({u for u in existing if rebuilds(u)} | {v[1] for v in out.values()})
     paths = sorted({v[2] for v in out.values()})
+    lv = sorted(set(levels)) if levels is not None else None
+    lv_sql = f" AND level IN ({','.join('?' * len(lv))})" if lv else (" AND 0" if lv is not None else "")
     deleted = 0
     con.execute("BEGIN IMMEDIATE")
     try:
         for i in range(0, len(units), 500):
             chunk = units[i:i + 500]
-            deleted += con.execute(f"DELETE FROM avu_desired WHERE scope=? AND unit_id IN ({','.join('?' * len(chunk))})",
-                                   (scope, *chunk)).rowcount
+            deleted += con.execute(f"DELETE FROM avu_desired WHERE scope=? AND unit_id IN ({','.join('?' * len(chunk))})"
+                                   f"{lv_sql}", (scope, *chunk, *(lv or []))).rowcount
         for i in range(0, len(paths), 500):
             chunk = paths[i:i + 500]
             deleted += con.execute(f"DELETE FROM avu_desired WHERE scope=? AND path IN ({','.join('?' * len(chunk))})",
@@ -1407,22 +1532,42 @@ def level_stats(con: sqlite3.Connection, scope: str, units: set[str] | None = No
     return out
 
 
+def cleaned_dirs(site: str, con: sqlite3.Connection | None = None) -> list[str]:
+    """Site subdirectories (relative) whose units are preserved: stream ``cleanup_site`` ran for the site."""
+    from .chunks import site_cleaned
+
+    return list(CLEANED_DIRS) if site_cleaned(site, con=con) else []
+
+
 def build_desired(site: str, products: list[str] | None = None, months: list[str] | None = None, *,
-                  con: sqlite3.Connection | None = None, facts: Facts | None = None) -> dict[str, Any]:
-    """Build and store the desired AVUs of one site (scope = site code). Returns a summary dict."""
+                  levels: Iterable[str] | None = None, con: sqlite3.Connection | None = None,
+                  facts: Facts | None = None) -> dict[str, Any]:
+    """Build and store the desired AVUs of one site (scope = site code). Returns a summary dict.
+
+    ``levels`` (e.g. ``{'month', 'object'}`` for a stream chunk, ``FINALIZE_LEVELS`` for a site finalize)
+    limits the build to those levels; the rows of other levels stay as they are.
+    """
     site = site.upper()
     products = [p.strip() for p in products or [] if p and p.strip()] or None
     months = [m.strip() for m in months or [] if m and m.strip()] or None
-    facts = facts or load_facts(site)
-    b = Builder(facts, products, months)
-    rows = b.build()
+    want = normalize_levels(levels)
     con = con or state.connect(state.DB_PATH)
-    filtered = bool(products or months)
-    res = replace_units(con, site, rows, b.rebuilds) if filtered else bulk.replace_desired(con, site, rows)
+    preserve = cleaned_dirs(site, con)
+    if facts is None:
+        slice_only = want is not None and want <= CHUNK_LEVELS
+        facts = load_facts(site, products=products if slice_only else None, months=months if slice_only else None)
+    b = Builder(facts, products, months, levels=want, preserve=preserve)
+    rows = b.build()
+    filtered = bool(products or months or want is not None or preserve)
+    if filtered:
+        res = replace_units(con, site, rows, b.rebuilds, levels=want)
+    else:
+        res = bulk.replace_desired(con, site, rows)
     built_units = {r[0] for r in rows}
     profiles = Counter(prof for lvl, prof in b.targets.values() if lvl == "object")
     summary: dict[str, Any] = {
         "site": site, "scope": site, "filtered": filtered, "products": products, "months": months,
+        "level_filter": sorted(want) if want is not None else None, "preserved": preserve,
         **res,
         "units_built": len(built_units),
         "scope_rows": con.execute("SELECT count(*) FROM avu_desired WHERE scope=?", (site,)).fetchone()[0],

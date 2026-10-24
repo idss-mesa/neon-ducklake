@@ -1,0 +1,515 @@
+{
+ "productCode": "DP1.00024.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.530978+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00024.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00024.001.rep1.jsonl",
+   "card_sha256": "c907d995aa32aaa0950db45ed08cde3145973eee5c2577b49841e150216e0487",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 49.9,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6263,
+    "cache_creation_input_tokens": 29972,
+    "cache_read_input_tokens": 117339,
+    "thinking_tokens": 764
+   },
+   "total_cost_usd": 0.3886
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00024.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00024.001.rep2.jsonl",
+   "card_sha256": "c907d995aa32aaa0950db45ed08cde3145973eee5c2577b49841e150216e0487",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 48.2,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6177,
+    "cache_creation_input_tokens": 20491,
+    "cache_read_input_tokens": 94189,
+    "thinking_tokens": 910
+   },
+   "total_cost_usd": 0.3063
+  }
+ ],
+ "counts": {
+  "accepted": 8,
+  "human_accepted": 0,
+  "proposed": 2,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "4f417629b6e05cd7",
+   "productCode": "DP1.00024.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.photosynthetic_photon_flux_density",
+   "value": "photosynthetic photon flux density",
+   "unit": "ENVO:06105204",
+   "curie": "ENVO:06105204",
+   "label": "photosynthetic photon flux density",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "PARMean",
+   "rationale": "PAR reported as photon flux density (micromoles per square meter per second), incoming and outgoing",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.photosynthetic_photon_flux_density",
+     "modelValue": "photosynthetic photon flux density",
+     "modelLabel": "photosynthetic photon flux density",
+     "column": "PARMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.photosynthetic_photon_flux_density",
+     "modelValue": "photosynthetic photon flux density",
+     "modelLabel": "photosynthetic photon flux density",
+     "column": "PARMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "bc60b03e682b819c",
+   "productCode": "DP1.00024.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.photosynthetically_active_radiation",
+   "value": "photosynthetically active radiation",
+   "unit": "ENVO:01001864",
+   "curie": "ENVO:01001864",
+   "label": "photosynthetically active radiation",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product observes 400-700 nm radiation that drives photosynthesis",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.photosynthetically_active_radiation",
+     "modelValue": "photosynthetically active radiation",
+     "modelLabel": "photosynthetically active radiation",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.photosynthetically_active_radiation",
+     "modelValue": "photosynthetically active radiation",
+     "modelLabel": "photosynthetically active radiation",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "fd764446184f7327",
+   "productCode": "DP1.00024.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.photosynthesis",
+   "value": "photosynthesis",
+   "unit": "GO:0015979",
+   "curie": "GO:0015979",
+   "label": "photosynthesis",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "PAR measures the light energy available to drive photosynthesis",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.photosynthesis",
+     "modelValue": "photosynthesis",
+     "modelLabel": "photosynthesis",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.photosynthesis",
+     "modelValue": "photosynthesis",
+     "modelLabel": "photosynthesis",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e2129eed6042fd76",
+   "productCode": "DP1.00024.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.air",
+   "value": "air",
+   "unit": "ENVO:00002005",
+   "curie": "ENVO:00002005",
+   "label": "air",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Sensors on tower levels and met station measure radiation in the open air",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f442d010405515ea",
+   "productCode": "DP1.00024.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "PARMean",
+   "rationale": "Arithmetic mean of PAR over each averaging interval",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "PARMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "PARMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "a10dfa31bd8bc4f0",
+   "productCode": "DP1.00024.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "PARVariance",
+   "rationale": "Variance of PAR within each averaging interval",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "PARVariance"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "PARVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "9925b5c5304d6219",
+   "productCode": "DP1.00024.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "PARStdErMean",
+   "rationale": "Standard error of the mean PAR is reported",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "PARStdErMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "PARStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "4953d630db45e6fe",
+   "productCode": "DP1.00024.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "PARExpUncert",
+   "rationale": "Expanded uncertainty reported for each PAR mean",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "PARExpUncert"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "PARExpUncert"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "989c50e44a095a3b",
+   "productCode": "DP1.00024.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "One- and thirty-minute averages of 1 Hz sensor readings",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "a6bdad8f4e0884a8",
+   "productCode": "DP1.00024.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are averaged outputs from a quantum sensor device.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "fe2e748c56b396f7",
+   "productCode": "DP1.00024.001",
+   "status": "rejected",
+   "reason": "unresolved",
+   "attribute": "",
+   "value": "Solar radiation",
+   "unit": "",
+   "curie": "ENVO:01001862",
+   "label": "Solar radiation",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "PAR is the photosynthetic band of incoming and reflected solar radiation",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "unresolved",
+     "grounded": true,
+     "modelAttribute": "envo.solar_radiation",
+     "modelValue": "Solar radiation",
+     "modelLabel": "Solar radiation",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "unresolved",
+     "grounded": true,
+     "modelAttribute": "envo.solar_radiation",
+     "modelValue": "Solar radiation",
+     "modelLabel": "Solar radiation",
+     "column": null
+    }
+   ]
+  }
+ ]
+}

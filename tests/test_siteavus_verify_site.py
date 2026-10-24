@@ -137,6 +137,20 @@ def test_bad_replica_missing_core_and_bare_collection_fail(world) -> None:
     assert r["_report"]["ok"] is False
 
 
+def test_journal_collections_are_out_of_scope(world) -> None:
+    """The pipeline's own .mesa-journal backups carry no neon.*/mesa.* AVU and are never checked (or read)."""
+    _f, con, data, store = world
+    for c in (f"{S}/.mesa-journal", f"{S}/.mesa-journal/v", f"{S}/.mesa-journal/v/20260929T160345Z-vm-1",
+              f"{S}/.mesa-journal/staged", f"{S}/.mesa-journal/retired"):
+        store.add_coll(c)
+    r = run(con, data, store)
+    assert r["avu collections"]["status"] == "pass", r["avu collections"]["summary"]
+    assert r["avu collections"]["details"]["n_bare"] == 0
+    store.colls[f"{S}/raw"]["avus"] = {("ipc_UUID", "c", "")}  # a bare data collection still fails
+    r = run(con, data, store)
+    assert r["avu collections"]["status"] == "fail" and r["avu collections"]["details"]["bare"] == ["/raw"]
+
+
 def test_not_uploaded_is_counted_not_failed(world, site_env: Path) -> None:  # noqa: F811
     _f, con, data, store = world
     # the journal said 'present' for these objects: their absence is a failure
@@ -268,6 +282,32 @@ def test_transient_irods_errors_are_retried_and_persistent_ones_fail(world, monk
     assert r["irods objects"]["details"]["unreadable"][0].startswith(f"{P_IS}/2024-06: ConnectionError")
 
 
+def test_refused_avu_reads_make_the_verify_incomplete_not_failed(world, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A month collection whose AVUs cannot be read (refused after retries) is not "missing" its AVUs: the checks
+    say incomplete, the report asks for a retry, and main() returns RC_INCOMPLETE instead of 1."""
+    _f, con, data, store = world
+    monkeypatch.setattr(verify_site, "RETRY_DELAYS", (0.0, 0.0))
+    real = SiteVerifier.read_unit
+
+    def refused(self, session, unit, colls_known):  # replicas stay readable: only the AVU read is refused
+        if unit.unit_id == MONTH:
+            raise ConnectionError("Could not receive server response")
+        return real(self, session, unit, colls_known)
+
+    monkeypatch.setattr(SiteVerifier, "read_unit", refused)
+    r = run(con, data, store)
+    assert r["irods objects"]["status"] == "pass"
+    assert r["avu core"]["details"]["n_lacking"] == 0 and r["avu core"]["details"]["n_unreadable"] == 6
+    for name in ("avu desired", "avu core", "avu file kinds"):
+        assert r[name]["status"] == "fail" and r[name]["details"]["incomplete"] is True, (name, r[name]["summary"])
+    assert r["_report"]["ok"] is False and r["_report"]["incomplete"] is True
+    assert "INCOMPLETE" in verify_site.render(r["_report"])
+    # a real gap next to a refused read is still a failure
+    store.colls[f"{S}/raw"]["avus"] = {("ipc_UUID", "c", "")}
+    r = run(con, data, store)
+    assert r["_report"]["incomplete"] is False and r["avu collections"]["details"]["incomplete"] is False
+
+
 def test_local_evicted_and_storage_verified_stale_md5(world) -> None:
     """Evicted rows count as evicted (not missing); a storage-verified NEON-stale data file is flagged, not hard."""
     _f, con, data, store = world
@@ -299,3 +339,27 @@ def test_journal_columns_tolerate_missing_optional_columns(site_env) -> None:  #
     cols = vs.journal_columns(sc)
     assert "local_evicted" in cols and "NULL AS storage_md5" in cols and "NULL AS local_evicted" not in cols
     sc.execute(f"SELECT {cols} FROM site_files").fetchall()
+
+
+def test_metadata_only_skips_local_files_and_sampled_csvs(world, site_env: Path,  # noqa: F811
+                                                         monkeypatch: pytest.MonkeyPatch) -> None:
+    _f, con, data, store = world
+    for j in data.journal:  # streamed away: the raw files are gone (this journal never flagged them evicted)
+        (site_env / j["local_path"]).unlink()
+    full = run(con, data, store)
+    assert full["local files"]["status"] == "fail" and full["local files"]["details"]["missing"]
+    meta = run(con, data, store, metadata_only=True)
+    assert meta["local files"]["status"] == "pass" and meta["local files"]["summary"].startswith("metadata only")
+    assert meta["stack rows"]["summary"].startswith("0 sampled CSVs")
+    assert meta["irods objects"]["status"] == "pass" and meta["_report"]["metadataOnly"] is True
+    assert meta["_report"]["ok"] is True
+    # main() takes the flag (the stream finalize passes metadata_only=True)
+    seen: dict[str, Any] = {}
+
+    def fake_run(self: SiteVerifier) -> dict[str, Any]:
+        seen["metadata_only"] = self.metadata_only
+        return {"site": SITE, "filters": {"products": None, "months": None}, "checks": [], "summary": {}, "ok": True}
+
+    monkeypatch.setattr(SiteVerifier, "run", fake_run)
+    assert verify_site.main(SITE, metadata_only=True, out=site_env / "v.json") == 0
+    assert seen == {"metadata_only": True}

@@ -1,0 +1,706 @@
+{
+ "productCode": "DP1.00096.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.533283+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00096.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00096.001.rep1.jsonl",
+   "card_sha256": "49bb59b00f97bd6ed8d8d982ff541c32e83dbb026cb0df12e3e8321bd08151a9",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 13,
+   "seconds": 50.8,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 15,
+    "mesa_avu_from_term": 13
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 6793,
+    "cache_creation_input_tokens": 38015,
+    "cache_read_input_tokens": 97465,
+    "thinking_tokens": 577
+   },
+   "total_cost_usd": 0.4595
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00096.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00096.001.rep2.jsonl",
+   "card_sha256": "49bb59b00f97bd6ed8d8d982ff541c32e83dbb026cb0df12e3e8321bd08151a9",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 13,
+   "seconds": 53.4,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 15,
+    "mesa_avu_from_term": 13
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6922,
+    "cache_creation_input_tokens": 19646,
+    "cache_read_input_tokens": 152611,
+    "thinking_tokens": 708
+   },
+   "total_cost_usd": 0.3262
+  }
+ ],
+ "counts": {
+  "accepted": 9,
+  "human_accepted": 0,
+  "proposed": 8,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "466d435223068cb1",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product measures the physical and chemical properties of soil from Megapit samples.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "40d43bc7851bd83c",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_horizon",
+   "value": "soil horizon",
+   "unit": "ENVO:03600030",
+   "curie": "ENVO:03600030",
+   "label": "soil horizon",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "horizonName",
+   "rationale": "Every measurement is reported for one soil horizon of the pit.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_horizon",
+     "modelValue": "soil horizon",
+     "modelLabel": "soil horizon",
+     "column": "horizonName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_horizon",
+     "modelValue": "soil horizon",
+     "modelLabel": "soil horizon",
+     "column": "horizonName"
+    }
+   ]
+  },
+  {
+   "proposalId": "8bbcdd9cfa49dc72",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_bulk_density",
+   "value": "soil bulk density",
+   "unit": "ENVO:00010005",
+   "curie": "ENVO:00010005",
+   "label": "soil bulk density",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "bulkDensExclCoarseFrag",
+   "rationale": "Bulk density of soil excluding coarse fragments, measured for each horizon.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_bulk_density",
+     "modelValue": "soil bulk density",
+     "modelLabel": "soil bulk density",
+     "column": "bulkDensExclCoarseFrag"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_bulk_density",
+     "modelValue": "soil bulk density",
+     "modelLabel": "soil bulk density",
+     "column": "bulkDensExclCoarseFrag"
+    }
+   ]
+  },
+  {
+   "proposalId": "f8d064dcf9bed72d",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_texture",
+   "value": "soil texture",
+   "unit": "ENVO:06105271",
+   "curie": "ENVO:06105271",
+   "label": "soil texture",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "clayTotal",
+   "rationale": "Sand, silt and clay particle-size fractions describe soil texture.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_texture",
+     "modelValue": "soil texture",
+     "modelLabel": "soil texture",
+     "column": "clayTotal"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_texture",
+     "modelValue": "soil texture",
+     "modelLabel": "soil texture",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "da1974f63f6828b7",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.electrical_conductivity",
+   "value": "electrical conductivity",
+   "unit": "PATO:0001757",
+   "curie": "PATO:0001757",
+   "label": "electrical conductivity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "ec12pre",
+   "rationale": "Electrical conductivity measured in 1:2 soil extracts and in saturated paste.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.electrical_conductivity",
+     "modelValue": "electrical conductivity",
+     "modelLabel": "electrical conductivity",
+     "column": "ec12pre"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.electrical_conductivity",
+     "modelValue": "electrical conductivity",
+     "modelLabel": "electrical conductivity",
+     "column": "ec12pre"
+    }
+   ]
+  },
+  {
+   "proposalId": "d35a6280051fdc91",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.cation_exchange_capacity",
+   "value": "cation exchange capacity",
+   "unit": "ENVO:06105240",
+   "curie": "ENVO:06105240",
+   "label": "cation exchange capacity",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "cecdNh4",
+   "rationale": "Soil cation exchange capacity measured by ammonium acetate extraction.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.cation_exchange_capacity",
+     "modelValue": "cation exchange capacity",
+     "modelLabel": "cation exchange capacity",
+     "column": "cecdNh4"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.cation_exchange_capacity",
+     "modelValue": "cation exchange capacity",
+     "modelLabel": "cation exchange capacity",
+     "column": "cecdNh4"
+    }
+   ]
+  },
+  {
+   "proposalId": "3f009fb72a60286d",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.basic_cation_exchange_capacity",
+   "value": "basic cation exchange capacity",
+   "unit": "ENVO:06105242",
+   "curie": "ENVO:06105242",
+   "label": "basic cation exchange capacity",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "bsesatCecd10",
+   "rationale": "Base saturation, which is basic cation exchange capacity as a percentage of CEC.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.basic_cation_exchange_capacity",
+     "modelValue": "basic cation exchange capacity",
+     "modelLabel": "basic cation exchange capacity",
+     "column": "bsesatCecd10"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.basic_cation_exchange_capacity",
+     "modelValue": "base saturation",
+     "modelLabel": "basic cation exchange capacity",
+     "column": "bsesatCecd10"
+    }
+   ]
+  },
+  {
+   "proposalId": "3152aa5764c4770f",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.concentration_of_nitrogen_atom_in_soil",
+   "value": "concentration of nitrogen atom in soil",
+   "unit": "ENVO:09000017",
+   "curie": "ENVO:09000017",
+   "label": "concentration of nitrogen atom in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nitrogenTot",
+   "rationale": "Total nitrogen concentration of the <2 mm soil fraction.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_nitrogen_atom_in_soil",
+     "modelValue": "concentration of nitrogen atom in soil",
+     "modelLabel": "concentration of nitrogen atom in soil",
+     "column": "nitrogenTot"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_nitrogen_atom_in_soil",
+     "modelValue": "total nitrogen",
+     "modelLabel": "concentration of nitrogen atom in soil",
+     "column": "nitrogenTot"
+    }
+   ]
+  },
+  {
+   "proposalId": "619011b763e4616d",
+   "productCode": "DP1.00096.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_profile_characterization",
+   "value": "soil profile characterization",
+   "unit": "ENVO:06105267",
+   "curie": "ENVO:06105267",
+   "label": "soil profile characterization",
+   "ontologyId": "envo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The Megapit soil profile is described horizon by horizon, including its soil taxonomy.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_profile_characterization",
+     "modelValue": "soil profile characterization",
+     "modelLabel": "soil profile characterization",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_profile_characterization",
+     "modelValue": "soil profile characterization",
+     "modelLabel": "soil profile characterization",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "ee3b6ebbb7be5f78",
+   "productCode": "DP1.00096.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.acidity_of_soil",
+   "value": "acidity of soil",
+   "unit": "ENVO:09200010",
+   "curie": "ENVO:09200010",
+   "label": "acidity of soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "phH2o",
+   "rationale": "Soil pH measured in water, in CaCl2 and in the saturation extract.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.acidity_of_soil",
+     "modelValue": "acidity of soil",
+     "modelLabel": "acidity of soil",
+     "column": "phH2o"
+    }
+   ]
+  },
+  {
+   "proposalId": "9205c7fbca336241",
+   "productCode": "DP1.00096.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.depth",
+   "value": "depth",
+   "unit": "PATO:0001595",
+   "curie": "PATO:0001595",
+   "label": "depth",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "horizonTopDepth",
+   "rationale": "Top and bottom depths of horizons and samples below the soil surface.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.depth",
+     "modelValue": "depth",
+     "modelLabel": "depth",
+     "column": "horizonTopDepth"
+    }
+   ]
+  },
+  {
+   "proposalId": "2742087db6aad294",
+   "productCode": "DP1.00096.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "agro.soil_sampling_process",
+   "value": "soil sampling process",
+   "unit": "AGRO:00000699",
+   "curie": "AGRO:00000699",
+   "label": "soil sampling process",
+   "ontologyId": "agro",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Bulk density, biogeochemistry and archive samples were collected from each soil horizon.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.soil_sampling_process",
+     "modelValue": "soil sampling process",
+     "modelLabel": "soil sampling process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "d9bab613acd7155f",
+   "productCode": "DP1.00096.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Laboratory measurements made once for each horizon, not a time series.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "b9503c86532e62bf",
+   "productCode": "DP1.00096.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.acidity",
+   "value": "soil pH",
+   "unit": "PATO:0001842",
+   "curie": "PATO:0001842",
+   "label": "acidity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "phH2o",
+   "rationale": "Soil pH is measured in water, CaCl2 and saturation extract.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.acidity",
+     "modelValue": "soil pH",
+     "modelLabel": "acidity",
+     "column": "phH2o"
+    }
+   ]
+  },
+  {
+   "proposalId": "2b85f0f9386a86bb",
+   "productCode": "DP1.00096.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.concentration_of_carbon_atom_in_soil",
+   "value": "total carbon",
+   "unit": "ENVO:09000008",
+   "curie": "ENVO:09000008",
+   "label": "concentration of carbon atom in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "carbonTot",
+   "rationale": "Total carbon concentration of the <2 mm soil fraction.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_carbon_atom_in_soil",
+     "modelValue": "total carbon",
+     "modelLabel": "concentration of carbon atom in soil",
+     "column": "carbonTot"
+    }
+   ]
+  },
+  {
+   "proposalId": "1fb69fda3148b9c3",
+   "productCode": "DP1.00096.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.concentration_of_calcium_carbonate_in_soil",
+   "value": "calcium carbonate equivalent",
+   "unit": "ENVO:3200070",
+   "curie": "ENVO:3200070",
+   "label": "concentration of calcium carbonate in soil",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "caco3Conc",
+   "rationale": "Carbonate concentration, expressed as calcium carbonate, in the soil.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.concentration_of_calcium_carbonate_in_soil",
+     "modelValue": "calcium carbonate equivalent",
+     "modelLabel": "concentration of calcium carbonate in soil",
+     "column": "caco3Conc"
+    }
+   ]
+  },
+  {
+   "proposalId": "22d8b803a9ab6541",
+   "productCode": "DP1.00096.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.scalar_measurement_datum",
+   "value": "scalar measurement datum",
+   "unit": "IAO:0000032",
+   "curie": "IAO:0000032",
+   "label": "scalar measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are numeric lab measurements with units, one set per horizon sample.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.scalar_measurement_datum",
+     "modelValue": "scalar measurement datum",
+     "modelLabel": "scalar measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

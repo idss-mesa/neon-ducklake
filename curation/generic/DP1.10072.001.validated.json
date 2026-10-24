@@ -1,0 +1,635 @@
+{
+ "productCode": "DP1.10072.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.538785+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10072.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10072.001.rep1.jsonl",
+   "card_sha256": "e010b57b531d072245671e8379b910560e24d4e6fb8d820aab65ff99cdd5099a",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 53.1,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6492,
+    "cache_creation_input_tokens": 30887,
+    "cache_read_input_tokens": 134037,
+    "thinking_tokens": 756
+   },
+   "total_cost_usd": 0.3474
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10072.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10072.001.rep2.jsonl",
+   "card_sha256": "e010b57b531d072245671e8379b910560e24d4e6fb8d820aab65ff99cdd5099a",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 54.7,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6869,
+    "cache_creation_input_tokens": 18481,
+    "cache_read_input_tokens": 115404,
+    "thinking_tokens": 1058
+   },
+   "total_cost_usd": 0.2529
+  }
+ ],
+ "counts": {
+  "accepted": 5,
+  "human_accepted": 0,
+  "proposed": 10,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "5fe16f4537b15135",
+   "productCode": "DP1.10072.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.rodentia",
+   "value": "Rodentia",
+   "unit": "NCBITaxon:9989",
+   "curie": "NCBITaxon:9989",
+   "label": "Rodentia",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "Target small mammals are box-trapped rodents: cricetids, heteromyids, sciurids and murids.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.rodentia",
+     "modelValue": "Rodentia",
+     "modelLabel": "Rodentia",
+     "column": "scientificName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.rodentia",
+     "modelValue": "Rodentia",
+     "modelLabel": "Rodentia",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "2856292c4e61cd47",
+   "productCode": "DP1.10072.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "oba.body_mass",
+   "value": "body mass",
+   "unit": "OBA:VT0001259",
+   "curie": "OBA:VT0001259",
+   "label": "body mass",
+   "ontologyId": "oba",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "weight",
+   "rationale": "Live weight of each captured individual measured with a spring scale.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "oba.body_mass",
+     "modelValue": "body mass",
+     "modelLabel": "body mass",
+     "column": "weight"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "oba.body_mass",
+     "modelValue": "body mass",
+     "modelLabel": "body mass",
+     "column": "weight"
+    }
+   ]
+  },
+  {
+   "proposalId": "92320c0655a0a56d",
+   "productCode": "DP1.10072.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "oba.tail_length",
+   "value": "tail length",
+   "unit": "OBA:VT0002758",
+   "curie": "OBA:VT0002758",
+   "label": "tail length",
+   "ontologyId": "oba",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "tailLength",
+   "rationale": "Standard morphometric tail length is recorded for captured individuals.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "oba.tail_length",
+     "modelValue": "tail length",
+     "modelLabel": "tail length",
+     "column": "tailLength"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "oba.tail_length",
+     "modelValue": "tail length",
+     "modelLabel": "tail length",
+     "column": "tailLength"
+    }
+   ]
+  },
+  {
+   "proposalId": "5c7a43b88d44395c",
+   "productCode": "DP1.10072.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.specimen_collection_process",
+   "value": "specimen collection process",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "trapStatus",
+   "rationale": "Box-trap grids capture live animals and collect blood, ear, hair, fecal and voucher samples.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "trapStatus"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "trapType"
+    }
+   ]
+  },
+  {
+   "proposalId": "07e053eacf4e069c",
+   "productCode": "DP1.10072.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Individual- and trap-level records of field measurements.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "7901a38dac98eac9",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.ixodida",
+   "value": "Ixodida",
+   "unit": "NCBITaxon:6935",
+   "curie": "NCBITaxon:6935",
+   "label": "Ixodida",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "tickNumber",
+   "rationale": "Ticks attached to captured hosts are recorded by life stage and binned count.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.ixodida",
+     "modelValue": "Ixodida",
+     "modelLabel": "Ixodida",
+     "column": "tickNumber"
+    }
+   ]
+  },
+  {
+   "proposalId": "9d0fa81bc09e0d02",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "oba.hindlimb_length",
+   "value": "hindlimb length",
+   "unit": "OBA:VT0010024",
+   "curie": "OBA:VT0010024",
+   "label": "hindlimb length",
+   "ontologyId": "oba",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "hindfootLength",
+   "rationale": "Left hindfoot length is a standard hindlimb size measurement.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "oba.hindlimb_length",
+     "modelValue": "hindlimb length",
+     "modelLabel": "hindlimb length",
+     "column": "hindfootLength"
+    }
+   ]
+  },
+  {
+   "proposalId": "0f40a29cd6d55a3d",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.biological_sex",
+   "value": "biological sex",
+   "unit": "PATO:0000047",
+   "curie": "PATO:0000047",
+   "label": "biological sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sex",
+   "rationale": "The sex of each captured individual is recorded as male, female or unknown.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.biological_sex",
+     "modelValue": "biological sex",
+     "modelLabel": "biological sex",
+     "column": "sex"
+    }
+   ]
+  },
+  {
+   "proposalId": "de4e74412fe7bf39",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.blood_specimen",
+   "value": "blood specimen",
+   "unit": "OBI:0000655",
+   "curie": "OBI:0000655",
+   "label": "blood specimen",
+   "ontologyId": "obi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "bloodSampleID",
+   "rationale": "Blood samples are collected from captured individuals for pathogen testing.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.blood_specimen",
+     "modelValue": "blood specimen",
+     "modelLabel": "blood specimen",
+     "column": "bloodSampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "168f0190d23d8d92",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.female_pregnancy",
+   "value": "female pregnancy",
+   "unit": "GO:0007565",
+   "curie": "GO:0007565",
+   "label": "female pregnancy",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "pregnancyStatus",
+   "rationale": "Reproductive condition, including pregnancy, is recorded for mature females.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.female_pregnancy",
+     "modelValue": "female pregnancy",
+     "modelLabel": "female pregnancy",
+     "column": "pregnancyStatus"
+    }
+   ]
+  },
+  {
+   "proposalId": "f6bb9ec5e79a60dc",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.phenotypic_sex",
+   "value": "phenotypic sex",
+   "unit": "PATO:0001894",
+   "curie": "PATO:0001894",
+   "label": "phenotypic sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sex",
+   "rationale": "Sex of each captured individual is recorded from its physical traits.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.phenotypic_sex",
+     "modelValue": "phenotypic sex",
+     "modelLabel": "phenotypic sex",
+     "column": "sex"
+    }
+   ]
+  },
+  {
+   "proposalId": "17f3108f13b67d6d",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pco.community_species_diversity",
+   "value": "community species diversity",
+   "unit": "PCO:0000019",
+   "curie": "PCO:0000019",
+   "label": "community species diversity",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "taxonID",
+   "rationale": "The product is designed to sample small mammal diversity and community composition.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_diversity",
+     "modelValue": "community species diversity",
+     "modelLabel": "community species diversity",
+     "column": "taxonID"
+    }
+   ]
+  },
+  {
+   "proposalId": "f00808b21bfd5b21",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pco.community_species_richness",
+   "value": "community species richness",
+   "unit": "PCO:0000010",
+   "curie": "PCO:0000010",
+   "label": "community species richness",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "Species identifications per grid give the number of species present.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_richness",
+     "modelValue": "community species richness",
+     "modelLabel": "community species richness",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "36bc8cf0f053e14e",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "doid.tick_infestation",
+   "value": "tick infestation",
+   "unit": "DOID:4109",
+   "curie": "DOID:4109",
+   "label": "tick infestation",
+   "ontologyId": "doid",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "larvalTicksAttached",
+   "rationale": "Records whether ticks at each life stage are attached, plus binned tick counts.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "doid.tick_infestation",
+     "modelValue": "tick infestation",
+     "modelLabel": "tick infestation",
+     "column": "larvalTicksAttached"
+    }
+   ]
+  },
+  {
+   "proposalId": "a4c2ba412b73574e",
+   "productCode": "DP1.10072.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.fecal_material",
+   "value": "fecal material",
+   "unit": "ENVO:00002003",
+   "curie": "ENVO:00002003",
+   "label": "fecal material",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "fecalSampleID",
+   "rationale": "Fecal samples are collected from captured individuals and archived.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.fecal_material",
+     "modelValue": "fecal material",
+     "modelLabel": "fecal material",
+     "column": "fecalSampleID"
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "39f1e68e3b3a9da9",
+   "productCode": "DP1.10072.001",
+   "status": "rejected",
+   "reason": "duplicate_deterministic",
+   "attribute": "",
+   "value": "Mammalia",
+   "unit": "",
+   "curie": "NCBITaxon:40674",
+   "label": "Mammalia",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "All captures are small mammals, including shrews caught by accident.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.mammalia",
+     "modelValue": "Mammalia",
+     "modelLabel": "Mammalia",
+     "column": "scientificName"
+    }
+   ]
+  }
+ ]
+}

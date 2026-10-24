@@ -1,0 +1,588 @@
+{
+ "productCode": "DP1.10020.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.534338+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10020.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10020.001.rep1.jsonl",
+   "card_sha256": "3bebd4d7abe5a5cec603877d852e74a8cdc12c5fd52c38e9a5f206d3f032b8c3",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 59.9,
+   "tool_calls": 31,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 7553,
+    "cache_creation_input_tokens": 33320,
+    "cache_read_input_tokens": 126382,
+    "thinking_tokens": 1177
+   },
+   "total_cost_usd": 0.4429
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10020.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10020.001.rep2.jsonl",
+   "card_sha256": "3bebd4d7abe5a5cec603877d852e74a8cdc12c5fd52c38e9a5f206d3f032b8c3",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 52.1,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6573,
+    "cache_creation_input_tokens": 19397,
+    "cache_read_input_tokens": 99584,
+    "thinking_tokens": 873
+   },
+   "total_cost_usd": 0.3066
+  }
+ ],
+ "counts": {
+  "accepted": 10,
+  "human_accepted": 0,
+  "proposed": 3,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "b8f0e9c68a9439e1",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.carabidae",
+   "value": "Carabidae",
+   "unit": "NCBITaxon:41073",
+   "curie": "NCBITaxon:41073",
+   "label": "Carabidae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "family",
+   "rationale": "Product barcodes ground beetles (family Carabidae) at every site.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.carabidae",
+     "modelValue": "Carabidae",
+     "modelLabel": "Carabidae",
+     "column": "family"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.carabidae",
+     "modelValue": "Carabidae",
+     "modelLabel": "Carabidae",
+     "column": "family"
+    }
+   ]
+  },
+  {
+   "proposalId": "94c17cc79d97cd86",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "genepio.cytochrome_c_oxidase_i_barcoding",
+   "value": "Cytochrome c oxidase I barcoding",
+   "unit": "GENEPIO:0102189",
+   "curie": "GENEPIO:0102189",
+   "label": "Cytochrome c oxidase I barcoding",
+   "ontologyId": "genepio",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Core method: COI DNA barcoding of individual beetle specimens.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "genepio.cytochrome_c_oxidase_i_barcoding",
+     "modelValue": "Cytochrome c oxidase I barcoding",
+     "modelLabel": "Cytochrome c oxidase I barcoding",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "genepio.cytochrome_c_oxidase_i_barcoding",
+     "modelValue": "Cytochrome c oxidase I barcoding",
+     "modelLabel": "Cytochrome c oxidase I barcoding",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ff7268d4c5455e62",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "DNA is extracted from subsampled leg tissue before sequencing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "da24fd191b782a33",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.polymerase_chain_reaction",
+   "value": "polymerase chain reaction",
+   "unit": "OBI:0000415",
+   "curie": "OBI:0000415",
+   "label": "polymerase chain reaction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Target COI sequences are amplified via PCR.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.polymerase_chain_reaction",
+     "modelValue": "polymerase chain reaction",
+     "modelLabel": "polymerase chain reaction",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.polymerase_chain_reaction",
+     "modelValue": "polymerase chain reaction",
+     "modelLabel": "polymerase chain reaction",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "fe6d267aa47cd99a",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.pitfall_trap",
+   "value": "pitfall trap",
+   "unit": "ENVO:01000976",
+   "curie": "ENVO:01000976",
+   "label": "pitfall trap",
+   "ontologyId": "envo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "samplingProtocol",
+   "rationale": "Specimens come from the pitfall trap collections (DP1.10022.001).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.pitfall_trap",
+     "modelValue": "pitfall trap",
+     "modelLabel": "pitfall trap",
+     "column": "samplingProtocol"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.pitfall_trap",
+     "modelValue": "pitfall trap",
+     "modelLabel": "pitfall trap",
+     "column": "samplingProtocol"
+    }
+   ]
+  },
+  {
+   "proposalId": "a31d7eba8495f29e",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.arthropod_specimen_collection_process",
+   "value": "arthropod specimen collection process",
+   "unit": "OBI:0002913",
+   "curie": "OBI:0002913",
+   "label": "arthropod specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "collectDate",
+   "rationale": "Field collection of beetle specimens is recorded in the collection data table.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.arthropod_specimen_collection_process",
+     "modelValue": "arthropod specimen collection process",
+     "modelLabel": "arthropod specimen collection process",
+     "column": "collectDate"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.arthropod_specimen_collection_process",
+     "modelValue": "arthropod specimen collection process",
+     "modelLabel": "arthropod specimen collection process",
+     "column": "collectDate"
+    }
+   ]
+  },
+  {
+   "proposalId": "18276bb224a58b2f",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "bco.taxonomic_identification_process",
+   "value": "taxonomic identification process",
+   "unit": "BCO:0000042",
+   "curie": "BCO:0000042",
+   "label": "taxonomic identification process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "identificationMethod",
+   "rationale": "Experts identify specimens by morphology; barcodes are used to check the taxonomy.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "identificationMethod"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "identificationMethod"
+    }
+   ]
+  },
+  {
+   "proposalId": "8d96dea20bf17dea",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_sequence_data",
+   "value": "DNA sequence data",
+   "unit": "OBI:0001573",
+   "curie": "OBI:0001573",
+   "label": "DNA sequence data",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product delivers COI sequence records, linked through BOLD.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_sequence_data",
+     "modelValue": "DNA sequence data",
+     "modelLabel": "DNA sequence data",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_sequence_data",
+     "modelValue": "DNA sequence data",
+     "modelLabel": "DNA sequence data",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "8a251b5e24d0f81c",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.specimen_from_organism",
+   "value": "specimen from organism",
+   "unit": "OBI:0001479",
+   "curie": "OBI:0001479",
+   "label": "specimen from organism",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "tissueDescriptor",
+   "rationale": "Records describe leg tissue specimens and vouchers taken from individual beetles.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_from_organism",
+     "modelValue": "specimen from organism",
+     "modelLabel": "specimen from organism",
+     "column": "tissueDescriptor"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_from_organism",
+     "modelValue": "specimen from organism",
+     "modelLabel": "specimen from organism",
+     "column": "tissueDescriptor"
+    }
+   ]
+  },
+  {
+   "proposalId": "7ae4d3bcf46a297f",
+   "productCode": "DP1.10020.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.phenotypic_sex",
+   "value": "phenotypic sex",
+   "unit": "PATO:0001894",
+   "curie": "PATO:0001894",
+   "label": "phenotypic sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sex",
+   "rationale": "Sex of each barcoded specimen is recorded.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.phenotypic_sex",
+     "modelValue": "phenotypic sex",
+     "modelLabel": "phenotypic sex",
+     "column": "sex"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.phenotypic_sex",
+     "modelValue": "phenotypic sex",
+     "modelLabel": "phenotypic sex",
+     "column": "sex"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "a965994a0c4e1b49",
+   "productCode": "DP1.10020.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.dna_sequencing_assay",
+   "value": "DNA sequencing assay",
+   "unit": "OBI:0000626",
+   "curie": "OBI:0000626",
+   "label": "DNA sequencing assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "External lab sequences DNA from leg tissue.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_sequencing_assay",
+     "modelValue": "DNA sequencing assay",
+     "modelLabel": "DNA sequencing assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "b6180fdcf523df43",
+   "productCode": "DP1.10020.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.soil_surface_layer",
+   "value": "soil surface layer",
+   "unit": "ENVO:04000010",
+   "curie": "ENVO:04000010",
+   "label": "soil surface layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Ground beetles are trapped at the soil surface in flush-set pitfall traps.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_surface_layer",
+     "modelValue": "soil surface layer",
+     "modelLabel": "soil surface layer",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "0461d265ef916910",
+   "productCode": "DP1.10020.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "bco.identification_assertion",
+   "value": "identification assertion",
+   "unit": "BCO:0000084",
+   "curie": "BCO:0000084",
+   "label": "identification assertion",
+   "ontologyId": "bco",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "taxonID",
+   "rationale": "The taxonomy table records a taxon assigned to each specimen.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.identification_assertion",
+     "modelValue": "identification assertion",
+     "modelLabel": "identification assertion",
+     "column": "taxonID"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

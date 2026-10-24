@@ -1,0 +1,642 @@
+{
+ "productCode": "DP1.00001.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.528023+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00001.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00001.001.rep1.jsonl",
+   "card_sha256": "875204d042b84c63011402b795a3b40d8eebdb42a8ddb2d9b9f54dab8d829518",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 52.5,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6599,
+    "cache_creation_input_tokens": 31168,
+    "cache_read_input_tokens": 104484,
+    "thinking_tokens": 587
+   },
+   "total_cost_usd": 0.4023
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00001.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00001.001.rep2.jsonl",
+   "card_sha256": "875204d042b84c63011402b795a3b40d8eebdb42a8ddb2d9b9f54dab8d829518",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 50.0,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6498,
+    "cache_creation_input_tokens": 35601,
+    "cache_read_input_tokens": 87785,
+    "thinking_tokens": 396
+   },
+   "total_cost_usd": 0.4324
+  }
+ ],
+ "counts": {
+  "accepted": 9,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "3eb6c01b9962bbd8",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_wind_speed",
+   "value": "atmospheric wind speed",
+   "unit": "ENVO:01001362",
+   "curie": "ENVO:01001362",
+   "label": "atmospheric wind speed",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "windSpeedMean",
+   "rationale": "Main measured quantity: horizontal wind speed from 2-D sonic anemometers.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_speed",
+     "modelValue": "atmospheric wind speed",
+     "modelLabel": "atmospheric wind speed",
+     "column": "windSpeedMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_speed",
+     "modelValue": "atmospheric wind speed",
+     "modelLabel": "atmospheric wind speed",
+     "column": "windSpeedMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "440c9e9b31ab4dce",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_wind_direction",
+   "value": "atmospheric wind direction",
+   "unit": "ENVO:01001361",
+   "curie": "ENVO:01001361",
+   "label": "atmospheric wind direction",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "windDirMean",
+   "rationale": "Second main measured quantity: horizontal wind direction in degrees.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_direction",
+     "modelValue": "atmospheric wind direction",
+     "modelLabel": "atmospheric wind direction",
+     "column": "windDirMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_direction",
+     "modelValue": "atmospheric wind direction",
+     "modelLabel": "atmospheric wind direction",
+     "column": "windDirMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "108ea02e1c2a9198",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_wind",
+   "value": "atmospheric wind",
+   "unit": "ENVO:01000793",
+   "curie": "ENVO:01000793",
+   "label": "atmospheric wind",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product observes horizontal atmospheric wind, the process the speed and direction describe.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind",
+     "modelValue": "atmospheric wind",
+     "modelLabel": "atmospheric wind",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind",
+     "modelValue": "horizontal atmospheric wind",
+     "modelLabel": "atmospheric wind",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "14536142e9eb5a2f",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.air",
+   "value": "air",
+   "unit": "ENVO:00002005",
+   "curie": "ENVO:00002005",
+   "label": "air",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Anemometers sense moving air at tower and aquatic met station heights.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "551e5f15c728bda0",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.advective_transport_process",
+   "value": "advective transport process",
+   "unit": "ENVO:01001334",
+   "curie": "ENVO:01001334",
+   "label": "advective transport process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Abstract says horizontal winds advect pollutants, moisture, heat and momentum.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.advective_transport_process",
+     "modelValue": "advective transport process",
+     "modelLabel": "advective transport process",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.advective_transport_process",
+     "modelValue": "advective transport process",
+     "modelLabel": "advective transport process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "727d0af37f80cdc2",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "windSpeedMean",
+   "rationale": "Main values are arithmetic means over each averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "windSpeedMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "windSpeedMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "8236db20909157ec",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "windSpeedVariance",
+   "rationale": "Variance of wind speed and direction is reported for each interval.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "windSpeedVariance"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "windSpeedVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "3ad999aeb1995225",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "windSpeedStdErMean",
+   "rationale": "Standard error of the mean is given for wind speed and direction.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "windSpeedStdErMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "windSpeedStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "8ad6dc163202bcf1",
+   "productCode": "DP1.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "expanded measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "windSpeedExpUncert",
+   "rationale": "Expanded uncertainty columns measure how uncertain each wind measurement is.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "windSpeedExpUncert"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "windSpeedExpUncert"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "c1c954b035d940b2",
+   "productCode": "DP1.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "Two- and thirty-minute aggregated time series built from 1 Hz observations.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "8eddf80cec88e61a",
+   "productCode": "DP1.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "agro.weather_station",
+   "value": "weather station",
+   "unit": "AGRO:00000357",
+   "curie": "AGRO:00000357",
+   "label": "weather station",
+   "ontologyId": "agro",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Sensors are on tower and aquatic meteorological station infrastructure.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.weather_station",
+     "modelValue": "weather station",
+     "modelLabel": "weather station",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "98882bdcee1a7431",
+   "productCode": "DP1.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "agro.wind_speed_sensor_siting_height",
+   "value": "wind speed sensor siting height",
+   "unit": "AGRO:00000359",
+   "curie": "AGRO:00000359",
+   "label": "wind speed sensor siting height",
+   "ontologyId": "agro",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "verticalPosition",
+   "rationale": "The vertical position index gives the anemometer's height on the tower.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.wind_speed_sensor_siting_height",
+     "modelValue": "wind speed sensor siting height",
+     "modelLabel": "wind speed sensor siting height",
+     "column": "verticalPosition"
+    }
+   ]
+  },
+  {
+   "proposalId": "1d080e05d65fc4be",
+   "productCode": "DP1.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.time_stamped_measurement_datum",
+   "value": "time stamped measurement datum",
+   "unit": "IAO:0000582",
+   "curie": "IAO:0000582",
+   "label": "time stamped measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "Each row is a sensor measurement for a time-stamped 2- or 30-minute interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_stamped_measurement_datum",
+     "modelValue": "time stamped measurement datum",
+     "modelLabel": "time stamped measurement datum",
+     "column": "startDateTime"
+    }
+   ]
+  },
+  {
+   "proposalId": "a00bddd369b08075",
+   "productCode": "DP1.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.time_series_design",
+   "value": "time series design",
+   "unit": "OBI:0500020",
+   "curie": "OBI:0500020",
+   "label": "time series design",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Continuous 1 Hz sampling is aggregated into regular 2- and 30-minute time series.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.time_series_design",
+     "modelValue": "time series design",
+     "modelLabel": "time series design",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "0ccb36fbf72ad43d",
+   "productCode": "DP1.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.maximum_observed_value",
+   "value": "maximum observed value",
+   "unit": "STATO:0000151",
+   "curie": "STATO:0000151",
+   "label": "maximum observed value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "windSpeedMaximum",
+   "rationale": "Reports the highest wind speed in each interval, which captures gusts.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.maximum_observed_value",
+     "modelValue": "maximum observed value",
+     "modelLabel": "maximum observed value",
+     "column": "windSpeedMaximum"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

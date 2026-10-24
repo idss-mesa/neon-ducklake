@@ -1,0 +1,588 @@
+{
+ "productCode": "DP1.00013.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.529874+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00013.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00013.001.rep1.jsonl",
+   "card_sha256": "f9bbb46ccdba05d18d6acaa7287bdeeef4b75a13b72878d8b7c51879f8a24179",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 52.1,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6603,
+    "cache_creation_input_tokens": 27528,
+    "cache_read_input_tokens": 89070,
+    "thinking_tokens": 409
+   },
+   "total_cost_usd": 0.3701
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00013.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00013.001.rep2.jsonl",
+   "card_sha256": "f9bbb46ccdba05d18d6acaa7287bdeeef4b75a13b72878d8b7c51879f8a24179",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 45.8,
+   "tool_calls": 26,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 15,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 6088,
+    "cache_creation_input_tokens": 16410,
+    "cache_read_input_tokens": 76084,
+    "thinking_tokens": 621
+   },
+   "total_cost_usd": 0.2683
+  }
+ ],
+ "counts": {
+  "accepted": 10,
+  "human_accepted": 0,
+  "proposed": 3,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "0a94c0d24e134de4",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.rainwater",
+   "value": "rainwater",
+   "unit": "ENVO:01000600",
+   "curie": "ENVO:01000600",
+   "label": "rainwater",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Precipitation water samples collected by the wet deposition collector are chemically analyzed.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.rainwater",
+     "modelValue": "rainwater",
+     "modelLabel": "rainwater",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.rainwater",
+     "modelValue": "rainwater",
+     "modelLabel": "rainwater",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "8ac05b541711a6db",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.concentration_of",
+   "value": "concentration of",
+   "unit": "PATO:0000033",
+   "curie": "PATO:0000033",
+   "label": "concentration of",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Dissolved major ion concentrations measured in precipitation (precipCalcium, precipNitrate, etc.).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "concentration of",
+     "modelLabel": "concentration of",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "concentration of",
+     "modelLabel": "concentration of",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "b434f2ba26225cd8",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.electrical_conductivity",
+   "value": "electrical conductivity",
+   "unit": "PATO:0001757",
+   "curie": "PATO:0001757",
+   "label": "electrical conductivity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipConductivity",
+   "rationale": "Conductivity of the precipitation sample is reported.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.electrical_conductivity",
+     "modelValue": "electrical conductivity",
+     "modelLabel": "electrical conductivity",
+     "column": "precipConductivity"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.electrical_conductivity",
+     "modelValue": "electrical conductivity",
+     "modelLabel": "electrical conductivity",
+     "column": "precipConductivity"
+    }
+   ]
+  },
+  {
+   "proposalId": "f6e6f357a956de19",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.acidity",
+   "value": "acidity",
+   "unit": "PATO:0001842",
+   "curie": "PATO:0001842",
+   "label": "acidity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "pH",
+   "rationale": "Sample pH quantifies acidity of precipitation.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.acidity",
+     "modelValue": "acidity",
+     "modelLabel": "acidity",
+     "column": "pH"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.acidity",
+     "modelValue": "acidity",
+     "modelLabel": "acidity",
+     "column": "pH"
+    }
+   ]
+  },
+  {
+   "proposalId": "450a0c9a72381c1e",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.nitrate",
+   "value": "nitrate",
+   "unit": "CHEBI:17632",
+   "curie": "CHEBI:17632",
+   "label": "nitrate",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipNitrate",
+   "rationale": "Nitrate is a measured analyte in wet deposition.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.nitrate",
+     "modelValue": "nitrate",
+     "modelLabel": "nitrate",
+     "column": "precipNitrate"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.nitrate",
+     "modelValue": "nitrate",
+     "modelLabel": "nitrate",
+     "column": "precipNitrate"
+    }
+   ]
+  },
+  {
+   "proposalId": "8ff66b7d3cc0afcb",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.sulfate",
+   "value": "sulfate",
+   "unit": "CHEBI:16189",
+   "curie": "CHEBI:16189",
+   "label": "sulfate",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipSulfate",
+   "rationale": "Sulfate is a measured analyte in wet deposition.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.sulfate",
+     "modelValue": "sulfate",
+     "modelLabel": "sulfate",
+     "column": "precipSulfate"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.sulfate",
+     "modelValue": "sulfate",
+     "modelLabel": "sulfate",
+     "column": "precipSulfate"
+    }
+   ]
+  },
+  {
+   "proposalId": "4de133b9bbcdea57",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.ammonium",
+   "value": "ammonium",
+   "unit": "CHEBI:28938",
+   "curie": "CHEBI:28938",
+   "label": "ammonium",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipAmmonium",
+   "rationale": "Ammonium is a measured analyte in wet deposition.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.ammonium",
+     "modelValue": "ammonium",
+     "modelLabel": "ammonium",
+     "column": "precipAmmonium"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.ammonium",
+     "modelValue": "ammonium",
+     "modelLabel": "ammonium",
+     "column": "precipAmmonium"
+    }
+   ]
+  },
+  {
+   "proposalId": "5783ba2ceca4f235",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.ph_meter",
+   "value": "pH meter",
+   "unit": "OBI:0001047",
+   "curie": "OBI:0001047",
+   "label": "pH meter",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "pH",
+   "rationale": "Lab pH measurement of precipitation samples uses a pH meter.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.ph_meter",
+     "modelValue": "pH meter",
+     "modelLabel": "pH meter",
+     "column": "pH"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.ph_meter",
+     "modelValue": "pH meter",
+     "modelLabel": "pH meter",
+     "column": "pH"
+    }
+   ]
+  },
+  {
+   "proposalId": "5abbd01637347031",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.hydrological_precipitation_process",
+   "value": "hydrological precipitation process",
+   "unit": "ENVO:01000703",
+   "curie": "ENVO:01000703",
+   "label": "hydrological precipitation process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Wet deposition delivers dissolved ions to the surface through precipitation.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_precipitation_process",
+     "modelValue": "hydrological precipitation process",
+     "modelLabel": "hydrological precipitation process",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_precipitation_process",
+     "modelValue": "hydrological precipitation process",
+     "modelLabel": "hydrological precipitation process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "3c63d9e497d650ec",
+   "productCode": "DP1.00013.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are lab measurements, one per precipitation sample.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "b8f6b9d2e10dabe2",
+   "productCode": "DP1.00013.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chebi.calcium2",
+   "value": "calcium(2+)",
+   "unit": "CHEBI:29108",
+   "curie": "CHEBI:29108",
+   "label": "calcium(2+)",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipCalcium",
+   "rationale": "Dissolved calcium cation is a measured analyte in precipitation.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.calcium2",
+     "modelValue": "calcium(2+)",
+     "modelLabel": "calcium(2+)",
+     "column": "precipCalcium"
+    }
+   ]
+  },
+  {
+   "proposalId": "2c7efb6000b17d3e",
+   "productCode": "DP1.00013.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.specimen_collection_process",
+   "value": "specimen collection process",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "An automated collector gathers precipitation samples, which are retrieved every two weeks for lab analysis.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "8a3a07e6d1d4de94",
+   "productCode": "DP1.00013.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chebi.inorganic_ion",
+   "value": "inorganic ion",
+   "unit": "CHEBI:36914",
+   "curie": "CHEBI:36914",
+   "label": "inorganic ion",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Covers all measured major cations and anions (Ca, Mg, K, Na, Cl, Br, PO4).",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.inorganic_ion",
+     "modelValue": "inorganic ion",
+     "modelLabel": "inorganic ion",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

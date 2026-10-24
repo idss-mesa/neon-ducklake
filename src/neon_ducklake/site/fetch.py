@@ -77,7 +77,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from .. import env, state
+from .. import duck, env, state
 from ..filenames import REGENERATED_KINDS, classify
 from ..tuning import AsyncAdaptiveLimit
 from . import plan as planmod
@@ -1170,15 +1170,15 @@ class Fetcher:
             try:
                 for name, rows, cols, _keys in tables:
                     if rows:
-                        con.register(f"src_{name}", site_lake.arrow_table(rows, cols))
+                        duck.register(con, f"src_{name}", site_lake.arrow_table(rows, cols))
                 sup = [dict(r) for r in self.con.execute(
                     "SELECT product AS productCode, month, name FROM fetch_superseded WHERE site=?", (self.site,))]
                 if sup:
-                    con.register("src_superseded", site_lake.arrow_table(
+                    duck.register(con, "src_superseded", site_lake.arrow_table(
                         sup, {"productCode": "VARCHAR", "month": "VARCHAR", "name": "VARCHAR"}))
                 journal = [dict(r) for r in self.con.execute(
                     "SELECT product AS productCode, month, name FROM site_files WHERE site=?", (self.site,))]
-                con.register("src_journal_keys", site_lake.arrow_table(
+                duck.register(con, "src_journal_keys", site_lake.arrow_table(
                     journal, {"productCode": "VARCHAR", "month": "VARCHAR", "name": "VARCHAR"}))
                 extra = {"runId": self.run_id, "products": sorted(products or self.listed_products)}
                 with site_lake.commit(con, f"site {step} {self.site}", extra):
@@ -1239,7 +1239,8 @@ def _pairs_for(site: str, products: list[str] | None, months: list[str] | None) 
     return out, source
 
 
-async def _run(step: str, site: str, products: list[str] | None, months: list[str] | None, threads: int) -> int:
+async def _run(step: str, site: str, products: list[str] | None, months: list[str] | None, threads: int,
+               lock_blocking: bool = False) -> int:
     con = state.connect(state.DB_PATH)
     rid = env.run_id()
     state.start_run(con, rid, f"site-{step}", site, [step, site, ",".join(products or []), ",".join(months or [])])
@@ -1251,15 +1252,24 @@ async def _run(step: str, site: str, products: list[str] | None, months: list[st
     summary: dict[str, Any] = {"site": site, "step": step, "runId": rid, "source": source,
                                "products": sorted({p["product"] for p in pairs}), "months": months}
     try:
-        with env.file_lock(f"site-fetch-{site}"):
-            if step == "list":
-                log.info("list %s: %d product window(s) from %s", site, len(pairs), source)
-                summary["listed"] = await f.list_all()
+        with env.file_lock(f"site-fetch-{site}", blocking=lock_blocking):
+            # both steps upsert into the site lake, which reads its existing Parquet: a stream site cleaned up
+            # earlier (or a lake another VM pushed) comes back from the Data Store first, data included
+            from .stream import ensure_lake_data
+
+            why = ensure_lake_data(site, con=con)
+            if why:
+                summary["error"] = why
+                log.error("%s %s: %s; nothing listed or downloaded", step, site, why)
             else:
-                await f.download_all(products, months)
-            lake_products = sorted({p["product"] for p in pairs}) if (products or months) else None
-            summary["lake"] = f.write_lake(step, lake_products)
-        status = "ok" if not f.errors else "partial"
+                if step == "list":
+                    log.info("list %s: %d product window(s) from %s", site, len(pairs), source)
+                    summary["listed"] = await f.list_all()
+                else:
+                    await f.download_all(products, months)
+                lake_products = sorted({p["product"] for p in pairs}) if (products or months) else None
+                summary["lake"] = f.write_lake(step, lake_products)
+                status = "ok" if not f.errors else "partial"
     finally:
         summary.update({"status": status, "seconds": round(time.monotonic() - t0, 1), "counts": dict(f.counts),
                         "errors": f.errors[:200], "errorCount": len(f.errors)})
@@ -1287,12 +1297,251 @@ async def _run(step: str, site: str, products: list[str] | None, months: list[st
 
 
 def main(step: str, site: str, products: list[str] | None = None, months: list[str] | None = None,
-         threads: int = 8) -> int:
+         threads: int = 8, *, lock_blocking: bool = False) -> int:
+    """``site list|download``; ``lock_blocking`` waits for another fetch of the site instead of failing."""
     if step not in ("list", "download"):
         raise SystemExit(f"unknown fetch step {step}")
-    return asyncio.run(_run(step, site.upper(), products, months, threads))
+    return asyncio.run(_run(step, site.upper(), products, months, threads, lock_blocking))
 
 
 def local_file(rel: str) -> Path:
     """Absolute path of a journal ``local_path``."""
     return env.ROOT / rel
+
+
+# ---------------------------------------------------------------- streaming: one chunk's rows under the working-set cap
+
+WORKSET_BYTES_ENV = "NEON_DUCKLAKE_WORKSET_BYTES"
+DEFAULT_WORKSET_BYTES = 50 * 10**9
+WORKSET_TIMEOUT_ENV = "NEON_DUCKLAKE_WORKSET_TIMEOUT_S"
+DEFAULT_WORKSET_TIMEOUT_S = 4 * 3600.0
+WORKSET_POLL_ENV = "NEON_DUCKLAKE_WORKSET_POLL_S"
+DEFAULT_WORKSET_POLL_S = 30.0
+WORKSET_SCHEMA = """
+CREATE TABLE IF NOT EXISTS fetch_workset (
+  key TEXT PRIMARY KEY, site TEXT NOT NULL, bytes INTEGER NOT NULL, pid INTEGER NOT NULL, host TEXT, created_at TEXT
+);
+"""
+RC_WORKSET_TIMEOUT = 3
+
+
+def workset_bytes(environ: dict[str, str] | None = None) -> int:
+    """``$NEON_DUCKLAKE_WORKSET_BYTES`` (read at call time; ``50G``/``50GB``/bytes), default 50 GB."""
+    from .chunks import env_bytes
+
+    return env_bytes(WORKSET_BYTES_ENV, DEFAULT_WORKSET_BYTES, environ)
+
+
+def _env_seconds(var: str, default: float) -> float:
+    try:
+        v = float(os.environ.get(var) or default)
+    except ValueError:
+        return default
+    return v if v > 0 else default
+
+
+def _evict_expr(con: sqlite3.Connection) -> str:
+    have = {r[1] for r in con.execute("PRAGMA table_info(site_files)")}
+    return "coalesce(local_evicted, 0) = 0" if "local_evicted" in have else "1"
+
+
+def local_raw_bytes(con: sqlite3.Connection, *, exclude: tuple[str, str, list[str]] | None = None,
+                    verify: bool = False) -> int:
+    """Raw bytes on local disk according to the journal (every site: ``ok`` and not evicted).
+
+    ``exclude`` = (site, product, months) leaves one chunk's own files out. ``verify`` stats each file, so
+    rows whose file is already gone (deleted by hand, a crashed eviction) do not count.
+    """
+    where = f"dl_status='ok' AND {_evict_expr(con)}"
+    args: list[Any] = []
+    if exclude:
+        site, product, months = exclude
+        where += (f" AND NOT (site=? AND product=? AND month IN ({','.join('?' * len(months))}))" if months
+                  else " AND NOT (site=? AND product=?)")
+        args += [site, product, *months]
+    if not verify:
+        return int(con.execute(f"SELECT coalesce(sum(coalesce(dl_bytes, size, 0)), 0) FROM site_files WHERE {where}",
+                               args).fetchone()[0])
+    total = 0
+    for r in con.execute(f"SELECT local_path, coalesce(dl_bytes, size, 0) AS b FROM site_files WHERE {where}", args):
+        with contextlib.suppress(OSError):
+            if r["local_path"] and (env.ROOT / r["local_path"]).is_file():
+                total += int(r["b"])
+    return total
+
+
+def local_workset_bytes(site: str | None = None, *, con: sqlite3.Connection | None = None,
+                        verify: bool = True) -> int:
+    """The local working set: raw files on disk (``ok``, not evicted: superseded files included, they stay on
+    disk until ``stream.delete_chunk``/``cleanup_site`` remove them) + the site lakes' ``data/**`` bytes.
+
+    ``site`` limits both parts to one site. ``verify`` (default) stats each raw file, so journal rows whose file
+    is already gone do not count.
+    """
+    own = con is None
+    con = con if con is not None else state.connect(state.DB_PATH)
+    try:
+        where = f"dl_status='ok' AND {_evict_expr(con)}"
+        args: list[Any] = []
+        if site:
+            where += " AND site=?"
+            args.append(site.upper())
+        raw = 0
+        if verify:
+            for r in con.execute(f"SELECT local_path, coalesce(dl_bytes, size, 0) AS b FROM site_files WHERE {where}",
+                                 args):
+                with contextlib.suppress(OSError):
+                    if r["local_path"] and (env.ROOT / r["local_path"]).is_file():
+                        raw += int(r["b"])
+        else:
+            raw = int(con.execute(f"SELECT coalesce(sum(coalesce(dl_bytes, size, 0)), 0) FROM site_files "
+                                  f"WHERE {where}", args).fetchone()[0])
+    finally:
+        if own:
+            con.close()
+    return raw + site_lake.data_bytes(site.upper() if site else None)
+
+
+def chunk_bytes_needed(con: sqlite3.Connection, site: str, product: str, months: list[str]) -> tuple[int, int]:
+    """(bytes the download will add, bytes of the chunk already on disk) for one product's months."""
+    con.executescript(SUPERSEDED_SCHEMA)
+    ev = _evict_expr(con).replace("local_evicted", "f.local_evicted")
+    rows = con.execute(
+        f"SELECT f.dl_status, f.local_path, f.size, f.dl_bytes, CASE WHEN {ev} THEN 0 ELSE 1 END AS evicted"
+        " FROM site_files f LEFT JOIN fetch_superseded s ON s.site=f.site AND s.product=f.product AND"
+        " s.month=f.month AND s.name=f.name WHERE f.site=? AND f.product=? AND s.name IS NULL AND"
+        f" coalesce(f.dl_status, '') != 'superseded' AND f.month IN ({','.join('?' * len(months))})",
+        (site, product, *months)).fetchall() if months else []
+    need = have = 0
+    for r in rows:
+        if r["evicted"] and r["dl_status"] != "stale":
+            continue  # in iRODS only, never downloaded again
+        if r["dl_status"] == "ok" and r["local_path"] and (env.ROOT / r["local_path"]).is_file():
+            have += int(r["dl_bytes"] or r["size"] or 0)
+        else:
+            need += int(r["size"] or r["dl_bytes"] or 0)
+    return need, have
+
+
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _reserved(con: sqlite3.Connection, key: str) -> int:
+    """Bytes reserved by other live downloads of this host (stale reservations are dropped)."""
+    host = os.uname().nodename
+    total = 0
+    for r in con.execute("SELECT key, bytes, pid, host FROM fetch_workset").fetchall():
+        if r["key"] == key:
+            continue
+        if r["host"] == host and not _pid_alive(int(r["pid"])):
+            con.execute("DELETE FROM fetch_workset WHERE key=?", (r["key"],))
+            continue
+        total += int(r["bytes"])
+    return total
+
+
+def wait_for_workset(site: str, product: str, months: list[str], *, cap: int | None = None,
+                     timeout_s: float | None = None, poll_s: float | None = None, sleep: Any = time.sleep,
+                     clock: Any = time.monotonic, con: sqlite3.Connection | None = None) -> dict[str, Any]:
+    """Wait until local raw bytes + site-lake data + other reservations + this chunk's download fit ``cap``;
+    then reserve.
+
+    The site lakes' ``data/**`` count toward the cap (the stacked Parquet is local until ``cleanup_site``), but
+    a chunk may always start when no other raw file is local and nothing is reserved (a chunk larger than the
+    cap, or beside a lake larger than the cap, runs alone). Returns ``{'ok', 'key', 'need', 'local', 'lake',
+    'reserved', 'cap', 'waited_s'}``; ``ok`` False after ``timeout_s``. The reservation (``fetch_workset``) is
+    released by :func:`release_workset`.
+    """
+    site = site.upper()
+    cap = int(cap) if cap else workset_bytes()
+    timeout_s = timeout_s if timeout_s is not None else _env_seconds(WORKSET_TIMEOUT_ENV, DEFAULT_WORKSET_TIMEOUT_S)
+    poll_s = poll_s if poll_s is not None else _env_seconds(WORKSET_POLL_ENV, DEFAULT_WORKSET_POLL_S)
+    own = con is None
+    con = con if con is not None else state.connect(state.DB_PATH)
+    key = f"{site}|{product}|{','.join(sorted(months))}"
+    t0 = clock()
+    logged = False
+    try:
+        con.executescript(WORKSET_SCHEMA)
+        while True:
+            need, _have = chunk_bytes_needed(con, site, product, months)
+            lake = site_lake.data_bytes()
+            con.execute("BEGIN IMMEDIATE")
+            try:
+                other = local_raw_bytes(con, exclude=(site, product, months))
+                if other + lake + need > cap and other:
+                    other = local_raw_bytes(con, exclude=(site, product, months), verify=True)
+                reserved = _reserved(con, key)
+                fits = need == 0 or other + lake + reserved + need <= cap or (other == 0 and reserved == 0)
+                if fits:
+                    if need:
+                        con.execute("INSERT OR REPLACE INTO fetch_workset(key, site, bytes, pid, host, created_at)"
+                                    " VALUES (?,?,?,?,?,?)", (key, site, need, os.getpid(), os.uname().nodename,
+                                                              env.utcnow().isoformat()))
+                    con.execute("COMMIT")
+                    waited = round(clock() - t0, 1)
+                    if logged:
+                        log.info("workset: %s %s may download %.2f GB now (local %.2f GB, reserved %.2f GB, cap "
+                                 "%.2f GB) after %.0fs", site, product, need / 1e9, other / 1e9, reserved / 1e9,
+                                 cap / 1e9, waited)
+                    return {"ok": True, "key": key, "need": need, "local": other, "lake": lake,
+                            "reserved": reserved, "cap": cap, "waited_s": waited}
+                con.execute("COMMIT")
+            except BaseException:
+                with contextlib.suppress(sqlite3.Error):
+                    con.execute("ROLLBACK")
+                raise
+            waited = clock() - t0
+            if waited >= timeout_s:
+                log.error("workset: %s %s needs %.2f GB but local raw %.2f GB + lake data %.2f GB + reserved "
+                          "%.2f GB exceed the cap %.2f GB after %.0fs", site, product, need / 1e9, other / 1e9,
+                          lake / 1e9, reserved / 1e9, cap / 1e9, waited)
+                return {"ok": False, "key": key, "need": need, "local": other, "lake": lake, "reserved": reserved,
+                        "cap": cap, "waited_s": round(waited, 1)}
+            if not logged:
+                log.info("workset: %s %s waits: needs %.2f GB, local raw %.2f GB + lake data %.2f GB + reserved "
+                         "%.2f GB, cap %.2f GB", site, product, need / 1e9, other / 1e9, lake / 1e9, reserved / 1e9,
+                         cap / 1e9)
+                logged = True
+            sleep(min(poll_s, max(timeout_s - waited, 0.01)))
+    finally:
+        if own:
+            con.close()
+
+
+def release_workset(key: str, *, con: sqlite3.Connection | None = None) -> None:
+    own = con is None
+    con = con if con is not None else state.connect(state.DB_PATH)
+    try:
+        con.executescript(WORKSET_SCHEMA)
+        con.execute("DELETE FROM fetch_workset WHERE key=?", (key,))
+    finally:
+        if own:
+            con.close()
+
+
+def download_rows(site: str, product: str, months: list[str], *, threads: int = 8, cap: int | None = None,
+                  timeout_s: float | None = None, poll_s: float | None = None, sleep: Any = time.sleep,
+                  clock: Any = time.monotonic) -> int:
+    """Download only one product's rows of ``months`` (a stream chunk) under the working-set cap.
+
+    0 = every row downloaded, 2 = some rows failed (``site download`` semantics), 3 = the working set did
+    not free up within the timeout (nothing downloaded).
+    """
+    site = site.upper()
+    months = sorted(set(months))
+    w = wait_for_workset(site, product, months, cap=cap, timeout_s=timeout_s, poll_s=poll_s, sleep=sleep,
+                         clock=clock)
+    if not w["ok"]:
+        return RC_WORKSET_TIMEOUT
+    try:  # a concurrent chunk download of the same site finishes first (the site-fetch lock is waited for)
+        return main("download", site, products=[product], months=months, threads=threads, lock_blocking=True)
+    finally:
+        release_workset(w["key"])

@@ -73,15 +73,19 @@ def test_apply_adds_and_leaves_foreign_and_protected(con, irods) -> None:
     assert ("neon.productCode", "DP1.00002.001", "") in irods.avus(F1)
     assert ("ipc_UUID", "u-2", "") in irods.avus(F2)
     assert stats["adds"] == 5 and stats["removes"] == 0 and stats["errors"] == 0
-    # one GenQuery for the collection's AVUs + one for its objects' AVUs (replica rows collapsed)
-    assert irods.calls["query"] == 2
+    # one GenQuery for the collection's AVUs + one for its objects' AVUs (replica rows collapsed), plus the
+    # two spool listings (spool/, spool-done/ of this VM) looked up once for the adopted AVU's original time
+    assert irods.calls["query"] == 4
     assert irods.calls["atomic"] == 3
     rows = journal(con)
-    assert len(rows) == 5 and {r["status"] for r in rows} == {"applied"}
+    assert len(rows) == 6 and {r["status"] for r in rows} == {"applied"}
     for r in rows:
         assert datetime.fromisoformat(r["applied_at"]).utcoffset().total_seconds() == 0
-    # the pre-existing neon.month on F2 is not journal-owned
-    assert not [r for r in rows if r["path"] == F2 and r["attribute"] == "neon.month"]
+    # the pre-existing, desired neon.month on F2 is adopted (journaled, not written), nothing else is
+    (adopted,) = [r for r in rows if r["adopted"]]
+    assert (adopted["path"], adopted["attribute"], adopted["op"]) == (F2, "neon.month", "add")
+    assert stats["adopted"] == 1 and adopted["generator"] == "site.avus"
+    assert not [r for r in rows if r["attribute"] in ("ipc_UUID", "mesa.enabled", "foreign.attr")]
 
 
 def test_second_run_is_a_noop(con, irods) -> None:
@@ -101,20 +105,21 @@ def test_removes_only_journal_owned_and_before_adds(con, irods) -> None:
     irods.colls[C]["avus"].add(("neon.fileCount", "99", "count"))
     new = [r for r in desired(drop={"neon.fileCount"})] + [
         (C, C, "collection", "neon.fileCount", "3", "count", "month", "site.avus")]
-    new = [r for r in new if not (r[1] == F2 and r[3] == "neon.month")]  # un-desire a foreign AVU
+    new = [r for r in new if not (r[1] == F2 and r[3] == "neon.month")]  # un-desire the adopted AVU
     replace_desired(con, "SRER", new)
     irods.atomic_log.clear()
     stats = apply_scope("SRER", con=con, session=FakeSession(irods), threads=1)
     avus = irods.avus(C)
     assert ("neon.fileCount", "2", "count") not in avus  # ours: removed
-    assert ("neon.fileCount", "99", "count") in avus  # foreign: kept
+    assert ("neon.fileCount", "99", "count") in avus  # foreign (never desired, never adopted): kept
     assert ("neon.fileCount", "3", "count") in avus
-    assert ("neon.month", "2024-06", "") in irods.avus(F2)  # foreign, never removed
-    assert stats["removes"] == 1 and stats["adds"] == 1
-    (path, ops), = irods.atomic_log
-    assert path == C and [o for o, _ in ops] == ["remove", "add"]
+    assert ("neon.month", "2024-06", "") not in irods.avus(F2)  # adopted on the first run: owned, so removed
+    assert ("ipc_UUID", "u-2", "") in irods.avus(F2)
+    assert stats["removes"] == 2 and stats["adds"] == 1 and stats["adopted"] == 0
+    (p1, ops1), (p2, ops2) = sorted(irods.atomic_log)
+    assert (p1, [o for o, _ in ops1]) == (C, ["remove", "add"]) and (p2, [o for o, _ in ops2]) == (F2, ["remove"])
     rm = journal(con, op="remove")
-    assert len(rm) == 1 and rm[0]["status"] == "applied" and rm[0]["generator"] == "site.avus"
+    assert len(rm) == 2 and {r["status"] for r in rm} == {"applied"} and {r["generator"] for r in rm} == {"site.avus"}
 
 
 def test_protected_desired_rows_are_dropped(con, irods) -> None:
@@ -262,7 +267,7 @@ def test_latency_abort_keeps_applied_rows(con, irods) -> None:
     with pytest.raises(LatencyAbort):
         w.run(bulk.load_desired(con, "SRER"), threads=1)
     rows = journal(con)
-    applied = [r for r in rows if r["status"] == "applied"]
+    applied = [r for r in rows if r["status"] == "applied" and not r["adopted"]]  # adopted rows write nothing
     assert len(applied) == sum(len(ops) for _, ops in irods.atomic_log) and applied
     # the re-run resumes: stale intents reconciled, everything applied
     stats = apply_scope("SRER", con=con, session=FakeSession(irods), threads=1)

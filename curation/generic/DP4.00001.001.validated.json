@@ -1,0 +1,645 @@
+{
+ "productCode": "DP4.00001.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.542542+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP4.00001.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP4.00001.001.rep1.jsonl",
+   "card_sha256": "ba46fdc21957294d3e4fc15bb8496f3a5ade682682c9625f24a918352f34879a",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 50.9,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6517,
+    "cache_creation_input_tokens": 35085,
+    "cache_read_input_tokens": 152526,
+    "thinking_tokens": 746
+   },
+   "total_cost_usd": 0.3844
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP4.00001.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP4.00001.001.rep2.jsonl",
+   "card_sha256": "ba46fdc21957294d3e4fc15bb8496f3a5ade682682c9625f24a918352f34879a",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 51.2,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 14,
+    "output_tokens": 6403,
+    "cache_creation_input_tokens": 22631,
+    "cache_read_input_tokens": 217544,
+    "thinking_tokens": 607
+   },
+   "total_cost_usd": 0.2848
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 9,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "19d939bed713fbfc",
+   "productCode": "DP4.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.humidity",
+   "value": "relative humidity",
+   "unit": "PATO:0015009",
+   "curie": "PATO:0015009",
+   "label": "humidity",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "wssRHMean",
+   "rationale": "Summary statistics of the relative humidity of air.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.humidity",
+     "modelValue": "relative humidity",
+     "modelLabel": "humidity",
+     "column": "wssRHMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.humidity",
+     "modelValue": "relative humidity",
+     "modelLabel": "humidity",
+     "column": "wssRHMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "edb2380993ec809c",
+   "productCode": "DP4.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.dew_point",
+   "value": "dew or frost point temperature",
+   "unit": "ENVO:01001859",
+   "curie": "ENVO:01001859",
+   "label": "dew point",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "wssDewTempMean",
+   "rationale": "Summary statistics of dew or frost point temperature.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.dew_point",
+     "modelValue": "dew or frost point temperature",
+     "modelLabel": "dew point",
+     "column": "wssDewTempMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.dew_point",
+     "modelValue": "dew or frost point temperature",
+     "modelLabel": "dew point",
+     "column": "wssDewTempMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "2c1a3c9b3a57012b",
+   "productCode": "DP4.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_wind_speed",
+   "value": "atmospheric wind speed",
+   "unit": "ENVO:01001362",
+   "curie": "ENVO:01001362",
+   "label": "atmospheric wind speed",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "wssWindSpeedMean",
+   "rationale": "2D wind speed summary statistics at three tower heights.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_speed",
+     "modelValue": "atmospheric wind speed",
+     "modelLabel": "atmospheric wind speed",
+     "column": "wssWindSpeedMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_wind_speed",
+     "modelValue": "atmospheric wind speed",
+     "modelLabel": "atmospheric wind speed",
+     "column": "wssWindSpeedMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "7e5e0cd0697874bf",
+   "productCode": "DP4.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.air",
+   "value": "air",
+   "unit": "ENVO:00002005",
+   "curie": "ENVO:00002005",
+   "label": "air",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "All variables are properties of near-surface air.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.air",
+     "modelValue": "air",
+     "modelLabel": "air",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "8b5ccbbd4e923d30",
+   "productCode": "DP4.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmospheric_weather",
+   "value": "atmospheric weather",
+   "unit": "ENVO:01001079",
+   "curie": "ENVO:01001079",
+   "label": "atmospheric weather",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product summarizes weather conditions and trends.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_weather",
+     "modelValue": "atmospheric weather",
+     "modelLabel": "atmospheric weather",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmospheric_weather",
+     "modelValue": "atmospheric weather",
+     "modelLabel": "atmospheric weather",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "6864553fc84fbfad",
+   "productCode": "DP4.00001.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Every variable reports a standard error of the mean.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "171cac53a48d7861",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.pressure",
+   "value": "station barometric pressure",
+   "unit": "PATO:0001025",
+   "curie": "PATO:0001025",
+   "label": "pressure",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "wssStaPresMean",
+   "rationale": "Station and sea-level-corrected barometric pressure statistics.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.pressure",
+     "modelValue": "station barometric pressure",
+     "modelLabel": "pressure",
+     "column": "wssStaPresMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "2f47e17f7cbc0f3c",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.arithmetic_mean_calculation",
+   "value": "arithmetic mean calculation",
+   "unit": "OBI:0200079",
+   "curie": "OBI:0200079",
+   "label": "arithmetic mean calculation",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Daily and monthly means are calculated from Level 1 sensor data.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.arithmetic_mean_calculation",
+     "modelValue": "arithmetic mean calculation",
+     "modelLabel": "arithmetic mean calculation",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "bc22d2512de11c39",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Every variable reports a variance statistic.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "6e3ea5cc5d95db47",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "daily and monthly summary statistics time series",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Daily and monthly summary statistics ordered in time.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "daily and monthly summary statistics time series",
+     "modelLabel": "time sampled measurement data set",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "39344af69d100572",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.temperature_of_air",
+   "value": "temperature of air",
+   "unit": "ENVO:09200001",
+   "curie": "ENVO:09200001",
+   "label": "temperature of air",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "wssTempTripleMean",
+   "rationale": "Summary statistics of triple aspirated air temperature.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.temperature_of_air",
+     "modelValue": "temperature of air",
+     "modelLabel": "temperature of air",
+     "column": "wssTempTripleMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "228b66dca1bb200f",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.pressure_of_air",
+   "value": "station pressure",
+   "unit": "ENVO:09200011",
+   "curie": "ENVO:09200011",
+   "label": "pressure of air",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "wssStaPresMean",
+   "rationale": "Barometric station pressure and sea-level corrected pressure statistics.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.pressure_of_air",
+     "modelValue": "station pressure",
+     "modelLabel": "pressure of air",
+     "column": "wssStaPresMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "860df59977e0800a",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.sample_mean",
+   "value": "daily and monthly arithmetic mean",
+   "unit": "STATO:0000401",
+   "curie": "STATO:0000401",
+   "label": "sample mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Arithmetic means over daily and monthly periods are reported for each variable.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.sample_mean",
+     "modelValue": "daily and monthly arithmetic mean",
+     "modelLabel": "sample mean",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "95589d784a99da53",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.variance_for_sample",
+   "value": "variance",
+   "unit": "STATO:0000643",
+   "curie": "STATO:0000643",
+   "label": "variance for sample",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Variance is reported for each summarised variable.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance_for_sample",
+     "modelValue": "variance",
+     "modelLabel": "variance for sample",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "a4c484d044b9a3f8",
+   "productCode": "DP4.00001.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "summary weather statistics",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are statistics computed from sensor measurement data.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "summary weather statistics",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "78c19d0251e46b54",
+   "productCode": "DP4.00001.001",
+   "status": "rejected",
+   "reason": "obsolete",
+   "attribute": "",
+   "value": "air temperature",
+   "unit": "",
+   "curie": "ENVO:01000753",
+   "label": "obsolete air temperature",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "wssTempTripleMean",
+   "rationale": "Summary statistics of triple aspirated air temperature.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "obsolete",
+     "grounded": true,
+     "modelAttribute": "envo.air_temperature",
+     "modelValue": "air temperature",
+     "modelLabel": "air temperature",
+     "column": "wssTempTripleMean"
+    }
+   ]
+  }
+ ]
+}

@@ -162,6 +162,31 @@ def test_containers_and_lake_tree(built, site_env: Path) -> None:  # noqa: F811
     assert one(by[f"{S}/cards/{P_IS}.md"], "neon.productCode") == (P_IS, "")
 
 
+def test_versioned_catalogs_collection_only_after_a_lake_push(site_env: Path) -> None:  # noqa: F811
+    """A streamed lake is published under ducklake/catalogs/ (push_lake): that collection gets a lake-dir row, so
+    the verify rule (every collection carries a neon.*/mesa.* AVU) holds; a never-pushed lake has none."""
+    from neon_ducklake import state
+    from neon_ducklake.site import chunks
+
+    root = site_env / "sites" / SITE
+    (root / "ducklake").mkdir(parents=True, exist_ok=True)
+    (root / "ducklake" / "neon_test.ducklake").write_bytes(b"duck")
+    S = f"/zone/home/u/proj/sites/{SITE}"
+    _b, by = build(make_facts())
+    assert f"{S}/ducklake/catalogs" not in by
+    con = state.connect(state.DB_PATH)
+    try:
+        chunks.ensure_schema(con)
+        chunks.record_lake_push(con, SITE, "0" * 32, 7, kind="push", snapshot_key="k7")
+        con.commit()
+    finally:
+        con.close()
+    _b, by = build(make_facts())
+    d = by[f"{S}/ducklake/catalogs"]
+    assert d["level"] == "lake-dir" and d["unit_id"] == f"{S}/ducklake/catalogs"
+    assert one(d, "neon.siteCode") == (SITE, "") and "dc.description" in attrs(d)
+
+
 def test_product_level(built) -> None:
     _b, by, S = built
     p = by[f"{S}/raw/{P_IS}"]

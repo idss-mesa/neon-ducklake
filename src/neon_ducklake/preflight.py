@@ -134,7 +134,7 @@ def check_imports(r: Report) -> None:
         r.add(f"module {mod}", status, detail, file=str(f), version=info.version, commit=info.commit,
               dirty=info.dirty, source=info.source, editable=info.editable,
               pinned=(pins or {}).get(dist) if dist != env.SELF else None)
-    for mod, want in (("duckdb", "1.5.5"), ("irods", "3.3.0"), ("pyarrow", None), ("h5py", None), ("numpy", None)):
+    for mod, want in (("duckdb", "2.0.0"), ("irods", "3.3.0"), ("pyarrow", None), ("h5py", None), ("numpy", None)):
         try:
             m = importlib.import_module(mod)
             v = getattr(m, "__version__", "?")

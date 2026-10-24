@@ -1,0 +1,516 @@
+{
+ "productCode": "DP1.10017.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.534085+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10017.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10017.001.rep1.jsonl",
+   "card_sha256": "ef01c09c8e0310ecbebbeed4bb07a2bbcc35f33269db62c4723f1e04916e9fdd",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 42.6,
+   "tool_calls": 25,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5282,
+    "cache_creation_input_tokens": 28320,
+    "cache_read_input_tokens": 89088,
+    "thinking_tokens": 518
+   },
+   "total_cost_usd": 0.3501
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10017.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10017.001.rep2.jsonl",
+   "card_sha256": "ef01c09c8e0310ecbebbeed4bb07a2bbcc35f33269db62c4723f1e04916e9fdd",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 41.4,
+   "tool_calls": 22,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 13,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 5255,
+    "cache_creation_input_tokens": 14607,
+    "cache_read_input_tokens": 66307,
+    "thinking_tokens": 749
+   },
+   "total_cost_usd": 0.2352
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "ab1714eed66419d7",
+   "productCode": "DP1.10017.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.viridiplantae",
+   "value": "Viridiplantae",
+   "unit": "NCBITaxon:33090",
+   "curie": "NCBITaxon:33090",
+   "label": "Viridiplantae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The photos show plot vegetation (green plants) in the understory and overstory.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.viridiplantae",
+     "modelValue": "Viridiplantae",
+     "modelLabel": "Viridiplantae",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.viridiplantae",
+     "modelValue": "Viridiplantae",
+     "modelLabel": "Viridiplantae",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "bf9b355564b625a3",
+   "productCode": "DP1.10017.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.leaf_area_index",
+   "value": "leaf area index",
+   "unit": "TO:0012001",
+   "curie": "TO:0012001",
+   "label": "leaf area index",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The hemispherical images are used to calculate leaf area index and plant area index.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_area_index",
+     "modelValue": "leaf area index",
+     "modelLabel": "leaf area index",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_area_index",
+     "modelValue": "leaf area index",
+     "modelLabel": "leaf area index",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "0207971f168d2363",
+   "productCode": "DP1.10017.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.canopy",
+   "value": "canopy",
+   "unit": "ENVO:01001242",
+   "curie": "ENVO:01001242",
+   "label": "canopy",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Upward-facing photos of the overstory canopy are taken wherever an overstory exists.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.canopy",
+     "modelValue": "canopy",
+     "modelLabel": "canopy",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.canopy",
+     "modelValue": "canopy",
+     "modelLabel": "canopy",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "7228f7286c482949",
+   "productCode": "DP1.10017.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.imaging_assay",
+   "value": "imaging assay",
+   "unit": "OBI:0000185",
+   "curie": "OBI:0000185",
+   "label": "imaging assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The method is ground-based digital hemispherical photography of vegetation.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.imaging_assay",
+     "modelValue": "imaging assay",
+     "modelLabel": "imaging assay",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.imaging_assay",
+     "modelValue": "imaging assay",
+     "modelLabel": "imaging assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "422fd16f8e002add",
+   "productCode": "DP1.10017.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.digital_camera",
+   "value": "digital camera",
+   "unit": "OBI:0001048",
+   "curie": "OBI:0001048",
+   "label": "digital camera",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "cameraOrientation",
+   "rationale": "Images are taken with a full-frame DSLR camera fitted with a fisheye lens.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.digital_camera",
+     "modelValue": "digital camera",
+     "modelLabel": "digital camera",
+     "column": "cameraOrientation"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.digital_camera",
+     "modelValue": "digital camera",
+     "modelLabel": "digital camera",
+     "column": "cameraOrientation"
+    }
+   ]
+  },
+  {
+   "proposalId": "5b8e1d27b6d3ee77",
+   "productCode": "DP1.10017.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.photograph",
+   "value": "photograph",
+   "unit": "IAO:0000185",
+   "curie": "IAO:0000185",
+   "label": "photograph",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "imageFileUrl",
+   "rationale": "The product delivers 180-degree RAW image files of the vegetation.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.photograph",
+     "modelValue": "photograph",
+     "modelLabel": "photograph",
+     "column": "imageFileUrl"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.photograph",
+     "modelValue": "photograph",
+     "modelLabel": "photograph",
+     "column": "imageFileName"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "c0b79e2e68dd79fc",
+   "productCode": "DP1.10017.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.height",
+   "value": "height",
+   "unit": "PATO:0000119",
+   "curie": "PATO:0000119",
+   "label": "height",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "understoryHeight",
+   "rationale": "Average vegetation height is estimated visually to guide photo collection.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.height",
+     "modelValue": "height",
+     "modelLabel": "height",
+     "column": "understoryHeight"
+    }
+   ]
+  },
+  {
+   "proposalId": "7f8d414ebebad70b",
+   "productCode": "DP1.10017.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.understory",
+   "value": "understory",
+   "unit": "ENVO:01000335",
+   "curie": "ENVO:01000335",
+   "label": "understory",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "imageType",
+   "rationale": "Understory vegetation below 2 m is photographed at every photo point.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.understory",
+     "modelValue": "understory",
+     "modelLabel": "understory",
+     "column": "imageType"
+    }
+   ]
+  },
+  {
+   "proposalId": "674c75ab9c1aff78",
+   "productCode": "DP1.10017.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.photosynthesis",
+   "value": "photosynthesis",
+   "unit": "GO:0015979",
+   "curie": "GO:0015979",
+   "label": "photosynthesis",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Leaf area index is used to model photosynthetic productivity and the carbon cycle.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.photosynthesis",
+     "modelValue": "photosynthesis",
+     "modelLabel": "photosynthesis",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "5285d0ce3326dd6d",
+   "productCode": "DP1.10017.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "to.plant_height",
+   "value": "plant height",
+   "unit": "TO:0000207",
+   "curie": "TO:0000207",
+   "label": "plant height",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "understoryHeight",
+   "rationale": "Average understory and overstory vegetation height is recorded per plot.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.plant_height",
+     "modelValue": "plant height",
+     "modelLabel": "plant height",
+     "column": "understoryHeight"
+    }
+   ]
+  },
+  {
+   "proposalId": "278fc98cea1b3213",
+   "productCode": "DP1.10017.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.vegetation_layer",
+   "value": "vegetation layer",
+   "unit": "ENVO:01000355",
+   "curie": "ENVO:01000355",
+   "label": "vegetation layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "imageType",
+   "rationale": "Images show understory or overstory vegetation layers.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.vegetation_layer",
+     "modelValue": "vegetation layer",
+     "modelLabel": "vegetation layer",
+     "column": "imageType"
+    }
+   ]
+  },
+  {
+   "proposalId": "fad5671ed04ce43f",
+   "productCode": "DP1.10017.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.snow",
+   "value": "snow",
+   "unit": "ENVO:01000406",
+   "curie": "ENVO:01000406",
+   "label": "snow",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "snowPresent",
+   "rationale": "Snow presence in the plot is recorded at sampling.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.snow",
+     "modelValue": "snow",
+     "modelLabel": "snow",
+     "column": "snowPresent"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

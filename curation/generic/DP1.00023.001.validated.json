@@ -1,0 +1,633 @@
+{
+ "productCode": "DP1.00023.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.530675+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00023.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00023.001.rep1.jsonl",
+   "card_sha256": "bb9a47abe3d9ae8f004157b9b47f1f2c3d40b9e40cbe9b8a6a4f48dc4b3c1623",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 14,
+   "seconds": 61.6,
+   "tool_calls": 34,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 14
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 7925,
+    "cache_creation_input_tokens": 39004,
+    "cache_read_input_tokens": 138240,
+    "thinking_tokens": 894
+   },
+   "total_cost_usd": 0.4982
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00023.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00023.001.rep2.jsonl",
+   "card_sha256": "bb9a47abe3d9ae8f004157b9b47f1f2c3d40b9e40cbe9b8a6a4f48dc4b3c1623",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 46.4,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5887,
+    "cache_creation_input_tokens": 19173,
+    "cache_read_input_tokens": 132166,
+    "thinking_tokens": 694
+   },
+   "total_cost_usd": 0.2976
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 7,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "f6c0ec0fd1585b61",
+   "productCode": "DP1.00023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.shortwave_radiation",
+   "value": "shortwave radiation",
+   "unit": "ENVO:01001861",
+   "curie": "ENVO:01001861",
+   "label": "shortwave radiation",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "outSWMean",
+   "rationale": "Incoming and outgoing shortwave radiation are core measured components of net radiation.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.shortwave_radiation",
+     "modelValue": "shortwave radiation",
+     "modelLabel": "shortwave radiation",
+     "column": "outSWMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.shortwave_radiation",
+     "modelValue": "shortwave radiation",
+     "modelLabel": "shortwave radiation",
+     "column": "outSWMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "46c93555271159a5",
+   "productCode": "DP1.00023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.outgoing_longwave_radiation",
+   "value": "outgoing longwave radiation",
+   "unit": "ENVO:01001857",
+   "curie": "ENVO:01001857",
+   "label": "outgoing longwave radiation",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "outLWMean",
+   "rationale": "Outgoing longwave radiation emitted from the surface is measured directly.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.outgoing_longwave_radiation",
+     "modelValue": "outgoing longwave radiation",
+     "modelLabel": "outgoing longwave radiation",
+     "column": "outLWMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.outgoing_longwave_radiation",
+     "modelValue": "outgoing longwave radiation",
+     "modelLabel": "outgoing longwave radiation",
+     "column": "outLWMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "d0b03624b351f2f4",
+   "productCode": "DP1.00023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.infrared_radiation",
+   "value": "infrared radiation",
+   "unit": "ENVO:21001214",
+   "curie": "ENVO:21001214",
+   "label": "infrared radiation",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "inLWMean",
+   "rationale": "Incoming longwave radiation from the atmosphere is thermal infrared radiation.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.infrared_radiation",
+     "modelValue": "infrared radiation",
+     "modelLabel": "infrared radiation",
+     "column": "inLWMean"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.infrared_radiation",
+     "modelValue": "incoming longwave (infrared) radiation",
+     "modelLabel": "infrared radiation",
+     "column": "inLWMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "c7eef78cf1ab28f5",
+   "productCode": "DP1.00023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.net_shortwave_radiation",
+   "value": "net shortwave radiation",
+   "unit": "ENVO:06105265",
+   "curie": "ENVO:06105265",
+   "label": "net shortwave radiation",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product describes net shortwave balance, derived from incoming minus outgoing shortwave components.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.net_shortwave_radiation",
+     "modelValue": "net shortwave radiation",
+     "modelLabel": "net shortwave radiation",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.net_shortwave_radiation",
+     "modelValue": "net shortwave radiation",
+     "modelLabel": "net shortwave radiation",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e33fd5c8118a762d",
+   "productCode": "DP1.00023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.irradiation",
+   "value": "irradiation",
+   "unit": "ENVO:01003014",
+   "curie": "ENVO:01003014",
+   "label": "irradiation",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Radiative energy transfer received by the surface is the process observed.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.irradiation",
+     "modelValue": "irradiation",
+     "modelLabel": "irradiation",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.irradiation",
+     "modelValue": "irradiation",
+     "modelLabel": "irradiation",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f0014db41d63e1f2",
+   "productCode": "DP1.00023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.atmosphere",
+   "value": "atmosphere",
+   "unit": "ENVO:01000267",
+   "curie": "ENVO:01000267",
+   "label": "atmosphere",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Atmosphere-theme product; incoming radiation passes through and is emitted by the atmosphere.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmosphere",
+     "modelValue": "atmosphere",
+     "modelLabel": "atmosphere",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.atmosphere",
+     "modelValue": "atmosphere",
+     "modelLabel": "atmosphere",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e66141ae62e3ee2b",
+   "productCode": "DP1.00023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "One- and thirty-minute averaged sensor time series.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "77a20ae2149f9d91",
+   "productCode": "DP1.00023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.surface_of_an_astronomical_body",
+   "value": "surface of an astronomical body",
+   "unit": "ENVO:01001483",
+   "curie": "ENVO:01001483",
+   "label": "surface of an astronomical body",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Net radiation is the radiation balance on a horizontal plane at Earth's surface.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.surface_of_an_astronomical_body",
+     "modelValue": "surface of an astronomical body",
+     "modelLabel": "surface of an astronomical body",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "bfcfea14ad5b39e5",
+   "productCode": "DP1.00023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.radiation_measurement_device",
+   "value": "radiation measurement device",
+   "unit": "OBI:0001086",
+   "curie": "OBI:0001086",
+   "label": "radiation measurement device",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Four-component net radiometer is a radiation measurement device.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.radiation_measurement_device",
+     "modelValue": "radiation measurement device",
+     "modelLabel": "radiation measurement device",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "75841aee9e5c606c",
+   "productCode": "DP1.00023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.average_value",
+   "value": "average value",
+   "unit": "STATO:0000573",
+   "curie": "STATO:0000573",
+   "label": "average value",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "inSWMean",
+   "rationale": "Values are arithmetic means of 1 Hz observations per interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.average_value",
+     "modelValue": "average value",
+     "modelLabel": "average value",
+     "column": "inSWMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "a19935713b5f4b82",
+   "productCode": "DP1.00023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.variance",
+   "value": "variance",
+   "unit": "STATO:0000113",
+   "curie": "STATO:0000113",
+   "label": "variance",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "inSWVariance",
+   "rationale": "Variance of radiation observations reported per averaging interval.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.variance",
+     "modelValue": "variance",
+     "modelLabel": "variance",
+     "column": "inSWVariance"
+    }
+   ]
+  },
+  {
+   "proposalId": "86b5a6a43c357f7f",
+   "productCode": "DP1.00023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.standard_error_of_the_mean",
+   "value": "standard error of the mean",
+   "unit": "STATO:0000037",
+   "curie": "STATO:0000037",
+   "label": "standard error of the mean",
+   "ontologyId": "stato",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "inSWStdErMean",
+   "rationale": "Standard error of the mean reported for each radiation component.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.standard_error_of_the_mean",
+     "modelValue": "standard error of the mean",
+     "modelLabel": "standard error of the mean",
+     "column": "inSWStdErMean"
+    }
+   ]
+  },
+  {
+   "proposalId": "a8047ef1595fa5ff",
+   "productCode": "DP1.00023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "measurement uncertainty",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "inSWExpUncert",
+   "rationale": "Expanded measurement uncertainty reported for each radiation component.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "measurement uncertainty",
+     "modelLabel": "measurement uncertainty",
+     "column": "inSWExpUncert"
+    }
+   ]
+  },
+  {
+   "proposalId": "d5243f25a0bc4534",
+   "productCode": "DP1.00023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.standard_error",
+   "value": "standard error",
+   "unit": "OBI:0000235",
+   "curie": "OBI:0000235",
+   "label": "standard error",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "inSWStdErMean",
+   "rationale": "The data include the standard error of the mean for each radiation component.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.standard_error",
+     "modelValue": "standard error",
+     "modelLabel": "standard error",
+     "column": "inSWStdErMean"
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "07b1a6d09307f1fc",
+   "productCode": "DP1.00023.001",
+   "status": "rejected",
+   "reason": "unresolved",
+   "attribute": "",
+   "value": "Solar radiation",
+   "unit": "",
+   "curie": "ENVO:01001862",
+   "label": "Solar radiation",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "inSWMean",
+   "rationale": "Incoming shortwave radiation at the surface is solar radiation.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "unresolved",
+     "grounded": true,
+     "modelAttribute": "envo.solar_radiation",
+     "modelValue": "Solar radiation",
+     "modelLabel": "Solar radiation",
+     "column": "inSWMean"
+    },
+    {
+     "rep": 2,
+     "valid": false,
+     "reason": "unresolved",
+     "grounded": true,
+     "modelAttribute": "envo.solar_radiation",
+     "modelValue": "incoming solar (shortwave) radiation",
+     "modelLabel": "Solar radiation",
+     "column": "inSWMean"
+    }
+   ]
+  }
+ ]
+}

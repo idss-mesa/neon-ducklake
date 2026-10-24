@@ -1,0 +1,613 @@
+{
+ "productCode": "DP1.10022.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.534624+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10022.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10022.001.rep1.jsonl",
+   "card_sha256": "260414c1ddcbb86126bba77d42a0ad9c65835fa1b08112e10e835254110cbec5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 50.2,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6249,
+    "cache_creation_input_tokens": 37632,
+    "cache_read_input_tokens": 122180,
+    "thinking_tokens": 957
+   },
+   "total_cost_usd": 0.4505
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10022.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10022.001.rep2.jsonl",
+   "card_sha256": "260414c1ddcbb86126bba77d42a0ad9c65835fa1b08112e10e835254110cbec5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 59.4,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 14,
+    "output_tokens": 7064,
+    "cache_creation_input_tokens": 20541,
+    "cache_read_input_tokens": 211322,
+    "thinking_tokens": 1293
+   },
+   "total_cost_usd": 0.3479
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 8,
+  "rejected": 1
+ },
+ "accepted": [
+  {
+   "proposalId": "7585811d5dbf2b7a",
+   "productCode": "DP1.10022.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.carabidae",
+   "value": "Carabidae",
+   "unit": "NCBITaxon:41073",
+   "curie": "NCBITaxon:41073",
+   "label": "Carabidae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "family",
+   "rationale": "Ground beetles (Carabidae) are the product's target organism group.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.carabidae",
+     "modelValue": "Carabidae",
+     "modelLabel": "Carabidae",
+     "column": "family"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.carabidae",
+     "modelValue": "Carabidae",
+     "modelLabel": "Carabidae",
+     "column": "family"
+    }
+   ]
+  },
+  {
+   "proposalId": "779b6ca71352dba7",
+   "productCode": "DP1.10022.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.wet_pitfall_trap",
+   "value": "wet pitfall trap",
+   "unit": "ENVO:01000978",
+   "curie": "ENVO:01000978",
+   "label": "wet pitfall trap",
+   "ontologyId": "envo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "trapID",
+   "rationale": "Beetles are caught in pitfall traps (deli cups) filled with propylene glycol.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.wet_pitfall_trap",
+     "modelValue": "wet pitfall trap",
+     "modelLabel": "wet pitfall trap",
+     "column": "trapID"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.wet_pitfall_trap",
+     "modelValue": "wet pitfall trap",
+     "modelLabel": "wet pitfall trap",
+     "column": "trapID"
+    }
+   ]
+  },
+  {
+   "proposalId": "bae5f3c5f2096a16",
+   "productCode": "DP1.10022.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "bco.taxonomic_identification_process",
+   "value": "taxonomic identification process",
+   "unit": "BCO:0000042",
+   "curie": "BCO:0000042",
+   "label": "taxonomic identification process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "Parataxonomists and expert taxonomists identify specimens to species or morphospecies.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "scientificName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "3d884f2f8b832037",
+   "productCode": "DP1.10022.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pco.community_species_diversity",
+   "value": "community species diversity",
+   "unit": "PCO:0000019",
+   "curie": "PCO:0000019",
+   "label": "community species diversity",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "The product samples ground beetle diversity and community composition.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_diversity",
+     "modelValue": "community species diversity",
+     "modelLabel": "community species diversity",
+     "column": "scientificName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_diversity",
+     "modelValue": "community species diversity",
+     "modelLabel": "community species diversity",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "da9e69937b5ee921",
+   "productCode": "DP1.10022.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.length",
+   "value": "length",
+   "unit": "PATO:0000122",
+   "curie": "PATO:0000122",
+   "label": "length",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "totalLength",
+   "rationale": "Total length (head plus body) is measured on pinned beetles.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.length",
+     "modelValue": "total body length",
+     "modelLabel": "length",
+     "column": "totalLength"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.length",
+     "modelValue": "length",
+     "modelLabel": "length",
+     "column": "totalLength"
+    }
+   ]
+  },
+  {
+   "proposalId": "e6853cb059f13688",
+   "productCode": "DP1.10022.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil_surface_layer",
+   "value": "soil surface layer",
+   "unit": "ENVO:04000010",
+   "curie": "ENVO:04000010",
+   "label": "soil surface layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Pitfall traps set flush with the ground catch beetles moving on the soil surface.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_surface_layer",
+     "modelValue": "soil surface layer",
+     "modelLabel": "soil surface layer",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_surface_layer",
+     "modelValue": "soil surface layer",
+     "modelLabel": "soil surface layer",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "eccfddfd4233bda0",
+   "productCode": "DP1.10022.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "bco.trap_or_sample_taxonomic_inventory_process",
+   "value": "trap or sample taxonomic inventory process",
+   "unit": "BCO:0000054",
+   "curie": "BCO:0000054",
+   "label": "trap or sample taxonomic inventory process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Biweekly trap-based taxonomic inventory of ground beetle communities.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.trap_or_sample_taxonomic_inventory_process",
+     "modelValue": "trap or sample taxonomic inventory process",
+     "modelLabel": "trap or sample taxonomic inventory process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ae2cf413ff37cd90",
+   "productCode": "DP1.10022.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.specimen_collection_process",
+   "value": "specimen collection process",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "sampleID",
+   "rationale": "Trap samples are collected, sorted, pinned or archived as specimens.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "sampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "4355f654c8cca7c1",
+   "productCode": "DP1.10022.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.phenotypic_sex",
+   "value": "phenotypic sex",
+   "unit": "PATO:0001894",
+   "curie": "PATO:0001894",
+   "label": "phenotypic sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sex",
+   "rationale": "The expert taxonomist records the sex of each identified specimen.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.phenotypic_sex",
+     "modelValue": "phenotypic sex",
+     "modelLabel": "phenotypic sex",
+     "column": "sex"
+    }
+   ]
+  },
+  {
+   "proposalId": "d2d938fce8009538",
+   "productCode": "DP1.10022.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.arthropod_specimen_collection_process",
+   "value": "arthropod specimen collection process",
+   "unit": "OBI:0002913",
+   "curie": "OBI:0002913",
+   "label": "arthropod specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "sampleID",
+   "rationale": "Every two weeks, field technicians collect beetle specimens that are then pinned or archived.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.arthropod_specimen_collection_process",
+     "modelValue": "arthropod specimen collection process",
+     "modelLabel": "arthropod specimen collection process",
+     "column": "sampleID"
+    }
+   ]
+  },
+  {
+   "proposalId": "468a5af4b38423fc",
+   "productCode": "DP1.10022.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pco.community_species_richness",
+   "value": "community species richness",
+   "unit": "PCO:0000010",
+   "curie": "PCO:0000010",
+   "label": "community species richness",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "taxonID",
+   "rationale": "Species-level identifications show how many ground beetle species each plot holds.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_richness",
+     "modelValue": "community species richness",
+     "modelLabel": "community species richness",
+     "column": "taxonID"
+    }
+   ]
+  },
+  {
+   "proposalId": "4840bffba200fe03",
+   "productCode": "DP1.10022.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.amount",
+   "value": "amount",
+   "unit": "PATO:0000070",
+   "curie": "PATO:0000070",
+   "label": "amount",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "individualCount",
+   "rationale": "Records the number of individuals of each taxon per trap, which gives abundance.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.amount",
+     "modelValue": "amount",
+     "modelLabel": "amount",
+     "column": "individualCount"
+    }
+   ]
+  },
+  {
+   "proposalId": "a67457f3fc07a2c6",
+   "productCode": "DP1.10022.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.biological_sex",
+   "value": "biological sex",
+   "unit": "PATO:0000047",
+   "curie": "PATO:0000047",
+   "label": "biological sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sex",
+   "rationale": "Expert taxonomists record each specimen's sex.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.biological_sex",
+     "modelValue": "biological sex",
+     "modelLabel": "biological sex",
+     "column": "sex"
+    }
+   ]
+  },
+  {
+   "proposalId": "9ecb4f82a3e01cd8",
+   "productCode": "DP1.10022.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are per-trap collection, count and identification measurements.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "7393d9dd12acf283",
+   "productCode": "DP1.10022.001",
+   "status": "rejected",
+   "reason": "no_curie",
+   "attribute": "",
+   "value": "individual count",
+   "unit": "",
+   "curie": null,
+   "label": "count",
+   "ontologyId": null,
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "individualCount",
+   "rationale": "Abundance is recorded as counts of individuals per taxon per trap.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": false,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "no_curie",
+     "grounded": null,
+     "modelAttribute": "iao.count",
+     "modelValue": "individual count",
+     "modelLabel": "count",
+     "column": "individualCount"
+    }
+   ]
+  }
+ ]
+}

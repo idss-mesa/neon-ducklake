@@ -1,0 +1,652 @@
+{
+ "productCode": "DP1.10108.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.541648+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10108.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10108.001.rep1.jsonl",
+   "card_sha256": "88d3ef15975e3d83acbb76825ed171265a80ae27fc9eed0119c0259fcdae3f22",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 49.9,
+   "tool_calls": 26,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 14,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6479,
+    "cache_creation_input_tokens": 32384,
+    "cache_read_input_tokens": 111673,
+    "thinking_tokens": 520
+   },
+   "total_cost_usd": 0.3598
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10108.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10108.001.rep2.jsonl",
+   "card_sha256": "88d3ef15975e3d83acbb76825ed171265a80ae27fc9eed0119c0259fcdae3f22",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 13,
+   "seconds": 54.6,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 13
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 7318,
+    "cache_creation_input_tokens": 18165,
+    "cache_read_input_tokens": 101101,
+    "thinking_tokens": 808
+   },
+   "total_cost_usd": 0.2574
+  }
+ ],
+ "counts": {
+  "accepted": 10,
+  "human_accepted": 0,
+  "proposed": 5,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "0ab3bc10d613a0aa",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.bacteria",
+   "value": "Bacteria",
+   "unit": "NCBITaxon:2",
+   "curie": "NCBITaxon:2",
+   "label": "Bacteria",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "16S marker gene sequencing targets soil bacterial communities.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e0373c5ab987de22",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.archaea",
+   "value": "Archaea",
+   "unit": "NCBITaxon:2157",
+   "curie": "NCBITaxon:2157",
+   "label": "Archaea",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "16S V4-V5 primers also amplify archaea; archaea are listed in the product keywords.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.archaea",
+     "modelValue": "Archaea",
+     "modelLabel": "Archaea",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.archaea",
+     "modelValue": "Archaea",
+     "modelLabel": "Archaea",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "2367a58dbd7be31a",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.fungi",
+   "value": "Fungi",
+   "unit": "NCBITaxon:4751",
+   "curie": "NCBITaxon:4751",
+   "label": "Fungi",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "ITS marker gene sequencing targets soil fungal communities.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "138ba295caedaec2",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleMaterial",
+   "rationale": "Soil is the sampled material for all DNA extractions.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "sampleMaterial"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "sampleMaterial"
+    }
+   ]
+  },
+  {
+   "proposalId": "aeb44b674fdfca25",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pco.microbial_community",
+   "value": "microbial community",
+   "unit": "PCO:1000004",
+   "curie": "PCO:1000004",
+   "label": "microbial community",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Marker gene sequences describe soil microbial community composition.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "soil microbial community",
+     "modelLabel": "microbial community",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "microbial community",
+     "modelLabel": "microbial community",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "d744e016316f8c8f",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "nucleicAcidConcentration",
+   "rationale": "The mmg_soilDnaExtraction table records DNA extraction from soil and the extract concentration.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "nucleicAcidConcentration"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "d9fa2678a8938611",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.polymerase_chain_reaction",
+   "value": "polymerase chain reaction",
+   "unit": "OBI:0000415",
+   "curie": "OBI:0000415",
+   "label": "polymerase chain reaction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "library_selection",
+   "rationale": "Marker genes are PCR-amplified with the forward/reverse primers recorded in the PCR tables.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.polymerase_chain_reaction",
+     "modelValue": "polymerase chain reaction",
+     "modelLabel": "polymerase chain reaction",
+     "column": "library_selection"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.polymerase_chain_reaction",
+     "modelValue": "polymerase chain reaction",
+     "modelLabel": "polymerase chain reaction",
+     "column": "library_selection"
+    }
+   ]
+  },
+  {
+   "proposalId": "c2d3a22498179ab2",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.amplicon_sequencing_assay",
+   "value": "amplicon sequencing assay",
+   "unit": "OBI:0002767",
+   "curie": "OBI:0002767",
+   "label": "amplicon sequencing assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "library_strategy",
+   "rationale": "Library strategy is AMPLICON, used for both the 16S and ITS marker gene sequencing.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.amplicon_sequencing_assay",
+     "modelValue": "amplicon sequencing assay",
+     "modelLabel": "amplicon sequencing assay",
+     "column": "library_strategy"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.amplicon_sequencing_assay",
+     "modelValue": "amplicon sequencing assay",
+     "modelLabel": "amplicon sequencing assay",
+     "column": "library_strategy"
+    }
+   ]
+  },
+  {
+   "proposalId": "7bde60e74911ab46",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "so.cytosolicrrna16sgene",
+   "value": "16S rRNA",
+   "unit": "SO:0002237",
+   "curie": "SO:0002237",
+   "label": "cytosolic_rRNA_16S_gene",
+   "ontologyId": "so",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "targetGene",
+   "rationale": "The 16S rRNA gene is the targeted prokaryotic marker locus.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.cytosolicrrna16sgene",
+     "modelValue": "16S rRNA",
+     "modelLabel": "cytosolic_rRNA_16S_gene",
+     "column": "targetGene"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.cytosolicrrna16sgene",
+     "modelValue": "16S rRNA",
+     "modelLabel": "cytosolic_rRNA_16S_gene",
+     "column": "targetGene"
+    }
+   ]
+  },
+  {
+   "proposalId": "9cc4f74b4025c7ec",
+   "productCode": "DP1.10108.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "so.internaltranscribedspacerregion",
+   "value": "ITS",
+   "unit": "SO:0000639",
+   "curie": "SO:0000639",
+   "label": "internal_transcribed_spacer_region",
+   "ontologyId": "so",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "targetSubfragment",
+   "rationale": "The ITS region (ITS1 subfragment) is the targeted fungal marker locus.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.internaltranscribedspacerregion",
+     "modelValue": "ITS",
+     "modelLabel": "internal_transcribed_spacer_region",
+     "column": "targetSubfragment"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "so.internaltranscribedspacerregion",
+     "modelValue": "ITS",
+     "modelLabel": "internal_transcribed_spacer_region",
+     "column": "targetGene"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "1f7e8fc1f91dc8c9",
+   "productCode": "DP1.10108.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.16s_ribosomal_gene_sequencing_assay",
+   "value": "16s ribosomal gene sequencing assay",
+   "unit": "OBI:0002763",
+   "curie": "OBI:0002763",
+   "label": "16s ribosomal gene sequencing assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The 16S sequencing tables record 16S rRNA amplicon sequencing of soil DNA.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.16s_ribosomal_gene_sequencing_assay",
+     "modelValue": "16s ribosomal gene sequencing assay",
+     "modelLabel": "16s ribosomal gene sequencing assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "8cb7d7363f2d80c8",
+   "productCode": "DP1.10108.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.dna_sequence_data",
+   "value": "DNA sequence data",
+   "unit": "OBI:0001573",
+   "curie": "OBI:0001573",
+   "label": "DNA sequence data",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "sampleTotalReadNumber",
+   "rationale": "The product delivers marker gene sequence reads and their sequencing metadata.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_sequence_data",
+     "modelValue": "DNA sequence data",
+     "modelLabel": "DNA sequence data",
+     "column": "sampleTotalReadNumber"
+    }
+   ]
+  },
+  {
+   "proposalId": "89b18a671841beed",
+   "productCode": "DP1.10108.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.illumina_novaseq_series_instrument",
+   "value": "Illumina NovaSeq series instrument",
+   "unit": "OBI:0003685",
+   "curie": "OBI:0003685",
+   "label": "Illumina NovaSeq series instrument",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "instrument_model",
+   "rationale": "Sequencing instrument model is Illumina NovaSeq.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.illumina_novaseq_series_instrument",
+     "modelValue": "Illumina NovaSeq series instrument",
+     "modelLabel": "Illumina NovaSeq series instrument",
+     "column": "instrument_model"
+    }
+   ]
+  },
+  {
+   "proposalId": "5941cc2b810407e6",
+   "productCode": "DP1.10108.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.multiplexed_sequence_data",
+   "value": "multiplexed sequence data",
+   "unit": "OBI:0002602",
+   "curie": "OBI:0002602",
+   "label": "multiplexed sequence data",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Barcoded (indexed) multi-sample Illumina runs produce multiplexed sequence data.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.multiplexed_sequence_data",
+     "modelValue": "multiplexed sequence data",
+     "modelLabel": "multiplexed sequence data",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "33c6fd80c78babea",
+   "productCode": "DP1.10108.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.concentration_of",
+   "value": "nucleic acid concentration",
+   "unit": "PATO:0000033",
+   "curie": "PATO:0000033",
+   "label": "concentration of",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nucleicAcidConcentration",
+   "rationale": "Concentration of extracted nucleic acids is measured per DNA extract.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "nucleic acid concentration",
+     "modelLabel": "concentration of",
+     "column": "nucleicAcidConcentration"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

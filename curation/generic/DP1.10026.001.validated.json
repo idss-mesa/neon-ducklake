@@ -1,0 +1,664 @@
+{
+ "productCode": "DP1.10026.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.535228+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10026.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10026.001.rep1.jsonl",
+   "card_sha256": "8ff307d1be16871f8dd05fd53d547f3db369012d46142cd4f26df3a5d4ff6971",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 13,
+   "seconds": 54.0,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 16,
+    "mesa_avu_from_term": 13
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 7258,
+    "cache_creation_input_tokens": 41828,
+    "cache_read_input_tokens": 109927,
+    "thinking_tokens": 905
+   },
+   "total_cost_usd": 0.5018
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10026.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10026.001.rep2.jsonl",
+   "card_sha256": "8ff307d1be16871f8dd05fd53d547f3db369012d46142cd4f26df3a5d4ff6971",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 48.2,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6239,
+    "cache_creation_input_tokens": 14106,
+    "cache_read_input_tokens": 167688,
+    "thinking_tokens": 608
+   },
+   "total_cost_usd": 0.2712
+  }
+ ],
+ "counts": {
+  "accepted": 8,
+  "human_accepted": 0,
+  "proposed": 8,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "2f887ff7fffa4466",
+   "productCode": "DP1.10026.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.specific_leaf_weight",
+   "value": "specific leaf weight",
+   "unit": "TO:0001122",
+   "curie": "TO:0001122",
+   "label": "specific leaf weight",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "leafMassPerArea",
+   "rationale": "Leaf dry mass per unit area, which is the definition of leaf mass per area.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.specific_leaf_weight",
+     "modelValue": "specific leaf weight",
+     "modelLabel": "specific leaf weight",
+     "column": "leafMassPerArea"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.specific_leaf_weight",
+     "modelValue": "specific leaf weight",
+     "modelLabel": "specific leaf weight",
+     "column": "leafMassPerArea"
+    }
+   ]
+  },
+  {
+   "proposalId": "b2e6c9d39d338c62",
+   "productCode": "DP1.10026.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.leaf_chlorophyll_content",
+   "value": "leaf chlorophyll content",
+   "unit": "TO:0012002",
+   "curie": "TO:0012002",
+   "label": "leaf chlorophyll content",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "extractChlAConc",
+   "rationale": "Chlorophyll a and b are measured in leaf extracts.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_chlorophyll_content",
+     "modelValue": "leaf chlorophyll content",
+     "modelLabel": "leaf chlorophyll content",
+     "column": "extractChlAConc"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_chlorophyll_content",
+     "modelValue": "leaf chlorophyll content",
+     "modelLabel": "leaf chlorophyll content",
+     "column": "extractChlAConc"
+    }
+   ]
+  },
+  {
+   "proposalId": "3346d1075dd537c7",
+   "productCode": "DP1.10026.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.carotenoid_content",
+   "value": "carotenoid content",
+   "unit": "TO:0000496",
+   "curie": "TO:0000496",
+   "label": "carotenoid content",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "extractCarotConc",
+   "rationale": "Total carotenoid concentration is measured in leaf extracts.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.carotenoid_content",
+     "modelValue": "carotenoid content",
+     "modelLabel": "carotenoid content",
+     "column": "extractCarotConc"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.carotenoid_content",
+     "modelValue": "carotenoid content",
+     "modelLabel": "carotenoid content",
+     "column": "extractCarotConc"
+    }
+   ]
+  },
+  {
+   "proposalId": "1412a5433167098a",
+   "productCode": "DP1.10026.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.leaf_nitrogen_content",
+   "value": "leaf nitrogen content",
+   "unit": "TO:0000543",
+   "curie": "TO:0000543",
+   "label": "leaf nitrogen content",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nitrogenPercent",
+   "rationale": "Percent foliar nitrogen on a dry weight basis.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_nitrogen_content",
+     "modelValue": "leaf nitrogen content",
+     "modelLabel": "leaf nitrogen content",
+     "column": "nitrogenPercent"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_nitrogen_content",
+     "modelValue": "leaf nitrogen content",
+     "modelLabel": "leaf nitrogen content",
+     "column": "nitrogenPercent"
+    }
+   ]
+  },
+  {
+   "proposalId": "efe38dbb2ea9eef6",
+   "productCode": "DP1.10026.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.leaf_carbon_content",
+   "value": "leaf carbon content",
+   "unit": "TO:0003088",
+   "curie": "TO:0003088",
+   "label": "leaf carbon content",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "carbonPercent",
+   "rationale": "Percent foliar carbon on a dry weight basis.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_carbon_content",
+     "modelValue": "leaf carbon content",
+     "modelLabel": "leaf carbon content",
+     "column": "carbonPercent"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_carbon_content",
+     "modelValue": "leaf carbon content",
+     "modelLabel": "leaf carbon content",
+     "column": "carbonPercent"
+    }
+   ]
+  },
+  {
+   "proposalId": "66910106397e5ca4",
+   "productCode": "DP1.10026.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.lignin_content",
+   "value": "lignin content",
+   "unit": "TO:0000731",
+   "curie": "TO:0000731",
+   "label": "lignin content",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "ligninPercent",
+   "rationale": "Foliar lignin measured by the acid detergent method.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.lignin_content",
+     "modelValue": "lignin content",
+     "modelLabel": "lignin content",
+     "column": "ligninPercent"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.lignin_content",
+     "modelValue": "lignin content",
+     "modelLabel": "lignin content",
+     "column": "ligninPercent"
+    }
+   ]
+  },
+  {
+   "proposalId": "c024a3a88ceb3ace",
+   "productCode": "DP1.10026.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "to.leaf_phosphorus_content",
+   "value": "leaf phosphorus content",
+   "unit": "TO:0001025",
+   "curie": "TO:0001025",
+   "label": "leaf phosphorus content",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "foliarPhosphorusConc",
+   "rationale": "Foliar phosphorus concentration, representing the major and minor element measurements.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_phosphorus_content",
+     "modelValue": "leaf phosphorus content",
+     "modelLabel": "leaf phosphorus content",
+     "column": "foliarPhosphorusConc"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.leaf_phosphorus_content",
+     "modelValue": "leaf phosphorus content",
+     "modelLabel": "leaf phosphorus content",
+     "column": "foliarPhosphorusConc"
+    }
+   ]
+  },
+  {
+   "proposalId": "6baaef16a21b9d8b",
+   "productCode": "DP1.10026.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are physical and chemical measurements taken on each sample.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "0158869026891bc6",
+   "productCode": "DP1.10026.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.viridiplantae",
+   "value": "Viridiplantae",
+   "unit": "NCBITaxon:33090",
+   "curie": "NCBITaxon:33090",
+   "label": "Viridiplantae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Foliage is sampled from sun-lit canopy plants, both woody and herbaceous.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.viridiplantae",
+     "modelValue": "Viridiplantae",
+     "modelLabel": "Viridiplantae",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "1ad1e8addb7c374a",
+   "productCode": "DP1.10026.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "po.vascular_leaf",
+   "value": "vascular leaf",
+   "unit": "PO:0009025",
+   "curie": "PO:0009025",
+   "label": "vascular leaf",
+   "ontologyId": "po",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "tissueDescriptor",
+   "rationale": "The material analyzed is leaf or needle tissue from vascular plants.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "po.vascular_leaf",
+     "modelValue": "vascular leaf",
+     "modelLabel": "vascular leaf",
+     "column": "tissueDescriptor"
+    }
+   ]
+  },
+  {
+   "proposalId": "96cd2824637abb5e",
+   "productCode": "DP1.10026.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chmo.elemental_analysis_isotope_ratio_mass_spectrometry",
+   "value": "elemental analysis isotope ratio mass spectrometry",
+   "unit": "CHMO:0000507",
+   "curie": "CHMO:0000507",
+   "label": "elemental analysis isotope ratio mass spectrometry",
+   "ontologyId": "chmo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "d13C",
+   "rationale": "EA-IRMS produces the d13C, d15N and C and N percent values.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.elemental_analysis_isotope_ratio_mass_spectrometry",
+     "modelValue": "elemental analysis isotope ratio mass spectrometry",
+     "modelLabel": "elemental analysis isotope ratio mass spectrometry",
+     "column": "d13C"
+    }
+   ]
+  },
+  {
+   "proposalId": "bc97cf13caaf3b5a",
+   "productCode": "DP1.10026.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chmo.spectrophotometry",
+   "value": "spectrophotometry",
+   "unit": "CHMO:0000291",
+   "curie": "CHMO:0000291",
+   "label": "spectrophotometry",
+   "ontologyId": "chmo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "extractChlAConc",
+   "rationale": "Pigments extracted in methanol are measured with a spectrometer.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.spectrophotometry",
+     "modelValue": "spectrophotometry",
+     "modelLabel": "spectrophotometry",
+     "column": "extractChlAConc"
+    }
+   ]
+  },
+  {
+   "proposalId": "a9f6625f3b38b68e",
+   "productCode": "DP1.10026.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.photosynthesis",
+   "value": "photosynthesis",
+   "unit": "GO:0015979",
+   "curie": "GO:0015979",
+   "label": "photosynthesis",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Pigment, nitrogen and d13C traits indicate photosynthetic capacity and pathway.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.photosynthesis",
+     "modelValue": "photosynthesis",
+     "modelLabel": "photosynthesis",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "605ef30ac4c51e42",
+   "productCode": "DP1.10026.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.tracheophyta",
+   "value": "Tracheophyta",
+   "unit": "NCBITaxon:58023",
+   "curie": "NCBITaxon:58023",
+   "label": "Tracheophyta",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Foliage is sampled from woody and herbaceous vascular plants in the sunlit canopy.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "90bb5786415d2e24",
+   "productCode": "DP1.10026.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "po.leaf",
+   "value": "leaf",
+   "unit": "PO:0025034",
+   "curie": "PO:0025034",
+   "label": "leaf",
+   "ontologyId": "po",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "tissueDescriptor",
+   "rationale": "Leaf tissue is the sampled material for all trait analyses.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "po.leaf",
+     "modelValue": "leaf",
+     "modelLabel": "leaf",
+     "column": "tissueDescriptor"
+    }
+   ]
+  },
+  {
+   "proposalId": "2bc9a0e5ad467c63",
+   "productCode": "DP1.10026.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.mass_spectrometry_assay",
+   "value": "mass spectrometry assay",
+   "unit": "OBI:0000470",
+   "curie": "OBI:0000470",
+   "label": "mass spectrometry assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testMethod",
+   "rationale": "EA-IRMS measures foliar C and N percent and d13C/d15N isotopes.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.mass_spectrometry_assay",
+     "modelValue": "mass spectrometry assay",
+     "modelLabel": "mass spectrometry assay",
+     "column": "testMethod"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}
