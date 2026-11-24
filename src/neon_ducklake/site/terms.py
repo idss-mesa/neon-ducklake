@@ -269,15 +269,29 @@ class Resolution:
     queryName: str | None
 
 
-def site_taxa(con: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
-    """Distinct (product, table, taxonID) of the site lake with the published name and record count."""
+def site_taxa(con: duckdb.DuckDBPyConnection, products: list[str] | None = None,
+              months: list[str] | None = None) -> list[dict[str, Any]]:
+    """Distinct (product, table, taxonID) of the site lake with the published name and record count.
+
+    ``products``/``months`` limit the rows to those source files (a stream chunk; months via ``file_stats``).
+    """
     if not site_lake.table_exists(con, "file_taxa"):
         return []
+    where, args = ["taxonID IS NOT NULL", "trim(taxonID) <> ''"], []
+    if products:
+        where.append(f"productCode IN ({','.join('?' * len(products))})")
+        args += list(products)
+    if months:
+        if not site_lake.table_exists(con, "file_stats"):
+            return []
+        where.append(f"sourceFile IN (SELECT sourceFile FROM lake.file_stats WHERE month IN "
+                     f"({','.join('?' * len(months))}))")
+        args += list(months)
     rows = con.execute(
         "SELECT productCode, tableName, taxonID, arg_max(scientificName, nRecords) AS scientificName, "
         "arg_max(taxonRank, nRecords) AS taxonRank, arg_max(vernacularName, nRecords) AS vernacularName, "
-        "sum(nRecords)::BIGINT AS nRecords FROM lake.file_taxa WHERE taxonID IS NOT NULL AND trim(taxonID) <> '' "
-        "GROUP BY ALL ORDER BY ALL").fetchall()
+        f"sum(nRecords)::BIGINT AS nRecords FROM lake.file_taxa WHERE {' AND '.join(where)} "
+        "GROUP BY ALL ORDER BY ALL", args).fetchall()
     cols = ("productCode", "tableName", "taxonID", "scientificName", "taxonRank", "vernacularName", "nRecords")
     return [dict(zip(cols, r, strict=True)) for r in rows]
 
@@ -554,6 +568,69 @@ def _search_hints(name: str | None, n: int = 3) -> str:
     return "; ".join(f"{h['curie']} {h['label']}" for h in hits[:n])
 
 
+def _existing_taxa() -> dict[tuple[str, str], tuple]:
+    with store.store(read_only=True) as sc:
+        return {(r[0], r[1]): r for r in sc.execute(
+            "SELECT taxonTypeCode, taxonID, neonName, queryName, curie, label, method, status "
+            "FROM ref_ncbitaxon_map").fetchall()}
+
+
+def _taxa_todo(taxa: list[Taxon], existing: dict[tuple[str, str], tuple]) -> list[Taxon]:
+    """'ok' exact/synonym rows are final; fallbacks and failures are retried (searches come from the cache)."""
+    return [t for t in taxa if (row := existing.get(t.key) or (None,) * 8)[7] != "ok" or row[6] not in KEEP_METHODS
+            or (row[6] != "exact" and is_placeholder(row[3]))]
+
+
+def _store_taxa(sc: duckdb.DuckDBPyConnection, todo: list[Taxon], res: dict[tuple[str, str], Resolution],
+                now: Any) -> None:
+    if res:
+        sc.executemany(
+            "INSERT OR REPLACE INTO ref_ncbitaxon_map (taxonTypeCode, taxonID, neonName, queryName, curie, "
+            "label, method, status, resolvedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [[t.typeCode, t.taxonID, t.neonName, r.queryName, r.curie, r.label, r.method, r.status, now]
+             for t in todo for r in [res[t.key]]])
+
+
+def resolve_chunk_taxa(site: str, product: str, months: list[str]) -> dict[str, Any]:
+    """NCBITaxon mapping of one stream chunk's taxa (its ``file_taxa`` rows), before its object AVUs are built.
+
+    The same resolver as ``site terms`` (type codes, accepted names, the level ladder, the OLS cache), but only
+    for the chunk's taxa and without the reports: rows land in ``ref_ncbitaxon_map`` so ``avus.build_desired``
+    tags the chunk's data objects with ``ncbitaxon.*`` terms. The site lake is read under its lock and released
+    before any OLS lookup. Returns {'distinct', 'resolvedNow', 'keptOk', 'ok', 'pending'}.
+    """
+    site = site.upper()
+    out: dict[str, Any] = {"distinct": 0, "resolvedNow": 0, "keptOk": 0, "ok": 0, "pending": 0}
+    paths = site_lake.site_paths(site)
+    with env.file_lock(f"site-lake-{site}", blocking=True):
+        if not paths.catalog_file.exists():
+            return out
+        con = site_lake.open_site_lake(site, read_only=True)
+        try:
+            raw = site_taxa(con, [product], months)
+            taxa: list[Taxon] = []
+            if raw:
+                has_catalog = site_lake.attach_catalog(con)
+                taxa = build_taxa(con, raw, choose_type_codes(con, raw, has_catalog), has_catalog)
+        finally:
+            con.close()
+    if not taxa:
+        return out
+    store.open_store().close()  # the store and its contract tables exist
+    existing = _existing_taxa()
+    todo = _taxa_todo(taxa, existing)
+    res = resolve_taxa(todo) if todo else {}
+    if res:
+        with store.store() as sc:
+            _store_taxa(sc, todo, res, env.utcnow())
+    statuses = Counter(r.status for r in res.values())
+    out.update(distinct=len(taxa), resolvedNow=len(res), keptOk=len(taxa) - len(todo),
+               ok=len(taxa) - len(todo) + statuses.get("ok", 0), pending=statuses.get("pending", 0))
+    log.info("terms %s %s %s: %d taxa, %d resolved now, %d pending", site, product, ",".join(months),
+             len(taxa), len(res), out["pending"])
+    return out
+
+
 def run_taxa(con: duckdb.DuckDBPyConnection, site: str, has_catalog: bool) -> dict[str, Any]:
     raw = site_taxa(con)
     choices = choose_type_codes(con, raw, has_catalog)
@@ -562,22 +639,12 @@ def run_taxa(con: duckdb.DuckDBPyConnection, site: str, has_catalog: bool) -> di
             log.warning("taxonTypeCode tie for %s/%s: %s chosen over %s (match %.1f%%)", product, table,
                         ch.taxonTypeCode, ", ".join(ch.tiedWith), 100 * ch.matchRate)
     taxa = build_taxa(con, raw, choices, has_catalog)
-    with store.store(read_only=True) as sc:
-        existing = {(r[0], r[1]): r for r in sc.execute(
-            "SELECT taxonTypeCode, taxonID, neonName, queryName, curie, label, method, status "
-            "FROM ref_ncbitaxon_map").fetchall()}
-    # 'ok' exact/synonym rows are final; fallbacks and failures are retried (searches come from the cache)
-    todo = [t for t in taxa if (row := existing.get(t.key) or (None,) * 8)[7] != "ok" or row[6] not in KEEP_METHODS
-            or (row[6] != "exact" and is_placeholder(row[3]))]
+    existing = _existing_taxa()
+    todo = _taxa_todo(taxa, existing)
     res = resolve_taxa(todo) if todo else {}
     now = env.utcnow()
     with store.store() as sc:
-        if res:
-            sc.executemany(
-                "INSERT OR REPLACE INTO ref_ncbitaxon_map (taxonTypeCode, taxonID, neonName, queryName, curie, "
-                "label, method, status, resolvedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                [[t.typeCode, t.taxonID, t.neonName, r.queryName, r.curie, r.label, r.method, r.status, now]
-                 for t in todo for r in [res[t.key]]])
+        _store_taxa(sc, todo, res, now)
         sc.execute("DELETE FROM terms_taxon_types WHERE siteCode = ?", [site])
         if choices:
             sc.executemany("INSERT INTO terms_taxon_types VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -1220,17 +1287,20 @@ def render(site: str, summary: dict[str, Any]) -> str:
 def main(site: str) -> int:
     site = site.upper()
     paths = site_lake.site_paths(site)
-    con = site_lake.open_site_lake(site, read_only=True)
-    try:
-        has_catalog = site_lake.attach_catalog(con)
-        if not has_catalog:
-            log.warning("catalog lake not attached: taxonTypeCode, accepted names, families and TypeEco unavailable")
-        store.open_store().close()  # create the store + contract tables
-        summary = {"site": site, "at": env.utcnow().isoformat(), "catalog": has_catalog,
-                   "taxa": run_taxa(con, site, has_catalog), "units": run_units(con, site),
-                   "nlcd": run_nlcd(), "biome": run_biome(con, site, has_catalog)}
-    finally:
-        con.close()
+    # the site lake is read under its lock: a concurrent writer (a chunk download or stack) would fail the attach
+    with env.file_lock(f"site-lake-{site}", blocking=True):
+        con = site_lake.open_site_lake(site, read_only=True)
+        try:
+            has_catalog = site_lake.attach_catalog(con)
+            if not has_catalog:
+                log.warning("catalog lake not attached: taxonTypeCode, accepted names, families and TypeEco "
+                            "unavailable")
+            store.open_store().close()  # create the store + contract tables
+            summary = {"site": site, "at": env.utcnow().isoformat(), "catalog": has_catalog,
+                       "taxa": run_taxa(con, site, has_catalog), "units": run_units(con, site),
+                       "nlcd": run_nlcd(), "biome": run_biome(con, site, has_catalog)}
+        finally:
+            con.close()
     summary["exported"] = store.export_parquet()
     env.write_json(paths.reports_dir / "terms.json", summary)
     print(render(site, summary))

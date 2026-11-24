@@ -1,0 +1,556 @@
+{
+ "productCode": "DP1.10104.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.541099+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10104.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10104.001.rep1.jsonl",
+   "card_sha256": "ccfff3dcca57b86d049be7f811ac5e5536a706c612fa77d782df5fc241ae36f0",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 49.6,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 20,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6511,
+    "cache_creation_input_tokens": 32067,
+    "cache_read_input_tokens": 111073,
+    "thinking_tokens": 598
+   },
+   "total_cost_usd": 0.3512
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10104.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10104.001.rep2.jsonl",
+   "card_sha256": "ccfff3dcca57b86d049be7f811ac5e5536a706c612fa77d782df5fc241ae36f0",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 12,
+   "seconds": 54.3,
+   "tool_calls": 31,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 19,
+    "mesa_avu_from_term": 12
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6834,
+    "cache_creation_input_tokens": 21086,
+    "cache_read_input_tokens": 124118,
+    "thinking_tokens": 510
+   },
+   "total_cost_usd": 0.267
+  }
+ ],
+ "counts": {
+  "accepted": 10,
+  "human_accepted": 0,
+  "proposed": 2,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "743a01a1515dc84a",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.bacteria",
+   "value": "Bacteria",
+   "unit": "NCBITaxon:2",
+   "curie": "NCBITaxon:2",
+   "label": "Bacteria",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "PLFA biomarkers quantify soil bacterial biomass (branched, cyclopropyl, 10-methyl fatty acids).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "b44a636c0454efa8",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.fungi",
+   "value": "Fungi",
+   "unit": "NCBITaxon:4751",
+   "curie": "NCBITaxon:4751",
+   "label": "Fungi",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "cis18To2n912ScaledConcentration",
+   "rationale": "Linoleic acid (18:2n6,9) PLFA is the standard fungal biomass biomarker.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": "cis18To2n912ScaledConcentration"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "64399bc978fc3e33",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pco.microbial_community",
+   "value": "soil microbial community",
+   "unit": "PCO:1000004",
+   "curie": "PCO:1000004",
+   "label": "microbial community",
+   "ontologyId": "pco",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "totalLipidScaledConcentration",
+   "rationale": "Total PLFA estimates the biomass of the whole soil microbial community.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "soil microbial community",
+     "modelLabel": "microbial community",
+     "column": "totalLipidScaledConcentration"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "soil microbial community",
+     "modelLabel": "microbial community",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "fb3d15e229707659",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil cores up to 30 cm deep are the material sampled and analyzed.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "4cefbe56d1314c93",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pato.concentration_of",
+   "value": "phospholipid fatty acid concentration in soil",
+   "unit": "PATO:0000033",
+   "curie": "PATO:0000033",
+   "label": "concentration of",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "totalLipidScaledConcentration",
+   "rationale": "Measurements are per-gram concentrations of individual and total lipids.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "phospholipid fatty acid concentration in soil",
+     "modelLabel": "concentration of",
+     "column": "totalLipidScaledConcentration"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "total phospholipid fatty acid concentration",
+     "modelLabel": "concentration of",
+     "column": "totalLipidScaledConcentration"
+    }
+   ]
+  },
+  {
+   "proposalId": "e17ebb81b4376aa5",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.phospholipid",
+   "value": "phospholipid",
+   "unit": "CHEBI:16247",
+   "curie": "CHEBI:16247",
+   "label": "phospholipid",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "totalLipidScaledConcentration",
+   "rationale": "Microbial membrane phospholipids are the analyte class used as biomass proxy.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.phospholipid",
+     "modelValue": "phospholipid",
+     "modelLabel": "phospholipid",
+     "column": "totalLipidScaledConcentration"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.phospholipid",
+     "modelValue": "phospholipid",
+     "modelLabel": "phospholipid",
+     "column": "totalLipidScaledConcentration"
+    }
+   ]
+  },
+  {
+   "proposalId": "bd0b33a0611eb684",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chebi.fatty_acid_methyl_ester",
+   "value": "fatty acid methyl ester",
+   "unit": "CHEBI:4986",
+   "curie": "CHEBI:4986",
+   "label": "fatty acid methyl ester",
+   "ontologyId": "chebi",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "c16To0ScaledConcentration",
+   "rationale": "Individual lipids are quantified as fatty acid methyl esters (e.g., c16:0).",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.fatty_acid_methyl_ester",
+     "modelValue": "fatty acid methyl ester",
+     "modelLabel": "fatty acid methyl ester",
+     "column": "c16To0ScaledConcentration"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chebi.fatty_acid_methyl_ester",
+     "modelValue": "fatty acid methyl ester",
+     "modelLabel": "fatty acid methyl ester",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "c10edcf9ec54d4db",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "chmo.gas_chromatography",
+   "value": "gas chromatography",
+   "unit": "CHMO:0001002",
+   "curie": "CHMO:0001002",
+   "label": "gas chromatography",
+   "ontologyId": "chmo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "lipidInternalStandardResponse",
+   "rationale": "PLFA extracts are quantified by GC with an internal standard.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.gas_chromatography",
+     "modelValue": "gas chromatography",
+     "modelLabel": "gas chromatography",
+     "column": "lipidInternalStandardResponse"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.gas_chromatography",
+     "modelValue": "gas chromatography",
+     "modelLabel": "gas chromatography",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ea9f52a33799f32c",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.gas_chromatography_mass_spectrometry_assay",
+   "value": "gas chromatography mass spectrometry assay",
+   "unit": "OBI:0003110",
+   "curie": "OBI:0003110",
+   "label": "gas chromatography mass spectrometry assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Abstract states some analyses use GC-MS for lipid biomarker quantification.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.gas_chromatography_mass_spectrometry_assay",
+     "modelValue": "gas chromatography mass spectrometry assay",
+     "modelLabel": "gas chromatography mass spectrometry assay",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.gas_chromatography_mass_spectrometry_assay",
+     "modelValue": "gas chromatography mass spectrometry assay",
+     "modelLabel": "gas chromatography mass spectrometry assay",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "c2f1334d16eacdd1",
+   "productCode": "DP1.10104.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are quality-checked laboratory measurement results for each soil sample.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "8a58c71e2382e22a",
+   "productCode": "DP1.10104.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.mass",
+   "value": "freeze-dried sample mass",
+   "unit": "PATO:0000125",
+   "curie": "PATO:0000125",
+   "label": "mass",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "freezeDryMass",
+   "rationale": "Soil sample mass after freeze drying is recorded",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.mass",
+     "modelValue": "freeze-dried sample mass",
+     "modelLabel": "mass",
+     "column": "freezeDryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "7fdf87e4f8e267ec",
+   "productCode": "DP1.10104.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chmo.freeze_drying",
+   "value": "freeze drying",
+   "unit": "CHMO:0001553",
+   "curie": "CHMO:0001553",
+   "label": "freeze drying",
+   "ontologyId": "chmo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "freezeDryDate",
+   "rationale": "Soil samples are freeze-dried before PLFA extraction",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.freeze_drying",
+     "modelValue": "freeze drying",
+     "modelLabel": "freeze drying",
+     "column": "freezeDryDate"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

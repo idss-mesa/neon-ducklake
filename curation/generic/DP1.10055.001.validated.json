@@ -1,0 +1,570 @@
+{
+ "productCode": "DP1.10055.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.537189+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10055.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10055.001.rep1.jsonl",
+   "card_sha256": "e7fc4ddfd4ef66138864488fbfd6325816d9e35b2086a992c8395dce689c0f03",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 46.3,
+   "tool_calls": 24,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 14,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5826,
+    "cache_creation_input_tokens": 23874,
+    "cache_read_input_tokens": 81860,
+    "thinking_tokens": 737
+   },
+   "total_cost_usd": 0.3239
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10055.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10055.001.rep2.jsonl",
+   "card_sha256": "e7fc4ddfd4ef66138864488fbfd6325816d9e35b2086a992c8395dce689c0f03",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 43.7,
+   "tool_calls": 21,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 12,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 5533,
+    "cache_creation_input_tokens": 13348,
+    "cache_read_input_tokens": 69707,
+    "thinking_tokens": 964
+   },
+   "total_cost_usd": 0.2314
+  }
+ ],
+ "counts": {
+  "accepted": 5,
+  "human_accepted": 0,
+  "proposed": 9,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "d53e790852ded049",
+   "productCode": "DP1.10055.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ppo.plant_phenological_trait",
+   "value": "plant phenological trait",
+   "unit": "PPO:0002000",
+   "curie": "PPO:0002000",
+   "label": "plant phenological trait",
+   "ontologyId": "ppo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "phenophaseName",
+   "rationale": "Phenophases are whole-plant phenological traits recorded per individual.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ppo.plant_phenological_trait",
+     "modelValue": "plant phenological trait",
+     "modelLabel": "plant phenological trait",
+     "column": "phenophaseName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ppo.plant_phenological_trait",
+     "modelValue": "plant phenological trait",
+     "modelLabel": "plant phenological trait",
+     "column": "phenophaseStatus"
+    }
+   ]
+  },
+  {
+   "proposalId": "cd1c8ea3272db43c",
+   "productCode": "DP1.10055.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ppo.phenology_observing_process",
+   "value": "phenology observing process",
+   "unit": "PPO:0007004",
+   "curie": "PPO:0007004",
+   "label": "phenology observing process",
+   "ontologyId": "ppo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "samplingProtocolVersion",
+   "rationale": "Status-based in-situ observation of phenophases on tagged plants, following USA-NPN.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ppo.phenology_observing_process",
+     "modelValue": "phenology observing process",
+     "modelLabel": "phenology observing process",
+     "column": "samplingProtocolVersion"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ppo.phenology_observing_process",
+     "modelValue": "phenology observing process",
+     "modelLabel": "phenology observing process",
+     "column": "samplingProtocolVersion"
+    }
+   ]
+  },
+  {
+   "proposalId": "d96ead48b6cdcbba",
+   "productCode": "DP1.10055.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.leaf_development",
+   "value": "leaf development",
+   "unit": "GO:0048366",
+   "curie": "GO:0048366",
+   "label": "leaf development",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "phenophaseName",
+   "rationale": "Phenophases such as breaking leaf buds and initial growth track green-up.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.leaf_development",
+     "modelValue": "leaf development",
+     "modelLabel": "leaf development",
+     "column": "phenophaseName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.leaf_development",
+     "modelValue": "leaf development",
+     "modelLabel": "leaf development",
+     "column": "phenophaseName"
+    }
+   ]
+  },
+  {
+   "proposalId": "2f556aa0801fbb3a",
+   "productCode": "DP1.10055.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.leaf_senescence",
+   "value": "leaf senescence",
+   "unit": "GO:0010150",
+   "curie": "GO:0010150",
+   "label": "leaf senescence",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "phenophaseName",
+   "rationale": "The 'Colored leaves' phenophase tracks autumn senescence.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.leaf_senescence",
+     "modelValue": "leaf senescence",
+     "modelLabel": "leaf senescence",
+     "column": "phenophaseName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.leaf_senescence",
+     "modelValue": "leaf senescence",
+     "modelLabel": "leaf senescence",
+     "column": "phenophaseName"
+    }
+   ]
+  },
+  {
+   "proposalId": "8656a1cecd55056c",
+   "productCode": "DP1.10055.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "go.flower_development",
+   "value": "flower development",
+   "unit": "GO:0009908",
+   "curie": "GO:0009908",
+   "label": "flower development",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "phenophaseName",
+   "rationale": "Reproductive phenophases track the timing of flowering.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.flower_development",
+     "modelValue": "flower development",
+     "modelLabel": "flower development",
+     "column": "phenophaseName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.flower_development",
+     "modelValue": "flower development",
+     "modelLabel": "flower development",
+     "column": "phenophaseName"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "1ac5e5c7112aaa98",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.tracheophyta",
+   "value": "Tracheophyta",
+   "unit": "NCBITaxon:58023",
+   "curie": "NCBITaxon:58023",
+   "label": "Tracheophyta",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "Tagged vascular plants (grasses, forbs, shrubs, trees) are the observed organisms.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "fc58b52480114ca6",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ppo.flower_presence",
+   "value": "flower presence",
+   "unit": "PPO:0002032",
+   "curie": "PPO:0002032",
+   "label": "flower presence",
+   "ontologyId": "ppo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "phenophaseStatus",
+   "rationale": "Reproductive phenophase status, for example 'Open flowers', records whether flowers are present.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ppo.flower_presence",
+     "modelValue": "flower presence",
+     "modelLabel": "flower presence",
+     "column": "phenophaseStatus"
+    }
+   ]
+  },
+  {
+   "proposalId": "70ffeef59fd89619",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ppo.true_leaf_presence",
+   "value": "true leaf presence",
+   "unit": "PPO:0002015",
+   "curie": "PPO:0002015",
+   "label": "true leaf presence",
+   "ontologyId": "ppo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "phenophaseStatus",
+   "rationale": "Leaf phenophase status, for example 'Leaves', records whether leaves are present.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ppo.true_leaf_presence",
+     "modelValue": "true leaf presence",
+     "modelLabel": "true leaf presence",
+     "column": "phenophaseStatus"
+    }
+   ]
+  },
+  {
+   "proposalId": "9e0823b161b3f463",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "iao.measurement_datum",
+   "value": "measurement datum",
+   "unit": "IAO:0000109",
+   "curie": "IAO:0000109",
+   "label": "measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "phenophaseIntensity",
+   "rationale": "Records of phenophase status and intensity for each individual on each observation day.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.measurement_datum",
+     "modelValue": "measurement datum",
+     "modelLabel": "measurement datum",
+     "column": "phenophaseIntensity"
+    }
+   ]
+  },
+  {
+   "proposalId": "335dc3b5a4379639",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "po.whole_plant",
+   "value": "whole plant",
+   "unit": "PO:0000003",
+   "curie": "PO:0000003",
+   "label": "whole plant",
+   "ontologyId": "po",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "individualID",
+   "rationale": "The observed unit is the individual plant or patch.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "po.whole_plant",
+     "modelValue": "whole plant",
+     "modelLabel": "whole plant",
+     "column": "individualID"
+    }
+   ]
+  },
+  {
+   "proposalId": "08076d91133751d2",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncbitaxon.magnoliopsida",
+   "value": "Magnoliopsida",
+   "unit": "NCBITaxon:3398",
+   "curie": "NCBITaxon:3398",
+   "label": "Magnoliopsida",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "Tagged flowering plants (grasses, forbs, shrubs, trees) are monitored for phenology",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.magnoliopsida",
+     "modelValue": "Magnoliopsida",
+     "modelLabel": "Magnoliopsida",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "20f5b0bd55c5687a",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ppo.open_flower_presence",
+   "value": "open flower presence",
+   "unit": "PPO:0002035",
+   "curie": "PPO:0002035",
+   "label": "open flower presence",
+   "ontologyId": "ppo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "phenophaseName",
+   "rationale": "'Open flowers' phenophase records whether open flowers are present",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ppo.open_flower_presence",
+     "modelValue": "open flower presence",
+     "modelLabel": "open flower presence",
+     "column": "phenophaseName"
+    }
+   ]
+  },
+  {
+   "proposalId": "62d6468aa39b785e",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ppo.breaking_vegetative_bud",
+   "value": "breaking vegetative bud",
+   "unit": "PPO:0001012",
+   "curie": "PPO:0001012",
+   "label": "breaking vegetative bud",
+   "ontologyId": "ppo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "phenophaseName",
+   "rationale": "'Breaking leaf buds' phenophase observes vegetative buds at bud burst",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ppo.breaking_vegetative_bud",
+     "modelValue": "breaking vegetative bud",
+     "modelLabel": "breaking vegetative bud",
+     "column": "phenophaseName"
+    }
+   ]
+  },
+  {
+   "proposalId": "8c200b9b4690309d",
+   "productCode": "DP1.10055.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.categorical_measurement_datum",
+   "value": "categorical measurement datum",
+   "unit": "OBI:0000938",
+   "curie": "OBI:0000938",
+   "label": "categorical measurement datum",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "phenophaseIntensity",
+   "rationale": "Status (yes/no) and intensity classes are reported on categorical scales",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.categorical_measurement_datum",
+     "modelValue": "categorical measurement datum",
+     "modelLabel": "categorical measurement datum",
+     "column": "phenophaseIntensity"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

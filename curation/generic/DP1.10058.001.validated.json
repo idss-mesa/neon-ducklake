@@ -1,0 +1,516 @@
+{
+ "productCode": "DP1.10058.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.537454+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10058.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10058.001.rep1.jsonl",
+   "card_sha256": "54c81541131e300fed76b6d4806d8fda415d8648e6aa15d69b581bb21e7026b6",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 63.8,
+   "tool_calls": 30,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 24,
+    "mesa_avu_from_term": 6
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 7051,
+    "cache_creation_input_tokens": 38435,
+    "cache_read_input_tokens": 139902,
+    "thinking_tokens": 1883
+   },
+   "total_cost_usd": 0.4765
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10058.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10058.001.rep2.jsonl",
+   "card_sha256": "54c81541131e300fed76b6d4806d8fda415d8648e6aa15d69b581bb21e7026b6",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 48.8,
+   "tool_calls": 27,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 5876,
+    "cache_creation_input_tokens": 24812,
+    "cache_read_input_tokens": 154325,
+    "thinking_tokens": 847
+   },
+   "total_cost_usd": 0.3469
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "ac60ab2f1ce7ea55",
+   "productCode": "DP1.10058.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.tracheophyta",
+   "value": "Tracheophyta",
+   "unit": "NCBITaxon:58023",
+   "curie": "NCBITaxon:58023",
+   "label": "Tracheophyta",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "scientificName",
+   "rationale": "The product surveys vascular plants: grasses, forbs, shrubs and trees in the plots.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": "scientificName"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.tracheophyta",
+     "modelValue": "Tracheophyta",
+     "modelLabel": "Tracheophyta",
+     "column": "scientificName"
+    }
+   ]
+  },
+  {
+   "proposalId": "2b3d9db6cfb88c9a",
+   "productCode": "DP1.10058.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "bco.restricted_search_taxonomic_inventory_process",
+   "value": "restricted search taxonomic inventory process",
+   "unit": "BCO:0000051",
+   "curie": "BCO:0000051",
+   "label": "restricted search taxonomic inventory process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "A complete search for species within fixed 1, 10, 100 and 400 m2 plots.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.restricted_search_taxonomic_inventory_process",
+     "modelValue": "multi-scale plot plant species survey",
+     "modelLabel": "restricted search taxonomic inventory process",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.restricted_search_taxonomic_inventory_process",
+     "modelValue": "restricted search taxonomic inventory process",
+     "modelLabel": "restricted search taxonomic inventory process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "bf2f3b0078e83132",
+   "productCode": "DP1.10058.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pco.community_species_richness",
+   "value": "community species richness",
+   "unit": "PCO:0000010",
+   "curie": "PCO:0000010",
+   "label": "community species richness",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "taxonID",
+   "rationale": "Species presence lists at nested plot scales measure plant species richness.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_richness",
+     "modelValue": "community species richness",
+     "modelLabel": "community species richness",
+     "column": "taxonID"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.community_species_richness",
+     "modelValue": "community species richness",
+     "modelLabel": "community species richness",
+     "column": "taxonID"
+    }
+   ]
+  },
+  {
+   "proposalId": "fc056cddc30942b0",
+   "productCode": "DP1.10058.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "bco.taxonomic_inventory",
+   "value": "taxonomic inventory",
+   "unit": "BCO:0000048",
+   "curie": "BCO:0000048",
+   "label": "taxonomic inventory",
+   "ontologyId": "bco",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Records are species lists with cover abundance for set plots and sampling bouts.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_inventory",
+     "modelValue": "taxonomic inventory",
+     "modelLabel": "taxonomic inventory",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_inventory",
+     "modelValue": "taxonomic inventory",
+     "modelLabel": "taxonomic inventory",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "1c0627f89a7f339d",
+   "productCode": "DP1.10058.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.plant_litter",
+   "value": "plant litter",
+   "unit": "ENVO:01000628",
+   "curie": "ENVO:01000628",
+   "label": "plant litter",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "otherVariables",
+   "rationale": "Litter cover is recorded in otherVariables. Built by hand from the tool's pattern because the tool budget ran out.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_litter",
+     "modelValue": "plant litter",
+     "modelLabel": "plant litter",
+     "column": "otherVariables"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_litter",
+     "modelValue": "plant litter",
+     "modelLabel": "plant litter",
+     "column": "otherVariables"
+    }
+   ]
+  },
+  {
+   "proposalId": "e02d697e5043ce01",
+   "productCode": "DP1.10058.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "otherVariables",
+   "rationale": "Bare soil cover is recorded in otherVariables. Built by hand from the tool's pattern because the tool budget ran out.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "otherVariables"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "otherVariables"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "07d605349e6e4206",
+   "productCode": "DP1.10058.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "agro.soil_coverage_visual_assessment_protocol",
+   "value": "ocular estimate of plant and ground percent cover",
+   "unit": "AGRO:00000291",
+   "curie": "AGRO:00000291",
+   "label": "soil coverage visual assessment protocol",
+   "ontologyId": "agro",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "percentCover",
+   "rationale": "percentCover is an ocular (visual) percent estimate of the area covered by each species or ground cover.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.soil_coverage_visual_assessment_protocol",
+     "modelValue": "ocular estimate of plant and ground percent cover",
+     "modelLabel": "soil coverage visual assessment protocol",
+     "column": "percentCover"
+    }
+   ]
+  },
+  {
+   "proposalId": "e024775aca0de628",
+   "productCode": "DP1.10058.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.vegetation_layer",
+   "value": "vegetation layer",
+   "unit": "ENVO:01000355",
+   "curie": "ENVO:01000355",
+   "label": "vegetation layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "percentCover",
+   "rationale": "Cover and presence are observed across the plot's vegetation layers.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.vegetation_layer",
+     "modelValue": "vegetation layer",
+     "modelLabel": "vegetation layer",
+     "column": "percentCover"
+    }
+   ]
+  },
+  {
+   "proposalId": "dae664bc49ea4e48",
+   "productCode": "DP1.10058.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pco.ecological_community",
+   "value": "plant community",
+   "unit": "PCO:0000002",
+   "curie": "PCO:0000002",
+   "label": "ecological community",
+   "ontologyId": "pco",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product describes plant community composition. Built by hand from the tool's pattern because the tool budget ran out.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.ecological_community",
+     "modelValue": "plant community",
+     "modelLabel": "ecological community",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e9011f0a6147216a",
+   "productCode": "DP1.10058.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "to.plant_height",
+   "value": "plant height",
+   "unit": "TO:0000207",
+   "curie": "TO:0000207",
+   "label": "plant height",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "heightPlantSpecies",
+   "rationale": "Ocular estimate of plant species height in 1m2 subplots.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.plant_height",
+     "modelValue": "plant height",
+     "modelLabel": "plant height",
+     "column": "heightPlantSpecies"
+    }
+   ]
+  },
+  {
+   "proposalId": "54bd8fe0e08a6464",
+   "productCode": "DP1.10058.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.quadrat_sampling",
+   "value": "quadrat sampling",
+   "unit": "STATO:0000505",
+   "curie": "STATO:0000505",
+   "label": "quadrat sampling",
+   "ontologyId": "stato",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "percentCover",
+   "rationale": "Percent cover estimated by eye in square 1m2 quadrat subplots.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.quadrat_sampling",
+     "modelValue": "quadrat sampling",
+     "modelLabel": "quadrat sampling",
+     "column": "percentCover"
+    }
+   ]
+  },
+  {
+   "proposalId": "dc60999de8bbb066",
+   "productCode": "DP1.10058.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.herb_and_fern_layer",
+   "value": "herb and fern layer",
+   "unit": "ENVO:01000337",
+   "curie": "ENVO:01000337",
+   "label": "herb and fern layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Ground-level vegetation layer observed for cover in small subplots.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.herb_and_fern_layer",
+     "modelValue": "herb and fern layer",
+     "modelLabel": "herb and fern layer",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

@@ -353,9 +353,25 @@ class Mirror:
             by_coll[posixpath.dirname(it[1])].append(it)
 
         def remote(coll: str) -> dict[str, list[Replica]]:
-            with self.limit, self.pool.lease() as session:
-                self.bump("queries")
-                return remote_replicas(session, coll)
+            # a refused handshake or a reset is retried on a fresh session (lease() discards the broken one),
+            # like a put; the listing must not fail the whole push on one refused connection
+            tries = 0
+            while True:
+                try:
+                    with self.limit, self.pool.lease() as session:
+                        self.bump("queries")
+                        return remote_replicas(session, coll)
+                except Exception as exc:
+                    kind = irods_error_kind(exc)
+                    if kind not in ("reset", "timeout", "conn_limit") or tries >= MAX_CONN_RETRIES:
+                        raise
+                    tries += 1
+                    self.limit.on_error(kind)
+                    self.pool.trim(self.limit.limit)
+                    log.warning("list %s: %s; concurrency now %d, retry %d/%d in %.0fs", coll, _err(exc),
+                                self.limit.limit, tries, MAX_CONN_RETRIES, NET_WAIT_S * tries)
+                    self.bump("net_retries")
+                    self.sleep(NET_WAIT_S * tries)
 
         remote_futs = {c: pool.submit(remote, c) for c in sorted(by_coll)}
         remote_state = {c: f.result() for c, f in remote_futs.items()}

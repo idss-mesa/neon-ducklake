@@ -1,7 +1,7 @@
 -- Attach every neon-ducklake lake READ_ONLY. Run it from the repository (data) root: every path below is
 -- relative to the working directory.
 --
--- Usage (DuckDB 1.5.5 CLI or Python, extensions already installed, this file only LOADs them):
+-- Usage (DuckDB 2.0.0 CLI or Python, extensions already installed, this file only LOADs them):
 --   cd <neon-ducklake root> && duckdb -init sql/attach_all.sql
 --   D .read sql/attach_all.sql
 --   python: neon_ducklake.catalog_lake.attach_all(con), which attaches the same way but with absolute paths

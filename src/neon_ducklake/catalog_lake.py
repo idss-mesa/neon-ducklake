@@ -26,7 +26,7 @@ from typing import Any
 
 import pyarrow as pa
 
-from . import env, flatten
+from . import duck, env, flatten
 from .flatten import TABLES, TableSpec
 
 log = logging.getLogger("neon_ducklake.catalog_lake")
@@ -124,11 +124,11 @@ def stage(con: Any, spec: TableSpec, source_sql: str, run_id: str) -> str:
 
 def stage_arrow(con: Any, spec: TableSpec, tbl: pa.Table, run_id: str) -> str:
     view = f"arrow_{spec.name}"
-    con.register(view, tbl)
+    duck.register(con, view, tbl)
     try:
         return stage(con, spec, f"SELECT * FROM {view}", run_id)
     finally:
-        con.unregister(view)
+        duck.unregister(con, view)
 
 
 def stage_parquet(con: Any, spec: TableSpec, paths: list[Path], run_id: str) -> str:

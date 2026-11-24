@@ -59,6 +59,15 @@ Public API (keep it small; everything else in this module is private):
 ``export_parquet(con=None) -> dict[str, int]``
     Writes every store table except the search cache to ``ref/ontology_maps/<table>.parquet``,
     ordered by key. A file is replaced only when its bytes change.
+    ``export_parquet(vm_scoped=True) -> Path`` writes the same files to this VM's own export directory
+    ``work/ontology_export/vm/<vm>/`` and returns it: several VMs publish their exports side by side to
+    ``<IRODS_ROOT>/ref/ontology_maps/vm/<vm>/`` (``bootstrap.publish_ontology``) instead of overwriting one
+    shared copy, and ``bootstrap`` merges all of them (:func:`merge_parquet`).
+
+``merge_parquet(con, table, path) -> dict[str, int]``
+    Merges an exported Parquet file into the store: rows with a new key are inserted; a row whose key exists
+    replaces the local row only when its ``status`` ranks higher (:data:`STATUS_RANK`); otherwise local rows
+    win.
 
 ``norm_curie(value) -> str | None``, ``iri_for(curie) -> str``
     CURIE helpers, the same as neon-avu-eval ``validate_load.py``.
@@ -154,6 +163,10 @@ COMPOSITE_KEYS: dict[str, tuple[str, ...]] = {
 EXPORT_TABLES: tuple[str, ...] = ("ols_term_cache", "ref_ncbitaxon_map", "ref_unit_map", "ref_nlcd_envo",
                                   "ref_site_envo", "curation_avus", "terms_taxon_types", "ref_site_envo_feature",
                                   "site_envo_proposals")
+# which of two rows with the same key is better when merging several VMs' exports (higher wins; unknown -1)
+STATUS_RANK: dict[str, int] = {"human_accepted": 7, "curated": 6, "accepted": 6, "ok": 5, "not_applicable": 4,
+                               "obsolete": 4, "rejected": 3, "proposed": 2, "heuristic": 2, "unmapped": 1,
+                               "unresolved": 1, "pending": 0}
 
 
 class OLSUnavailable(RuntimeError):
@@ -168,6 +181,11 @@ def store_path() -> Path:
 
 def maps_dir() -> Path:
     return env.ROOT / "ref" / "ontology_maps"
+
+
+def vm_export_dir(vm: str | None = None) -> Path:
+    """This VM's own export directory (scratch): ``work/ontology_export/vm/<vm>/``."""
+    return env.WORK_DIR / "ontology_export" / "vm" / (vm or env.vm_id())
 
 
 def registry_path() -> Path:
@@ -787,9 +805,13 @@ def _md5(path: Path) -> str | None:
 
 
 def export_parquet(con: duckdb.DuckDBPyConnection | None = None, *, out_dir: Path | None = None,
-                   tables: Iterable[str] = EXPORT_TABLES) -> dict[str, int]:
-    """Export store tables to ``ref/ontology_maps/<table>.parquet`` (ordered by key; replaced only on change)."""
-    target = out_dir or maps_dir()
+                   tables: Iterable[str] = EXPORT_TABLES, vm_scoped: bool = False) -> dict[str, int] | Path:
+    """Export store tables to ``ref/ontology_maps/<table>.parquet`` (ordered by key; replaced only on change).
+
+    ``vm_scoped=True`` exports to :func:`vm_export_dir` (unless ``out_dir``) and returns that directory, the
+    local tree to upload to ``<IRODS_ROOT>/ref/ontology_maps/vm/<vm>/``; otherwise returns row counts.
+    """
+    target = out_dir or (vm_export_dir() if vm_scoped else maps_dir())
     target.mkdir(parents=True, exist_ok=True)
     counts: dict[str, int] = {}
     ctx = contextlib.nullcontext(con) if con is not None else store(read_only=True)
@@ -807,4 +829,35 @@ def export_parquet(con: duckdb.DuckDBPyConnection | None = None, *, out_dir: Pat
             else:
                 os.replace(tmp, final)
     log.info("exported %d ontology tables to %s", len(counts), target)
-    return counts
+    return target if vm_scoped else counts
+
+
+def _rank_sql(alias: str) -> str:
+    whens = " ".join(f"WHEN '{k}' THEN {v}" for k, v in STATUS_RANK.items())
+    return f"(CASE {alias}.\"status\" {whens} ELSE -1 END)"
+
+
+def merge_parquet(con: duckdb.DuckDBPyConnection, table: str, path: Path) -> dict[str, int]:
+    """Merge one exported Parquet file into ``table``: {inserted, upgraded}. See the module docstring."""
+    lit = "'" + str(path).replace("'", "''") + "'"
+    in_file = {r[0] for r in con.execute(f"DESCRIBE SELECT * FROM read_parquet({lit})").fetchall()}
+    cols = [c for c in SCHEMAS[table] if c in in_file]
+    key = [k for k in table_key(table) if k in cols]
+    q = ", ".join(f'"{c}"' for c in cols)
+    before = int(con.execute(f'SELECT count(*) FROM "{table}"').fetchone()[0])
+    upgraded = 0
+    con.execute(f'CREATE OR REPLACE TEMP TABLE _merge_in AS SELECT {q} FROM read_parquet({lit})')
+    try:
+        if "status" in cols and key and len(key) == len(table_key(table)):
+            on = " AND ".join(f'i."{k}" = t."{k}"' for k in key)
+            con.execute(f'CREATE OR REPLACE TEMP TABLE _merge_better AS SELECT i.* FROM _merge_in i JOIN "{table}" t '
+                        f"ON {on} WHERE {_rank_sql('i')} > {_rank_sql('t')}")
+            upgraded = int(con.execute("SELECT count(*) FROM _merge_better").fetchone()[0])
+            if upgraded:
+                con.execute(f'INSERT OR REPLACE INTO "{table}" ({q}) SELECT {q} FROM _merge_better')
+            con.execute("DROP TABLE IF EXISTS _merge_better")
+        con.execute(f'INSERT OR IGNORE INTO "{table}" ({q}) SELECT {q} FROM _merge_in')
+    finally:
+        con.execute("DROP TABLE IF EXISTS _merge_in")
+    inserted = int(con.execute(f'SELECT count(*) FROM "{table}"').fetchone()[0]) - before
+    return {"inserted": inserted, "upgraded": upgraded}

@@ -1,0 +1,581 @@
+{
+ "productCode": "DP1.10023.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.534955+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10023.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10023.001.rep1.jsonl",
+   "card_sha256": "f38c33cd521fe86599fa02895a43e8ac6df96c18bd54cd4d6fffd85f1622c710",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 52.1,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6684,
+    "cache_creation_input_tokens": 28479,
+    "cache_read_input_tokens": 90099,
+    "thinking_tokens": 1099
+   },
+   "total_cost_usd": 0.3796
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10023.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10023.001.rep2.jsonl",
+   "card_sha256": "f38c33cd521fe86599fa02895a43e8ac6df96c18bd54cd4d6fffd85f1622c710",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 60.9,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6769,
+    "cache_creation_input_tokens": 36540,
+    "cache_read_input_tokens": 106756,
+    "thinking_tokens": 1290
+   },
+   "total_cost_usd": 0.4491
+  }
+ ],
+ "counts": {
+  "accepted": 6,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 2
+ },
+ "accepted": [
+  {
+   "proposalId": "124a4c3721b1cf2a",
+   "productCode": "DP1.10023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.embryophyta",
+   "value": "Embryophyta",
+   "unit": "NCBITaxon:3193",
+   "curie": "NCBITaxon:3193",
+   "label": "Embryophyta",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "herbGroup",
+   "rationale": "Herbaceous land plants harvested, including forbs, graminoids and bryophytes.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.embryophyta",
+     "modelValue": "Embryophyta",
+     "modelLabel": "Embryophyta",
+     "column": "herbGroup"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.embryophyta",
+     "modelValue": "Embryophyta",
+     "modelLabel": "Embryophyta",
+     "column": "herbGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "530254f898892ae5",
+   "productCode": "DP1.10023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.herb_and_fern_layer",
+   "value": "herb and fern layer",
+   "unit": "ENVO:01000337",
+   "curie": "ENVO:01000337",
+   "label": "herb and fern layer",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The herbaceous vegetation layer is what gets clip-harvested.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.herb_and_fern_layer",
+     "modelValue": "herb and fern layer",
+     "modelLabel": "herb and fern layer",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.herb_and_fern_layer",
+     "modelValue": "herb and fern layer",
+     "modelLabel": "herb and fern layer",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "bf1f1b6fc65522c7",
+   "productCode": "DP1.10023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.specimen_collection_process",
+   "value": "specimen collection process",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "clipArea",
+   "rationale": "Biomass is collected from fixed-area clip strips.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "clip harvest",
+     "modelLabel": "specimen collection process",
+     "column": "clipArea"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "clipArea"
+    }
+   ]
+  },
+  {
+   "proposalId": "591fa7f4a70a1eab",
+   "productCode": "DP1.10023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.balance",
+   "value": "balance",
+   "unit": "OBI:0001135",
+   "curie": "OBI:0001135",
+   "label": "balance",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "dryMass",
+   "rationale": "Dried samples are weighed on a balance to get dry mass.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.balance",
+     "modelValue": "balance",
+     "modelLabel": "balance",
+     "column": "dryMass"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.balance",
+     "modelValue": "balance",
+     "modelLabel": "balance",
+     "column": "dryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "dea056e81a3ce838",
+   "productCode": "DP1.10023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.mass_measurement_datum",
+   "value": "mass measurement datum",
+   "unit": "IAO:0000414",
+   "curie": "IAO:0000414",
+   "label": "mass measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "dryMass",
+   "rationale": "The records are dry-mass measurements for each sample and functional group.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.mass_measurement_datum",
+     "modelValue": "mass measurement datum",
+     "modelLabel": "mass measurement datum",
+     "column": "dryMass"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.mass_measurement_datum",
+     "modelValue": "mass measurement datum",
+     "modelLabel": "mass measurement datum",
+     "column": "dryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "b62be16bc76b4961",
+   "productCode": "DP1.10023.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ecocore.terrestrial_primary_production",
+   "value": "terrestrial primary production",
+   "unit": "ECOCORE:00000183",
+   "curie": "ECOCORE:00000183",
+   "label": "terrestrial primary production",
+   "ontologyId": "ecocore",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Herbaceous biomass harvest is used to estimate aboveground net primary productivity.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ecocore.terrestrial_primary_production",
+     "modelValue": "terrestrial primary production",
+     "modelLabel": "terrestrial primary production",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ecocore.terrestrial_primary_production",
+     "modelValue": "terrestrial primary production",
+     "modelLabel": "terrestrial primary production",
+     "column": null
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "881c0e201e6c69a5",
+   "productCode": "DP1.10023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "to.plant_dry_weight",
+   "value": "plant dry weight",
+   "unit": "TO:0000352",
+   "curie": "TO:0000352",
+   "label": "plant dry weight",
+   "ontologyId": "to",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "dryMass",
+   "rationale": "Oven-dried mass of the clipped herbaceous biomass.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "to.plant_dry_weight",
+     "modelValue": "plant dry weight",
+     "modelLabel": "plant dry weight",
+     "column": "dryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "445fb549a7b3a332",
+   "productCode": "DP1.10023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "po.shoot_system",
+   "value": "aboveground herbaceous shoot system",
+   "unit": "PO:0009006",
+   "curie": "PO:0009006",
+   "label": "shoot system",
+   "ontologyId": "po",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "dryMass",
+   "rationale": "Aboveground plant parts clipped at ground level make up the sampled biomass.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "po.shoot_system",
+     "modelValue": "aboveground herbaceous shoot system",
+     "modelLabel": "shoot system",
+     "column": "dryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "81314302234695d5",
+   "productCode": "DP1.10023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "agro.aboveground_biomass",
+   "value": "aboveground biomass",
+   "unit": "AGRO:00000546",
+   "curie": "AGRO:00000546",
+   "label": "aboveground biomass",
+   "ontologyId": "agro",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "dryMass",
+   "rationale": "Clip-harvested aboveground herbaceous biomass is quantified as oven-dried mass per functional group.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "agro.aboveground_biomass",
+     "modelValue": "aboveground biomass",
+     "modelLabel": "aboveground biomass",
+     "column": "dryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "ddb6bba524a8c101",
+   "productCode": "DP1.10023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.plant_matter",
+   "value": "plant matter",
+   "unit": "ENVO:01001121",
+   "curie": "ENVO:01001121",
+   "label": "plant matter",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "dryMass",
+   "rationale": "The sampled material is clipped plant tissue that gets dried and weighed.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.plant_matter",
+     "modelValue": "plant matter",
+     "modelLabel": "plant matter",
+     "column": "dryMass"
+    }
+   ]
+  },
+  {
+   "proposalId": "f220f675edb9b8cd",
+   "productCode": "DP1.10023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "chmo.oven_drying",
+   "value": "oven drying",
+   "unit": "CHMO:0001554",
+   "curie": "CHMO:0001554",
+   "label": "oven drying",
+   "ontologyId": "chmo",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "dryingHours",
+   "rationale": "Samples are oven-dried to constant weight before weighing.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "chmo.oven_drying",
+     "modelValue": "oven drying",
+     "modelLabel": "oven drying",
+     "column": "dryingHours"
+    }
+   ]
+  },
+  {
+   "proposalId": "5c47dc8bb632ed14",
+   "productCode": "DP1.10023.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "go.photosynthesis",
+   "value": "photosynthesis",
+   "unit": "GO:0015979",
+   "curie": "GO:0015979",
+   "label": "photosynthesis",
+   "ontologyId": "go",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": "herbGroup",
+   "rationale": "The product relates to C3 and C4 photosynthetic carbon uptake, including warm- and cool-season graminoid groups.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "go.photosynthesis",
+     "modelValue": "photosynthesis",
+     "modelLabel": "photosynthesis",
+     "column": "herbGroup"
+    }
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "proposalId": "dcc9cf0cf7f69c87",
+   "productCode": "DP1.10023.001",
+   "status": "rejected",
+   "reason": "duplicate_deterministic",
+   "attribute": "",
+   "value": "Poaceae",
+   "unit": "",
+   "curie": "NCBITaxon:4479",
+   "label": "Poaceae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "herbGroup",
+   "rationale": "Grasses are a main herbaceous functional group (warm and cool season graminoids).",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.poaceae",
+     "modelValue": "Poaceae",
+     "modelLabel": "Poaceae",
+     "column": "herbGroup"
+    }
+   ]
+  },
+  {
+   "proposalId": "9f6e218f6a7d3b3f",
+   "productCode": "DP1.10023.001",
+   "status": "rejected",
+   "reason": "duplicate_deterministic",
+   "attribute": "",
+   "value": "Fabaceae",
+   "unit": "",
+   "curie": "NCBITaxon:3803",
+   "label": "Fabaceae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "herbGroup",
+   "rationale": "N-fixing plants (legumes) are a separate functional group.",
+   "model": "claude-opus-5-5",
+   "reps": 0,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": false,
+     "reason": "duplicate_deterministic",
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fabaceae",
+     "modelValue": "Fabaceae",
+     "modelLabel": "Fabaceae",
+     "column": "herbGroup"
+    }
+   ]
+  }
+ ]
+}

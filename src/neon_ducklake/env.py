@@ -31,6 +31,7 @@ import json
 import logging
 import os
 import re
+import socket
 import subprocess
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
@@ -269,17 +270,33 @@ def tool_versions() -> dict[str, str]:
 # ---------------------------------------------------------------- locks
 
 @contextlib.contextmanager
-def file_lock(name: str, *, blocking: bool = False) -> Iterator[None]:
-    """Process-level exclusive lock in work/locks (fcntl; released on exit/crash)."""
+def file_lock(name: str, *, blocking: bool = False, timeout_s: float | None = None,
+              poll_s: float = 0.5) -> Iterator[None]:
+    """Process-level exclusive lock in work/locks (fcntl; released on exit/crash).
+
+    ``blocking=False``: fail at once (``SystemExit``) when another process holds it. ``blocking=True``: wait;
+    with ``timeout_s`` the wait is bounded (polled every ``poll_s``) and ends in ``SystemExit``.
+    """
+    import time
+
     LOCK_DIR.mkdir(parents=True, exist_ok=True)
     path = LOCK_DIR / f"{name}.lock"
     fh = path.open("a+")
     try:
-        flags = fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB)
-        try:
-            fcntl.flock(fh, flags)
-        except BlockingIOError as exc:
-            raise SystemExit(f"another neon-ducklake process holds the '{name}' lock ({path})") from exc
+        if blocking and timeout_s is None:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+        else:
+            deadline = time.monotonic() + (timeout_s or 0.0) if blocking else None
+            while True:
+                try:
+                    fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError as exc:
+                    if deadline is None or time.monotonic() >= deadline:
+                        waited = f" after waiting {timeout_s:.0f}s" if deadline is not None else ""
+                        raise SystemExit(f"another neon-ducklake process holds the '{name}' lock ({path})"
+                                         f"{waited}") from exc
+                    time.sleep(max(0.01, min(poll_s, deadline - time.monotonic())))
         fh.seek(0)
         fh.truncate()
         fh.write(f"{os.getpid()}\n")
@@ -434,3 +451,107 @@ def write_json(path: Path, obj: Any) -> None:
     tmp = path.with_name(path.name + ".part")
     tmp.write_text(json.dumps(obj, indent=1, default=str, ensure_ascii=False))
     os.replace(tmp, path)
+
+
+# ---------------------------------------------------------------- multi-VM identity and secrets mode
+
+VM_ID_ENV = "NEON_DUCKLAKE_VM_ID"
+SECRETS_ENV = "NEON_DUCKLAKE_SECRETS"
+SECRETS_MODES = ("auto", "env", "keyring")
+_VM_ID_BAD = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+MESA_LOCK_TIMEOUT_ENV = "NEON_DUCKLAKE_MESA_LOCK_TIMEOUT_S"
+MESA_LOCK_TIMEOUT_DEFAULT_S = 1800.0
+
+
+def mesa_lock_timeout(environ: Mapping[str, str] | None = None) -> float:
+    """``$NEON_DUCKLAKE_MESA_LOCK_TIMEOUT_S`` (default 1800): how long history/recorder wait for ``mesa-tag``."""
+    e = os.environ if environ is None else environ
+    raw = (e.get(MESA_LOCK_TIMEOUT_ENV) or "").strip()
+    if not raw:
+        return MESA_LOCK_TIMEOUT_DEFAULT_S
+    try:
+        v = float(raw)
+    except ValueError as exc:
+        raise SystemExit(f"{MESA_LOCK_TIMEOUT_ENV}={raw!r} is not a number of seconds") from exc
+    return max(0.0, v)
+
+
+def _read_id(*paths: str) -> str:
+    for p in paths:
+        try:
+            v = Path(p).read_text().strip()
+        except OSError:
+            continue
+        if v:
+            return v
+    return ""
+
+
+def machine_id() -> str:
+    """``/etc/machine-id`` (or the D-Bus copy); "" when unavailable. Stable across reboots of one machine."""
+    return _read_id("/etc/machine-id", "/var/lib/dbus/machine-id")
+
+
+def boot_id() -> str:
+    """``/proc/sys/kernel/random/boot_id``; "" when unavailable. New at every boot of the kernel."""
+    return _read_id("/proc/sys/kernel/random/boot_id")
+
+
+def vm_id(environ: Mapping[str, str] | None = None) -> str:
+    """This worker's identity in Data Store claims and spool paths (docs/STREAMING.md).
+
+    ``$NEON_DUCKLAKE_VM_ID`` when set, else the short host name. Characters outside ``[A-Za-z0-9._-]``
+    become ``-`` so the id is always a safe iRODS path component.
+    """
+    e = os.environ if environ is None else environ
+    raw = (e.get(VM_ID_ENV) or "").strip() or socket.gethostname().split(".")[0]
+    return _VM_ID_BAD.sub("-", raw).strip("-.") or "unknown-vm"
+
+
+def secrets_mode(environ: Mapping[str, str] | None = None) -> str:
+    """``$NEON_DUCKLAKE_SECRETS``: ``auto`` (default), ``env`` or ``keyring``; anything else is an error.
+
+    ``scripts/with-secrets.sh`` implements the modes; :func:`secrets_sources` mirrors its choice.
+    """
+    e = os.environ if environ is None else environ
+    raw = (e.get(SECRETS_ENV) or "auto").strip().lower() or "auto"
+    if raw not in SECRETS_MODES:
+        raise SystemExit(f"{SECRETS_ENV}={raw!r}: choose one of {', '.join(SECRETS_MODES)}")
+    return raw
+
+
+def irods_env_files(environ: Mapping[str, str] | None = None, home: Path | None = None) -> tuple[Path, Path]:
+    """(``irods_environment.json``, ``.irodsA``) honouring ``IRODS_ENVIRONMENT_FILE`` / ``IRODS_AUTHENTICATION_FILE``."""
+    e = os.environ if environ is None else environ
+    base = (home or Path.home()) / ".irods"
+    env_file = Path(e["IRODS_ENVIRONMENT_FILE"]).expanduser() if e.get("IRODS_ENVIRONMENT_FILE") \
+        else base / "irods_environment.json"
+    auth_file = Path(e["IRODS_AUTHENTICATION_FILE"]).expanduser() if e.get("IRODS_AUTHENTICATION_FILE") \
+        else base / ".irodsA"
+    return env_file, auth_file
+
+
+def secrets_sources(environ: Mapping[str, str] | None = None, home: Path | None = None) -> dict[str, str]:
+    """Where ``with-secrets.sh`` takes each secret from, without reading any secret.
+
+    ``{"mode": ..., "neon": "env"|"keyring"|"missing", "irods": "env"|"irods-env-file"|"keyring"|"missing"}``.
+
+    - ``keyring``: both from the login keyring (the sparky-1 behaviour).
+    - ``env``: ``NEON_TOKEN`` and ``MESA_MCP_IRODS__USER``/``__PASSWORD`` from the environment, else the
+      iRODS environment file with ``.irodsA`` (``iinit``); the keyring is never touched.
+    - ``auto``: per secret, the environment (or the iRODS environment file) when present, else the keyring.
+    """
+    e = os.environ if environ is None else environ
+    mode = secrets_mode(e)
+    env_file, auth_file = irods_env_files(e, home)
+    have_token = bool((e.get("NEON_TOKEN") or "").strip())
+    have_irods_env = bool((e.get("MESA_MCP_IRODS__USER") or "").strip() and (e.get("MESA_MCP_IRODS__PASSWORD") or ""))
+    have_irods_file = env_file.is_file() and auth_file.is_file()
+    if mode == "keyring":
+        return {"mode": mode, "neon": "keyring", "irods": "keyring"}
+    neon = "env" if have_token else ("missing" if mode == "env" else "keyring")
+    irods = "env" if have_irods_env else "irods-env-file" if have_irods_file else (
+        "missing" if mode == "env" else "keyring")
+    return {"mode": mode, "neon": neon, "irods": irods}

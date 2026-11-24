@@ -4,6 +4,24 @@ All notable changes to neon-ducklake are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- **DuckDB 2.0.** `duckdb==2.0.0` (was 1.5.5); mesa-mcp pinned to `0e2e561` and mesa-ducklake to `00a2ee8`,
+  their 0.2.0 releases on DuckDB 2.0. `preflight` wants duckdb 2.0.0 and LOADs the `ducklake` and `spatial`
+  extensions from `~/.duckdb/extensions/v2.0.0/<platform>` (never INSTALLed). The published
+  `ducklake.reader` AVU says `duckdb 2.0.0`.
+- **`register`/`unregister` go through `neon_ducklake.duck`.** DuckDB 2.0 refuses them while an earlier
+  `execute(...).fetchone()` result on the connection is unfinished (every site `stack` unit failed with
+  `ResourceInUseException`); the helpers `complete()` that result first. The recount query builds its Arrow
+  table with `con.sql(...)`, which 2.0 no longer warns copies the rows.
+- **One-way for readers.** DuckDB 2.0 opens the existing lakes (DuckLake spec 1.0) without migrating them,
+  but its first write moves the catalog file to DuckDB storage version 69, which DuckDB 1.x cannot open, and
+  a new lake is created at DuckLake spec 1.1. The `ducklake` extension sets the catalog's storage version
+  itself, so `storage_compatibility_version` does not keep it 1.x-readable. Verified 2026-10-23 on copies of
+  `neon_catalog.ducklake`.
+
 ## [0.1.0] - 2026-09-28
 
 First release. It builds a NEON Data API metadata lakehouse and full-AVU site subtrees as one MESA DuckLake

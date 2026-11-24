@@ -1,0 +1,558 @@
+{
+ "productCode": "DP1.00044.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.531977+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00044.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00044.001.rep1.jsonl",
+   "card_sha256": "281818c831c75b3ddcd361a64739c3d41bc4eebc1595f75a56999550ac5ab6be",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 9,
+   "seconds": 42.6,
+   "tool_calls": 26,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 9
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 5456,
+    "cache_creation_input_tokens": 23334,
+    "cache_read_input_tokens": 74074,
+    "thinking_tokens": 464
+   },
+   "total_cost_usd": 0.3106
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.00044.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.00044.001.rep2.jsonl",
+   "card_sha256": "281818c831c75b3ddcd361a64739c3d41bc4eebc1595f75a56999550ac5ab6be",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 50.3,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 17,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 12,
+    "output_tokens": 6165,
+    "cache_creation_input_tokens": 20723,
+    "cache_read_input_tokens": 104497,
+    "thinking_tokens": 464
+   },
+   "total_cost_usd": 0.31
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 6,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "c1d035fa24016cb2",
+   "productCode": "DP1.00044.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.volume_of_hydrological_precipitation",
+   "value": "bulk precipitation",
+   "unit": "ENVO:01001363",
+   "curie": "ENVO:01001363",
+   "label": "volume of hydrological precipitation",
+   "ontologyId": "envo",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipBulk",
+   "rationale": "precipBulk is the precipitation amount accumulated over hourly and daily intervals",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.volume_of_hydrological_precipitation",
+     "modelValue": "bulk precipitation",
+     "modelLabel": "volume of hydrological precipitation",
+     "column": "precipBulk"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.volume_of_hydrological_precipitation",
+     "modelValue": "bulk precipitation",
+     "modelLabel": "volume of hydrological precipitation",
+     "column": "precipBulk"
+    }
+   ]
+  },
+  {
+   "proposalId": "edc4164c9bd02642",
+   "productCode": "DP1.00044.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.hydrological_precipitation_process",
+   "value": "hydrological precipitation process",
+   "unit": "ENVO:01000703",
+   "curie": "ENVO:01000703",
+   "label": "hydrological precipitation process",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product quantifies precipitation that falls on the site",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_precipitation_process",
+     "modelValue": "hydrological precipitation process",
+     "modelLabel": "hydrological precipitation process",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.hydrological_precipitation_process",
+     "modelValue": "hydrological precipitation process",
+     "modelLabel": "hydrological precipitation process",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "09871cebee303e12",
+   "productCode": "DP1.00044.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.snowfall",
+   "value": "snowfall",
+   "unit": "ENVO:01000895",
+   "curie": "ENVO:01000895",
+   "label": "snowfall",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The weighing gauge in a DFIR fence captures solid precipitation; snowfall is a product keyword",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.snowfall",
+     "modelValue": "snowfall",
+     "modelLabel": "snowfall",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.snowfall",
+     "modelValue": "snowfall",
+     "modelLabel": "snowfall",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "5d002b31186c93c0",
+   "productCode": "DP1.00044.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.snow",
+   "value": "snow",
+   "unit": "ENVO:01000406",
+   "curie": "ENVO:01000406",
+   "label": "snow",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Frozen precipitation collected and weighed by the gauge",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.snow",
+     "modelValue": "snow",
+     "modelLabel": "snow",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.snow",
+     "modelValue": "snow",
+     "modelLabel": "snow",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "026a4ac02481a127",
+   "productCode": "DP1.00044.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.balance",
+   "value": "weighing gauge",
+   "unit": "OBI:0001135",
+   "curie": "OBI:0001135",
+   "label": "balance",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The Belfort weighing gauge weighs the collected precipitation to measure its amount",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.balance",
+     "modelValue": "weighing gauge",
+     "modelLabel": "balance",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.balance",
+     "modelValue": "weighing gauge",
+     "modelLabel": "balance",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f94dc5f5360493b9",
+   "productCode": "DP1.00044.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.time_sampled_measurement_data_set",
+   "value": "time sampled measurement data set",
+   "unit": "IAO:0000584",
+   "curie": "IAO:0000584",
+   "label": "time sampled measurement data set",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "startDateTime",
+   "rationale": "Hourly and daily precipitation time series",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "time sampled measurement data set",
+     "modelLabel": "time sampled measurement data set",
+     "column": "startDateTime"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.time_sampled_measurement_data_set",
+     "modelValue": "hourly and daily precipitation time series",
+     "modelLabel": "time sampled measurement data set",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "8ae2e211eb5a5434",
+   "productCode": "DP1.00044.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "iao.scalar_measurement_datum",
+   "value": "scalar measurement datum",
+   "unit": "IAO:0000032",
+   "curie": "IAO:0000032",
+   "label": "scalar measurement datum",
+   "ontologyId": "iao",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "precipBulk",
+   "rationale": "Each record is a numeric value with a unit",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.scalar_measurement_datum",
+     "modelValue": "scalar measurement datum",
+     "modelLabel": "scalar measurement datum",
+     "column": "precipBulk"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "iao.scalar_measurement_datum",
+     "modelValue": "scalar measurement datum",
+     "modelLabel": "scalar measurement datum",
+     "column": "precipBulk"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "c7b6cd2fd629a3ab",
+   "productCode": "DP1.00044.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obcs.measurement_uncertainty",
+   "value": "expanded uncertainty of bulk precipitation",
+   "unit": "OBCS:0000340",
+   "curie": "OBCS:0000340",
+   "label": "measurement uncertainty",
+   "ontologyId": "obcs",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "precipBulkExpUncert",
+   "rationale": "Expanded uncertainty reported with each bulk precipitation value",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obcs.measurement_uncertainty",
+     "modelValue": "expanded uncertainty of bulk precipitation",
+     "modelLabel": "measurement uncertainty",
+     "column": "precipBulkExpUncert"
+    }
+   ]
+  },
+  {
+   "proposalId": "4659c4b0fbfe2ae7",
+   "productCode": "DP1.00044.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.rain",
+   "value": "rain",
+   "unit": "ENVO:01001564",
+   "curie": "ENVO:01001564",
+   "label": "rain",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Liquid precipitation collected by the gauge",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.rain",
+     "modelValue": "rain",
+     "modelLabel": "rain",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "75f2705fd384729b",
+   "productCode": "DP1.00044.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.waterbased_rainfall",
+   "value": "rainfall",
+   "unit": "ENVO:01000830",
+   "curie": "ENVO:01000830",
+   "label": "water-based rainfall",
+   "ontologyId": "envo",
+   "aspect": "process",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Rainfall is a primary precipitation form measured (rain keyword).",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.waterbased_rainfall",
+     "modelValue": "rainfall",
+     "modelLabel": "water-based rainfall",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "e65d0b10355fadaf",
+   "productCode": "DP1.00044.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.rainwater",
+   "value": "rainwater",
+   "unit": "ENVO:01000600",
+   "curie": "ENVO:01000600",
+   "label": "rainwater",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Liquid precipitation collected in the gauge bucket.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.rainwater",
+     "modelValue": "rainwater",
+     "modelLabel": "rainwater",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "206554c2dd07b76f",
+   "productCode": "DP1.00044.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.longitudinal_mass_measurement_assay",
+   "value": "weighing gauge precipitation measurement",
+   "unit": "OBI:0600026",
+   "curie": "OBI:0600026",
+   "label": "longitudinal mass measurement assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "precipBulk",
+   "rationale": "Precipitation comes from repeated weighings of collected mass over time.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.longitudinal_mass_measurement_assay",
+     "modelValue": "weighing gauge precipitation measurement",
+     "modelLabel": "longitudinal mass measurement assay",
+     "column": "precipBulk"
+    }
+   ]
+  },
+  {
+   "proposalId": "59ae64ab83d567f5",
+   "productCode": "DP1.00044.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.quantitative_confidence_value",
+   "value": "expanded uncertainty",
+   "unit": "OBI:0000071",
+   "curie": "OBI:0000071",
+   "label": "quantitative confidence value",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "precipBulkExpUncert",
+   "rationale": "Expanded uncertainty reported for each bulk precipitation value.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.quantitative_confidence_value",
+     "modelValue": "expanded uncertainty",
+     "modelLabel": "quantitative confidence value",
+     "column": "precipBulkExpUncert"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

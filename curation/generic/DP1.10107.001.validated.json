@@ -1,0 +1,622 @@
+{
+ "productCode": "DP1.10107.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.541361+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10107.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10107.001.rep1.jsonl",
+   "card_sha256": "2aa7d4f7cf07d5e0529010508d219241757211a85c3306972f7109555bb759f9",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 50.0,
+   "tool_calls": 29,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 6501,
+    "cache_creation_input_tokens": 26021,
+    "cache_read_input_tokens": 64138,
+    "thinking_tokens": 552
+   },
+   "total_cost_usd": 0.2971
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10107.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10107.001.rep2.jsonl",
+   "card_sha256": "2aa7d4f7cf07d5e0529010508d219241757211a85c3306972f7109555bb759f9",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 51.7,
+   "tool_calls": 25,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 14,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6184,
+    "cache_creation_input_tokens": 17668,
+    "cache_read_input_tokens": 92074,
+    "thinking_tokens": 626
+   },
+   "total_cost_usd": 0.2305
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 8,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "a5ba234eff79a315",
+   "productCode": "DP1.10107.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.bacteria",
+   "value": "Bacteria",
+   "unit": "NCBITaxon:2",
+   "curie": "NCBITaxon:2",
+   "label": "Bacteria",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Soil metagenomes capture bacterial genomes; keywords list bacteria.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.bacteria",
+     "modelValue": "Bacteria",
+     "modelLabel": "Bacteria",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "b5bb3026c3d4f873",
+   "productCode": "DP1.10107.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.archaea",
+   "value": "Archaea",
+   "unit": "NCBITaxon:2157",
+   "curie": "NCBITaxon:2157",
+   "label": "Archaea",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Keywords list archaea as organisms captured in soil metagenomes.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.archaea",
+     "modelValue": "Archaea",
+     "modelLabel": "Archaea",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.archaea",
+     "modelValue": "Archaea",
+     "modelLabel": "Archaea",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "9ae4c4bfd67eec20",
+   "productCode": "DP1.10107.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.fungi",
+   "value": "Fungi",
+   "unit": "NCBITaxon:4751",
+   "curie": "NCBITaxon:4751",
+   "label": "Fungi",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Keywords list fungi as soil microbes represented in metagenomes.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.fungi",
+     "modelValue": "Fungi",
+     "modelLabel": "Fungi",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "60da384c12639099",
+   "productCode": "DP1.10107.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "pco.microbial_community",
+   "value": "microbial community",
+   "unit": "PCO:1000004",
+   "curie": "PCO:1000004",
+   "label": "microbial community",
+   "ontologyId": "pco",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Shotgun metagenomics characterizes the whole soil microbial community.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "soil microbial community",
+     "modelLabel": "microbial community",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pco.microbial_community",
+     "modelValue": "microbial community",
+     "modelLabel": "microbial community",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "f4770fb99c768fde",
+   "productCode": "DP1.10107.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "envo.soil",
+   "value": "soil",
+   "unit": "ENVO:00001998",
+   "curie": "ENVO:00001998",
+   "label": "soil",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "sampleMaterial",
+   "rationale": "Samples are soil cores; sampleMaterial is soil.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "sampleMaterial"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil",
+     "modelValue": "soil",
+     "modelLabel": "soil",
+     "column": "sampleMaterial"
+    }
+   ]
+  },
+  {
+   "proposalId": "8f03281dd886ca14",
+   "productCode": "DP1.10107.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.whole_metagenome_sequencing_assay",
+   "value": "whole metagenome sequencing assay",
+   "unit": "OBI:0002623",
+   "curie": "OBI:0002623",
+   "label": "whole metagenome sequencing assay",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "investigation_type",
+   "rationale": "Product is shotgun metagenomic sequencing of soil samples.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.whole_metagenome_sequencing_assay",
+     "modelValue": "whole metagenome sequencing assay",
+     "modelLabel": "whole metagenome sequencing assay",
+     "column": "investigation_type"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.whole_metagenome_sequencing_assay",
+     "modelValue": "whole metagenome sequencing assay",
+     "modelLabel": "whole metagenome sequencing assay",
+     "column": "investigation_type"
+    }
+   ]
+  },
+  {
+   "proposalId": "e81ceb8ba0f4be95",
+   "productCode": "DP1.10107.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "testMethod",
+   "rationale": "The mms_metagenomeDnaExtraction table records DNA extraction from soil.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "testMethod"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "testMethod"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "f693ddd8a5eee14c",
+   "productCode": "DP1.10107.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "envo.soil_horizon",
+   "value": "soil horizon",
+   "unit": "ENVO:03600030",
+   "curie": "ENVO:03600030",
+   "label": "soil horizon",
+   "ontologyId": "envo",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Organic and mineral horizons are sampled separately.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "envo.soil_horizon",
+     "modelValue": "soil horizon",
+     "modelLabel": "soil horizon",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "ee55bc80008e4db7",
+   "productCode": "DP1.10107.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.library_preparation",
+   "value": "library preparation",
+   "unit": "OBI:0000711",
+   "curie": "OBI:0000711",
+   "label": "library preparation",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "labPrepMethod",
+   "rationale": "Sequencing libraries are prepared with adapters and indexes before sequencing.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.library_preparation",
+     "modelValue": "library preparation",
+     "modelLabel": "library preparation",
+     "column": "labPrepMethod"
+    }
+   ]
+  },
+  {
+   "proposalId": "9654aff07dd354ea",
+   "productCode": "DP1.10107.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.dna_sequence_data",
+   "value": "DNA sequence data",
+   "unit": "OBI:0001573",
+   "curie": "OBI:0001573",
+   "label": "DNA sequence data",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product delivers minimally processed metagenomic DNA sequence data.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_sequence_data",
+     "modelValue": "DNA sequence data",
+     "modelLabel": "DNA sequence data",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "713fd42595265cc3",
+   "productCode": "DP1.10107.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.concentration_of",
+   "value": "concentration of extracted nucleic acids",
+   "unit": "PATO:0000033",
+   "curie": "PATO:0000033",
+   "label": "concentration of",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nucleicAcidConcentration",
+   "rationale": "Concentration of extracted nucleic acid is measured for each DNA extract.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.concentration_of",
+     "modelValue": "concentration of extracted nucleic acids",
+     "modelLabel": "concentration of",
+     "column": "nucleicAcidConcentration"
+    }
+   ]
+  },
+  {
+   "proposalId": "84f0ba98926f6b85",
+   "productCode": "DP1.10107.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.illumina_novaseq_series_instrument",
+   "value": "Illumina NovaSeq series instrument",
+   "unit": "OBI:0003685",
+   "curie": "OBI:0003685",
+   "label": "Illumina NovaSeq series instrument",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "instrument_model",
+   "rationale": "Sequencing ran on Illumina NovaSeq instruments; the series term covers other years.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.illumina_novaseq_series_instrument",
+     "modelValue": "Illumina NovaSeq series instrument",
+     "modelLabel": "Illumina NovaSeq series instrument",
+     "column": "instrument_model"
+    }
+   ]
+  },
+  {
+   "proposalId": "7c1f184ab32f8b3a",
+   "productCode": "DP1.10107.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.sequence_data",
+   "value": "sequence data",
+   "unit": "OBI:0000973",
+   "curie": "OBI:0000973",
+   "label": "sequence data",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "The product delivers minimally processed DNA sequence data plus lab metadata.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.sequence_data",
+     "modelValue": "sequence data",
+     "modelLabel": "sequence data",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "86e44b68fdbcb343",
+   "productCode": "DP1.10107.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "stato.sequence_read_count",
+   "value": "sequence read count",
+   "unit": "STATO:0000064",
+   "curie": "STATO:0000064",
+   "label": "sequence read count",
+   "ontologyId": "stato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sampleTotalReadNumber",
+   "rationale": "Records the total and quality-filtered read counts per sample.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "stato.sequence_read_count",
+     "modelValue": "sequence read count",
+     "modelLabel": "sequence read count",
+     "column": "sampleTotalReadNumber"
+    }
+   ]
+  },
+  {
+   "proposalId": "26e8c40acaedbfaa",
+   "productCode": "DP1.10107.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "ncit.nucleic_acid_concentration_measurement",
+   "value": "Nucleic Acid Concentration Measurement",
+   "unit": "NCIT:C171277",
+   "curie": "NCIT:C171277",
+   "label": "Nucleic Acid Concentration Measurement",
+   "ontologyId": "ncit",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "nucleicAcidConcentration",
+   "rationale": "Records the concentration of DNA extracted from each soil sample.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncit.nucleic_acid_concentration_measurement",
+     "modelValue": "Nucleic Acid Concentration Measurement",
+     "modelLabel": "Nucleic Acid Concentration Measurement",
+     "column": "nucleicAcidConcentration"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

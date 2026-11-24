@@ -6,15 +6,24 @@ Per work unit (``unit_id`` = a collection path; usually that collection plus its
    for its direct data objects' AVUs (``DataObjectMeta`` with ``Collection.name == unit``). Replica
    rows collapse by ``DataObject.id``. Targets with no AVU rows at all get one existence query.
 2. ``add = desired - current``; ``remove = journal-owned - desired``. Journal-owned means an
-   ``op='add'`` row for that (scope, path, triple) in status applied/recorded that was not later
+   ``op='add'`` row for that (scope, path, triple) in status applied/spooled/recorded that was not later
    removed. ``ipc*`` and ``mesa.enabled`` are never added or removed, nor is anything we don't own.
+   **Adoption**: a desired AVU already present in iRODS but not owned (typically written by another VM
+   that died mid-apply, whose journal rows never reached the Data Store backup this host restored) is
+   journaled as ``op='add'``, status ``applied``, ``adopted=1``, so it is owned from now on and spooled
+   into MESA history once. Its ``applied_at`` is the original time when known (an earlier journal row of
+   the scope, or the last spooled change of that AVU in a spool batch this journal does not know,
+   ``history.spooled_times``), else now; with the original time the recorder's content dedup drops the
+   copy another VM already spooled. An AVU owned by another scope of this journal is never adopted.
 3. Journal every op as ``intent`` -> ``apply_atomic_operations`` per object (removes first, <= 500
    ops per call) -> ``applied`` with a tz-aware UTC ``applied_at``.
 4. On an atomic failure: re-read that object, recompute, retry once; then per-AVU add/remove where
    "already exists" / "not found" are ``noop`` (never recorded to MESA history).
 
 A crash between the iRODS call and the journal update leaves ``intent`` rows; the next run
-reconciles them against iRODS before computing ownership. Units whose rows vanished from
+reconciles them against iRODS before computing ownership. An intent settled as ``applied`` keeps its
+``applied_at`` when it has one, else gets the time of the same change in an unknown spool batch (the VM
+that wrote it spooled it before this host restored an older journal), else now. Units whose rows vanished from
 ``avu_desired`` altogether are left untouched (a filtered build must never strip other units).
 
 Pacing (docs/SCALING.md "Hard limits"): every iRODS call takes a token from a ``tuning.AdaptiveRate``.
@@ -64,9 +73,11 @@ RATE_CEILING_S = 1.0
 RATE_WINDOW = 100
 RATE_MIN_SAMPLES = 20
 RATE_COOLDOWN_S = 2.0
-OWNED_STATUSES = ("applied", "recorded")
+OWNED_STATUSES = ("applied", "spooled", "recorded")
 COUNTERS = ("units_done", "targets", "missing", "adds", "removes", "absent_removes", "noops", "errors", "queries",
-            "atomic_calls", "fallback_calls", "retries", "intents_reconciled", "objects_changed", "unit_failures")
+            "atomic_calls", "fallback_calls", "retries", "intents_reconciled", "objects_changed", "unit_failures",
+            "adopted", "adopted_original_time")
+ADOPTED_NOTE = "adopted: present in iRODS, not owned by this journal"
 
 DESIRED_DDL = """
 CREATE TABLE IF NOT EXISTS avu_desired (
@@ -93,6 +104,17 @@ def utc_iso() -> str:
 
 def ensure_desired(con: sqlite3.Connection) -> None:
     con.executescript(DESIRED_DDL)
+
+
+def ensure_journal_columns(con: sqlite3.Connection) -> None:
+    """Add ``avu_journal.adopted`` (1: an adopted AVU, see the module docstring) when missing."""
+    if any(r[1] == "adopted" for r in con.execute("PRAGMA table_info(avu_journal)")):
+        return
+    try:
+        con.execute("ALTER TABLE avu_journal ADD COLUMN adopted INTEGER NOT NULL DEFAULT 0")
+    except sqlite3.OperationalError as exc:  # another process added it first
+        if "duplicate column" not in str(exc).lower():
+            raise
 
 
 def replace_desired(con: sqlite3.Connection, scope: str, rows: Iterable[tuple[Any, ...]]) -> dict[str, int]:
@@ -299,8 +321,10 @@ class BulkWriter:
     def __init__(self, con: sqlite3.Connection, scope: str, session: Any, *, rate: float = 20.0,
                  dry_run: bool = False, bucket: TokenBucket | AdaptiveRate | None = None,
                  monitor: LatencyMonitor | None = None, budget: ConnectionBudget | None = None,
-                 clock: Callable[[], float] = time.monotonic, sleep: Callable[[float], None] = time.sleep) -> None:
+                 clock: Callable[[], float] = time.monotonic, sleep: Callable[[float], None] = time.sleep,
+                 spool_times: Callable[[], dict[tuple[str, str, str, str], tuple[str, str]]] | None = None) -> None:
         self.con, self.scope, self.root_session, self.dry_run = con, scope, session, dry_run
+        ensure_journal_columns(con)
         self.clock = clock
         self.bucket = bucket if bucket is not None else adaptive_rate(rate, clock=clock, sleep=sleep)
         self.monitor = monitor or LatencyMonitor()
@@ -313,6 +337,9 @@ class BulkWriter:
         self.stats.update({k: 0 for k in COUNTERS})
         self.stats.update({"scope": scope, "dry_run": dry_run, "missing_paths": [], "error_samples": [],
                            "unit_errors": []})
+        self.spool_times = spool_times
+        self._spool_index: dict[tuple[str, str, str, str], tuple[str, str]] | None = None
+        self._spool_lock = threading.Lock()
 
     # ---------------------------------------------------------- plumbing
     def cleanup(self) -> None:
@@ -394,12 +421,64 @@ class BulkWriter:
             out[r["id"]] = "applied" if done else "abandoned"
         if out and not self.dry_run:
             now = utc_iso()
-            self._executemany(
-                "UPDATE avu_journal SET status=?, applied_at=CASE WHEN ?='applied' THEN ? ELSE applied_at END,"
-                " error=? WHERE id=?",
-                [(s, s, now, "reconciled from stale intent", i) for i, s in out.items()])
+            params = []
+            for r in intents:
+                s = out.get(r["id"])
+                if s is None:
+                    continue
+                at = r["applied_at"]
+                if s == "applied" and not at:  # keep the original time: the spooled copy's, when there is one
+                    at = self._spooled_at(r["path"], (r["attribute"], r["value"], r["unit"] or ""), r["op"]) or now
+                params.append((s, at, "reconciled from stale intent", r["id"]))
+            self._executemany("UPDATE avu_journal SET status=?, applied_at=?, error=? WHERE id=?", params)
         self._bump("intents_reconciled", len(out))
         return out
+
+    # ---------------------------------------------------------- adoption
+    def _spooled_at(self, path: str, t: Triple, op: str) -> str | None:
+        """The time of the last spooled change of this AVU in a spool batch this journal does not know, when that
+        change is ``op`` (``history.spooled_times``, loaded once per apply)."""
+        if self.spool_times is None:
+            return None
+        with self._spool_lock:
+            if self._spool_index is None:
+                try:
+                    self._spool_index = self.spool_times()
+                except Exception as exc:  # noqa: BLE001 - unknown: the caller uses now
+                    log.warning("apply %s: spool batches not read (%s); adopted rows get the current time",
+                                self.scope, _err_name(exc))
+                    self._spool_index = {}
+        hit = self._spool_index.get((path, *t))
+        return hit[1] if hit is not None and hit[0] == op else None
+
+    def _owned_elsewhere(self, cands: dict[Key, list[Triple]]) -> set[tuple[str, str, Triple]]:
+        """(path, target_type, triple) of ``cands`` owned by another scope of this journal (never adopted)."""
+        paths = sorted({k[0] for k in cands})
+        rows: list[sqlite3.Row] = []
+        with self._db:
+            for i in range(0, len(paths), 500):
+                chunk = paths[i:i + 500]
+                marks = ",".join("?" * len(chunk))
+                rows += self.con.execute(
+                    f"SELECT * FROM avu_journal WHERE scope != ? AND path IN ({marks}) ORDER BY id",
+                    (self.scope, *chunk)).fetchall()
+        by_scope: dict[str, list[sqlite3.Row]] = defaultdict(list)
+        for r in rows:
+            by_scope[r["scope"]].append(r)
+        out: set[tuple[str, str, Triple]] = set()
+        for scope_rows in by_scope.values():
+            owned, _ = self._owned(scope_rows, {})
+            out |= {(k[0], k[1], t) for k, ts in owned.items() for t in ts}
+        return out
+
+    @staticmethod
+    def _journal_time(rows: list[sqlite3.Row], key: Key, t: Triple) -> str | None:
+        """``applied_at`` of the scope's last journal row of this AVU when that row is an ``add`` with a time (a
+        later remove means the present AVU is a newer write: no known time)."""
+        mine = [r for r in rows if r["path"] == key[0] and r["target_type"] == key[1]
+                and (r["attribute"], r["value"], r["unit"] or "") == t and r["status"] not in ("intent", "abandoned")]
+        last = max(mine, key=lambda r: r["id"]) if mine else None
+        return last["applied_at"] if last is not None and last["op"] == "add" and last["applied_at"] else None
 
     @staticmethod
     def _owned(rows: list[sqlite3.Row], settled: dict[int, str]) -> tuple[dict[Key, set[Triple]], dict]:
@@ -491,6 +570,7 @@ class BulkWriter:
         owned, owned_gens = self._owned(rows, settled)
 
         plan: list[tuple[Key, list[tuple[str, Triple]], list[Triple]]] = []
+        adopt: dict[Key, list[Triple]] = {}
         for key in sorted(keys):
             if key in missing:
                 continue
@@ -503,6 +583,12 @@ class BulkWriter:
             adds = sorted(want - cur)
             if removes or adds or absent:
                 plan.append((key, [("remove", t) for t in removes] + [("add", t) for t in adds], absent))
+            present = sorted((want & cur) - mine)  # desired, already there, not ours: adopt (module docstring)
+            if present:
+                adopt[key] = present
+        if adopt:
+            elsewhere = self._owned_elsewhere(adopt)
+            adopt = {k: kept for k, ts in adopt.items() if (kept := [t for t in ts if (*k, t) not in elsewhere])}
         self._bump("targets", len(keys) - len(missing))
         if self.dry_run:
             for _key, ops, absent in plan:
@@ -510,8 +596,17 @@ class BulkWriter:
                 self._bump("removes", sum(1 for o, _ in ops if o == "remove"))
                 self._bump("absent_removes", len(absent))
                 self._bump("objects_to_change")
+            self._bump("adopted", sum(len(ts) for ts in adopt.values()))
             self._bump("units_done")
             return
+        adopted: list[tuple[Any, ...]] = []
+        for key, ts in sorted(adopt.items()):
+            for t in ts:
+                at = self._journal_time(rows, key, t) or self._spooled_at(key[0], t, "add")
+                if at:
+                    self._bump("adopted_original_time")
+                adopted.append((self.scope, unit.unit_id, key[0], key[1], *t, unit.generators.get((key[0], t)),
+                                at or utc_iso(), ADOPTED_NOTE))
 
         # journal intents (one transaction per unit)
         staged: list[tuple[Key, list[Op], list[Op]]] = []
@@ -536,10 +631,16 @@ class BulkWriter:
                             (self.scope, unit.unit_id, key[0], key[1], *t, owned_gens.get((key[0], t)), utc_iso()))
                         aops.append(Op(cur.lastrowid, "remove", t))
                     staged.append((key, jops, aops))
+                if adopted:
+                    self.con.executemany(
+                        "INSERT INTO avu_journal(scope, unit_id, path, target_type, attribute, value, unit, op,"
+                        " generator, status, applied_at, error, adopted) VALUES (?,?,?,?,?,?,?, 'add', ?, 'applied',"
+                        " ?, ?, 1)", adopted)
                 self.con.execute("COMMIT")
             except BaseException:
                 self.con.execute("ROLLBACK")
                 raise
+        self._bump("adopted", len(adopted))
         for key, jops, aops in staged:
             self._bump("absent_removes", len(aops))
             if self.stop.is_set():
@@ -715,6 +816,7 @@ def apply_scope(scope: str, *, threads: int = 8, rate: float = 20.0, dry_run: bo
     iRODS connection budget are used.
     """
     con = con or state.connect()
+    ensure_journal_columns(con)
     units = load_desired(con, scope, only_units)
     if not units:
         log.warning("apply_scope(%s): no avu_desired rows%s", scope, " for the selected units" if only_units else "")
@@ -726,9 +828,20 @@ def apply_scope(scope: str, *, threads: int = 8, rate: float = 20.0, dry_run: bo
         from ..env import mesa
 
         session = mesa().session
-    writer = BulkWriter(con, scope, session, rate=rate, dry_run=dry_run, budget=budget, clock=clock, sleep=sleep)
+    root = session
+
+    def spool_times() -> dict[tuple[str, str, str, str], tuple[str, str]]:
+        from . import history
+
+        return history.spooled_times(con, scope, session=root)
+
+    writer = BulkWriter(con, scope, session, rate=rate, dry_run=dry_run, budget=budget, clock=clock, sleep=sleep,
+                        spool_times=spool_times)
     stats = writer.run(units, threads)
     stats["threads"] = threads
+    if stats.get("adopted"):
+        log.warning("apply %s: adopted %d desired AVU(s) already present in iRODS but not in this journal (%d with "
+                    "their original time)", scope, stats["adopted"], stats.get("adopted_original_time", 0))
     log.info("apply %s%s: units=%d targets=%d adds=%d removes=%d noops=%d errors=%d missing=%d calls=%d p95=%sms"
              " in %ss; rate %s -> %s calls/s (min %s, max %s)", scope, " (dry run)" if dry_run else "",
              stats.get("units", 0), stats.get("targets", 0), stats.get("adds", 0), stats.get("removes", 0),

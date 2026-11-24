@@ -434,7 +434,7 @@ def build_rows(run_id: str | None) -> tuple[list[tuple[Any, ...]], dict[str, Any
                            "and OVERRIDE_DATA_PATH true.")),
         ("mesa.ducklake.catalog", f"ducklake/{env.CATALOG_LAKE}", "relative path"),
         ("ducklake.dataPath", "data/", "relative path"),
-        ("ducklake.reader", "duckdb 1.5.5 with LOAD ducklake; LOAD spatial"),
+        ("ducklake.reader", "duckdb 2.0.0 with LOAD ducklake; LOAD spatial"),
     ])
     cat = env.LAKE_DIR / env.CATALOG_LAKE
     if cat.exists():

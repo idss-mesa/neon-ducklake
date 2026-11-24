@@ -209,6 +209,11 @@ def test_mcp_config_is_scrubbed() -> None:
 
 def test_mcp_config_rendered_into_work(site_env: Path, monkeypatch: pytest.MonkeyPatch) -> None:  # noqa: F811
     shutil.copytree(REPO_CURATION, env.ROOT / "curation", ignore=shutil.ignore_patterns("generic"))
+    cli = site_env / "bin" / "claude"  # a CLI is installed (never run here): the rc below is the template's
+    cli.parent.mkdir()
+    cli.write_text("#!/bin/sh\nexit 1\n")
+    cli.chmod(0o755)
+    monkeypatch.setattr(curate, "CLAUDE_BIN", cli)
     mesa_home = site_env / "mesa home"
     monkeypatch.setattr(env, "MESA_HOME", mesa_home)
     with pytest.raises(SystemExit, match="MESA local install"):

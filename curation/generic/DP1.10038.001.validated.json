@@ -1,0 +1,590 @@
+{
+ "productCode": "DP1.10038.001",
+ "site": "KONZ",
+ "validatedAt": "2026-09-29T16:48:55.535811+00:00",
+ "validatedBy": {
+  "vm": "sparky-1"
+ },
+ "runId": "20260929T164802Z",
+ "model": "claude-opus-5-5",
+ "rules": {
+  "maxPerProduct": 25,
+  "replicates": 2,
+  "accepted": "valid in every replicate and grounded in at least one"
+ },
+ "replicates": [
+  {
+   "rep": 1,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10038.001.rep1.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10038.001.rep1.jsonl",
+   "card_sha256": "b78cd90445328b93a78e2d717d75d221379aaf0313342bfaa668f8c14e98e3f5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 11,
+   "seconds": 60.2,
+   "tool_calls": 25,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 14,
+    "mesa_avu_from_term": 11
+   },
+   "usage": {
+    "input_tokens": 8,
+    "output_tokens": 6380,
+    "cache_creation_input_tokens": 27608,
+    "cache_read_input_tokens": 66624,
+    "thinking_tokens": 912
+   },
+   "total_cost_usd": 0.3618
+  },
+  {
+   "rep": 2,
+   "proposal": "sites/KONZ/curation/proposals/DP1.10038.001.rep2.json",
+   "trace": "sites/KONZ/curation/traces/DP1.10038.001.rep2.jsonl",
+   "card_sha256": "b78cd90445328b93a78e2d717d75d221379aaf0313342bfaa668f8c14e98e3f5",
+   "prompt_sha256": "72d0234850085f4608a6ab07139c731cdbf0916eb1229a6b68675ca52492d960",
+   "n_avus": 10,
+   "seconds": 51.0,
+   "tool_calls": 28,
+   "tool_call_counts": {
+    "mesa_ols_search_terms": 18,
+    "mesa_avu_from_term": 10
+   },
+   "usage": {
+    "input_tokens": 10,
+    "output_tokens": 6414,
+    "cache_creation_input_tokens": 28876,
+    "cache_read_input_tokens": 90485,
+    "thinking_tokens": 884
+   },
+   "total_cost_usd": 0.3774
+  }
+ ],
+ "counts": {
+  "accepted": 7,
+  "human_accepted": 0,
+  "proposed": 7,
+  "rejected": 0
+ },
+ "accepted": [
+  {
+   "proposalId": "c54b9c71a9218821",
+   "productCode": "DP1.10038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "ncbitaxon.culicidae",
+   "value": "Culicidae",
+   "unit": "NCBITaxon:7157",
+   "curie": "NCBITaxon:7157",
+   "label": "Culicidae",
+   "ontologyId": "ncbitaxon",
+   "aspect": "organism_group",
+   "aspectKnown": true,
+   "column": "family",
+   "rationale": "Product barcodes mosquito specimens, family Culicidae.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.culicidae",
+     "modelValue": "Culicidae",
+     "modelLabel": "Culicidae",
+     "column": "family"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "ncbitaxon.culicidae",
+     "modelValue": "Culicidae",
+     "modelLabel": "Culicidae",
+     "column": "family"
+    }
+   ]
+  },
+  {
+   "proposalId": "9e4e579f9aaee9c6",
+   "productCode": "DP1.10038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "genepio.cytochrome_c_oxidase_i_barcoding",
+   "value": "Cytochrome c oxidase I barcoding",
+   "unit": "GENEPIO:0102189",
+   "curie": "GENEPIO:0102189",
+   "label": "Cytochrome c oxidase I barcoding",
+   "ontologyId": "genepio",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Core assay: COI DNA barcoding for taxonomic identification.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "genepio.cytochrome_c_oxidase_i_barcoding",
+     "modelValue": "Cytochrome c oxidase I barcoding",
+     "modelLabel": "Cytochrome c oxidase I barcoding",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "genepio.cytochrome_c_oxidase_i_barcoding",
+     "modelValue": "Cytochrome c oxidase I barcoding",
+     "modelLabel": "Cytochrome c oxidase I barcoding",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "0d968358df692d82",
+   "productCode": "DP1.10038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.polymerase_chain_reaction",
+   "value": "polymerase chain reaction",
+   "unit": "OBI:0000415",
+   "curie": "OBI:0000415",
+   "label": "polymerase chain reaction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Target COI sequences are amplified via PCR.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.polymerase_chain_reaction",
+     "modelValue": "polymerase chain reaction",
+     "modelLabel": "polymerase chain reaction",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.polymerase_chain_reaction",
+     "modelValue": "polymerase chain reaction",
+     "modelLabel": "polymerase chain reaction",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "d132bc0e4581b479",
+   "productCode": "DP1.10038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.dna_extraction",
+   "value": "DNA extraction",
+   "unit": "OBI:0000257",
+   "curie": "OBI:0000257",
+   "label": "DNA extraction",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "DNA is extracted from mosquito leg tissue.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.dna_extraction",
+     "modelValue": "DNA extraction",
+     "modelLabel": "DNA extraction",
+     "column": "tissueDescriptor"
+    }
+   ]
+  },
+  {
+   "proposalId": "d4bbceffa91416d3",
+   "productCode": "DP1.10038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "bco.taxonomic_identification_process",
+   "value": "taxonomic identification process",
+   "unit": "BCO:0000042",
+   "curie": "BCO:0000042",
+   "label": "taxonomic identification process",
+   "ontologyId": "bco",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "identificationMethod",
+   "rationale": "Specimens are identified morphologically and checked against barcodes.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "identificationMethod"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.taxonomic_identification_process",
+     "modelValue": "taxonomic identification process",
+     "modelLabel": "taxonomic identification process",
+     "column": "identificationMethod"
+    }
+   ]
+  },
+  {
+   "proposalId": "86b80176598dea20",
+   "productCode": "DP1.10038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "obi.sequence_data",
+   "value": "sequence data",
+   "unit": "OBI:0000973",
+   "curie": "OBI:0000973",
+   "label": "sequence data",
+   "ontologyId": "obi",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": null,
+   "rationale": "Product delivers COI DNA sequences, linked through BOLD.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.sequence_data",
+     "modelValue": "sequence data",
+     "modelLabel": "sequence data",
+     "column": null
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.sequence_data",
+     "modelValue": "sequence data",
+     "modelLabel": "sequence data",
+     "column": null
+    }
+   ]
+  },
+  {
+   "proposalId": "d2b87316f2a4df1c",
+   "productCode": "DP1.10038.001",
+   "status": "accepted",
+   "reason": null,
+   "attribute": "uberon.life_cycle_stage",
+   "value": "life cycle stage",
+   "unit": "UBERON:0000105",
+   "curie": "UBERON:0000105",
+   "label": "life cycle stage",
+   "ontologyId": "uberon",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "lifeStage",
+   "rationale": "Life stage of each specimen is recorded.",
+   "model": "claude-opus-5-5",
+   "reps": 2,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.life_cycle_stage",
+     "modelValue": "life cycle stage",
+     "modelLabel": "life cycle stage",
+     "column": "lifeStage"
+    },
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "uberon.life_cycle_stage",
+     "modelValue": "life cycle stage",
+     "modelLabel": "life cycle stage",
+     "column": "lifeStage"
+    }
+   ]
+  }
+ ],
+ "proposed": [
+  {
+   "proposalId": "054bf4907d4e0756",
+   "productCode": "DP1.10038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.encephalitis_virus_surveillance_trap",
+   "value": "encephalitis virus surveillance trap",
+   "unit": "OBI:0002928",
+   "curie": "OBI:0002928",
+   "label": "encephalitis virus surveillance trap",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "samplingProtocol",
+   "rationale": "Specimens are collected with CO2-baited mosquito traps.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.encephalitis_virus_surveillance_trap",
+     "modelValue": "encephalitis virus surveillance trap",
+     "modelLabel": "encephalitis virus surveillance trap",
+     "column": "samplingProtocol"
+    }
+   ]
+  },
+  {
+   "proposalId": "3d18c47db5e920a2",
+   "productCode": "DP1.10038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "bco.identification_assertion",
+   "value": "identification assertion",
+   "unit": "BCO:0000084",
+   "curie": "BCO:0000084",
+   "label": "identification assertion",
+   "ontologyId": "bco",
+   "aspect": "data_type",
+   "aspectKnown": true,
+   "column": "taxonID",
+   "rationale": "Taxonomy table records a taxon assigned to each specimen.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "bco.identification_assertion",
+     "modelValue": "identification assertion",
+     "modelLabel": "identification assertion",
+     "column": "taxonID"
+    }
+   ]
+  },
+  {
+   "proposalId": "a12a69f2ec46c897",
+   "productCode": "DP1.10038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.specimen_from_organism",
+   "value": "specimen from organism",
+   "unit": "OBI:0001479",
+   "curie": "OBI:0001479",
+   "label": "specimen from organism",
+   "ontologyId": "obi",
+   "aspect": "environmental_material",
+   "aspectKnown": true,
+   "column": "tissueDescriptor",
+   "rationale": "Leg tissue taken from pinned, vouchered mosquito specimens is analyzed.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_from_organism",
+     "modelValue": "specimen from organism",
+     "modelLabel": "specimen from organism",
+     "column": "tissueDescriptor"
+    }
+   ]
+  },
+  {
+   "proposalId": "b3ef23e560090c99",
+   "productCode": "DP1.10038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.biological_sex",
+   "value": "biological sex",
+   "unit": "PATO:0000047",
+   "curie": "PATO:0000047",
+   "label": "biological sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sex",
+   "rationale": "Sex of each specimen is recorded.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 1,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.biological_sex",
+     "modelValue": "biological sex",
+     "modelLabel": "biological sex",
+     "column": "sex"
+    }
+   ]
+  },
+  {
+   "proposalId": "5bb726cc04051f5f",
+   "productCode": "DP1.10038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.arthropod_trap",
+   "value": "arthropod trap",
+   "unit": "OBI:0002920",
+   "curie": "OBI:0002920",
+   "label": "arthropod trap",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "samplingProtocol",
+   "rationale": "Mosquitoes are collected with CO2-baited arthropod traps.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.arthropod_trap",
+     "modelValue": "arthropod trap",
+     "modelLabel": "arthropod trap",
+     "column": "samplingProtocol"
+    }
+   ]
+  },
+  {
+   "proposalId": "50899f012901cefa",
+   "productCode": "DP1.10038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "obi.specimen_collection_process",
+   "value": "specimen collection process",
+   "unit": "OBI:0000659",
+   "curie": "OBI:0000659",
+   "label": "specimen collection process",
+   "ontologyId": "obi",
+   "aspect": "method",
+   "aspectKnown": true,
+   "column": "collectDate",
+   "rationale": "BOLD collection data table describes specimen collection events.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "obi.specimen_collection_process",
+     "modelValue": "specimen collection process",
+     "modelLabel": "specimen collection process",
+     "column": "collectDate"
+    }
+   ]
+  },
+  {
+   "proposalId": "a83c13dca2730528",
+   "productCode": "DP1.10038.001",
+   "status": "proposed",
+   "reason": "single_replicate",
+   "attribute": "pato.phenotypic_sex",
+   "value": "phenotypic sex",
+   "unit": "PATO:0001894",
+   "curie": "PATO:0001894",
+   "label": "phenotypic sex",
+   "ontologyId": "pato",
+   "aspect": "measured_property",
+   "aspectKnown": true,
+   "column": "sex",
+   "rationale": "The sex of each specimen is recorded.",
+   "model": "claude-opus-5-5",
+   "reps": 1,
+   "replicates": 2,
+   "grounded": true,
+   "checks": [
+    {
+     "rep": 2,
+     "valid": true,
+     "reason": null,
+     "grounded": true,
+     "modelAttribute": "pato.phenotypic_sex",
+     "modelValue": "phenotypic sex",
+     "modelLabel": "phenotypic sex",
+     "column": "sex"
+    }
+   ]
+  }
+ ],
+ "rejected": []
+}

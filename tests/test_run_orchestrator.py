@@ -154,7 +154,7 @@ def test_prep_validate_without_proposals_and_record_lock(site_env: Path,  # noqa
     assert out is not None and out.status == "ok" and "curation/generic" in out.info
     monkeypatch.setattr(env, "catalog_lock_holders", lambda: [{"pid": "4242", "cmd": "mesa-mcp --transport stdio"}])
     out = prep(SITE, "record")
-    assert out is not None and out.status == "failed" and "pid 4242" in out.info
+    assert out is not None and out.status == "retry" and "pid 4242" in out.info  # MESA busy: retried later
     monkeypatch.setattr(env, "catalog_lock_holders", list)
     assert prep(SITE, "record") is None
     assert prep(SITE, "terms") is None
@@ -248,6 +248,23 @@ def test_status_table_totals_and_json(site_env: Path, capsys: pytest.CaptureFixt
     assert json.loads(capsys.readouterr().out)["totals"]["files"] == 3
 
 
+def test_status_counts_mesa_snapshots_not_spooled_batches(site_env: Path) -> None:  # noqa: F811
+    """The spool recorder coalesces many batches (of several scopes) into one MESA snapshot: the snapshot budget
+    line must count snapshots, as scripts/full_sweep.sh reads it against the 900 budget."""
+    con = state.connect(state.DB_PATH)
+    store = run.Store(con)
+    for site in ("KONZ", "SRER"):
+        store.set_pending(site, run.STAGES)
+    con.executemany("INSERT INTO batches(batch_id, scope, status, snapshot_id) VALUES (?,?,?,?)",
+                    [(f"k{i}", "KONZ", "recorded", 10) for i in range(57)]
+                    + [("s1", "SRER", "recorded", 3), ("s2", "SRER", "recorded", 4), ("c1", "catalog", "recorded", 10),
+                       ("x1", "KONZ", "spooled", None)])
+    rep = run.collect_status(con)
+    con.close()
+    assert rep["sites"]["KONZ"]["snapshots"] == 1 and rep["sites"]["SRER"]["snapshots"] == 2
+    assert rep["allScopes"]["snapshots"] == 3  # 3, 4 and 10 (shared by KONZ and catalog)
+
+
 # ---------------------------------------------------------------- entry points
 
 def test_main_dry_run_prints_plan_and_runs_nothing(site_env: Path, monkeypatch: pytest.MonkeyPatch,  # noqa: F811
@@ -256,9 +273,9 @@ def test_main_dry_run_prints_plan_and_runs_nothing(site_env: Path, monkeypatch: 
         raise AssertionError("dry run must not spawn")
 
     monkeypatch.setattr(run.subprocess, "Popen", no_spawn)
-    assert run.main(["SRER", "HARV"], dry_run=True, sample=2) == 0
+    assert run.main(["SRER", "HARV"], dry_run=True, sample=2, stream=False) == 0
     out = capsys.readouterr().out
-    assert "run plan: 2 site(s), mode sample:2" in out and "evict off" in out
+    assert "run plan: 2 site(s), mode sample:2" in out and "evict off" in out and "whole-site" in out
     assert "neon-ducklake site list SRER --sample 2" in out
     assert "neon-ducklake tag SRER --apply-only" in out
     con = state.connect(state.DB_PATH)
@@ -276,13 +293,13 @@ def test_main_runs_scheduler_with_real_wiring(site_env: Path, monkeypatch: pytes
 
     monkeypatch.setattr(run.SubprocessRunner, "__call__", fake_call)
     monkeypatch.setattr(run, "make_prep", lambda cfg: (lambda site, stage: None))
-    rc = run.main(["SRER"], stages="plan,list,verify", poll_s=0.01)
+    rc = run.main(["SRER"], stages="plan,list,verify", poll_s=0.01, stream=False)
     assert rc == 0
     assert calls == [("SRER", "plan"), ("SRER", "list"), ("SRER", "verify")]
     assert (site_env / "logs/status.json").exists()
     # a second invocation has nothing to do
     calls.clear()
-    assert run.main(["SRER"], stages="plan,list,verify", poll_s=0.01) == 0
+    assert run.main(["SRER"], stages="plan,list,verify", poll_s=0.01, stream=False) == 0
     assert calls == []
     assert "nothing to do" in capsys.readouterr().out
 
@@ -296,8 +313,10 @@ def test_cli_wires_run_status_evict_and_sample(monkeypatch: pytest.MonkeyPatch) 
     sites, kw = got["run"]
     assert sites == ["SRER", "HARV"] and kw["sample"] == 2 and kw["stages"] == "plan,list"
     assert kw["evict"] is False and kw["max_in_flight"] == 2 and kw["dry_run"] is True and kw["order"] == "size"
-    assert cli.main(["run", "--habitat", "aquatic", "--from-stage", "upload", "--restack"]) == 0
+    assert kw["stream"] is True and kw["chunk_bytes"] is None and kw["history_mode"] is None  # stream is the default
+    assert cli.main(["run", "--habitat", "aquatic", "--from-stage", "upload", "--restack", "--no-stream"]) == 0
     assert got["run"][1]["habitat"] == "aquatic" and got["run"][1]["restack"] is True
+    assert got["run"][1]["stream"] is False
     assert cli.main(["status", "--json"]) == 0 and got["status"] == ([], {"as_json": True})
 
     from neon_ducklake.site import evict, sample

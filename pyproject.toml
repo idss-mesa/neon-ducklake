@@ -7,7 +7,7 @@ requires-python = ">=3.11,<3.12"
 license = { text = "MIT" }
 authors = [{ name = "Tyson L. Swetnam" }]
 dependencies = [
-    "duckdb==1.5.5",
+    "duckdb==2.0.0",
     "pyarrow>=17",
     "numpy>=1.26",
     "h5py>=3.10",
@@ -41,8 +41,8 @@ packages = ["src/neon_ducklake"]
 #   * sticky:    replace a line below with e.g. `neon-mcp = { path = "../neon-mcp", editable = true }` and run
 #                `uv lock && uv sync --extra dev`; do not commit that swap (it rewrites uv.lock with local paths).
 neon-mcp = { git = "https://github.com/idss-mesa/neon-mcp", rev = "a5949d2525e0909decb1c0dda41112b76570bc82" }
-mesa-mcp = { git = "https://github.com/idss-mesa/mesa-mcp", rev = "8fbaedf850301146b38b997774ab7aed1d0cb179" }
-mesa-ducklake = { git = "https://github.com/idss-mesa/mesa-ducklake", rev = "7bc143fefb093f0a2ace748a7036598147533ca0" }
+mesa-mcp = { git = "https://github.com/idss-mesa/mesa-mcp", rev = "0e2e561b023abb896d148a8b85d3ba6b4f386d2e" }
+mesa-ducklake = { git = "https://github.com/idss-mesa/mesa-ducklake", rev = "00a2ee84b71179ce748d3263c0fcb9b2b9418dbc" }
 
 [tool.uv]
 # Keep shared libraries identical to $MESA_HOME/.venv (default ~/.mesa/.venv, the MCP servers' runtime).

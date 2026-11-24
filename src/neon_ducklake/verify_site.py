@@ -27,6 +27,10 @@ Checks (status pass / warn / fail / skip; any ``fail`` gives a non-zero exit):
 - datacite         site/product ``datacite.*`` AVUs round-trip (``avus_to_datacite`` + ``DataCiteMetadata``)
 
 Filters ``products``/``months`` restrict every check to those product/month units (dry runs).
+``metadata_only`` (the stream finalize: the raw files were verified per chunk and deleted) skips every check
+of local files: the ``local files`` check keeps the journal md5 comparisons but not presence/size on disk, and
+``stack rows`` skips the sampled CSV record counts (Σ file_stats vs table_catalog stays).
+The site lake is read under the ``site-lake-<SITE>`` lock (a concurrent writer would fail the attach).
 Output: a table on stdout and ``sites/<SITE>/reports/verify.json``.
 """
 
@@ -63,8 +67,9 @@ SAMPLE_FILES = 20
 TYPED_MIN = 0.95
 SENSOR_MIN = 0.99
 MAX_SAMPLES = 20
-READ_TRIES = 3
-RETRY_DELAYS = (2.0, 6.0)
+READ_TRIES = 4
+RETRY_DELAYS = (5.0, 20.0, 60.0)  # CyVerse refuses handshakes for up to minutes under the per-user connection limit
+RC_INCOMPLETE = 4  # main(): only refused iRODS reads failed (site/stream.py RC_RETRY: verify again later)
 DEFAULT_THREADS = 4
 
 
@@ -164,6 +169,11 @@ class SiteData:
 
 
 def load_site_data(site: str) -> SiteData:
+    with env.file_lock(f"site-lake-{site.upper()}", blocking=True):
+        return _load_site_data(site)
+
+
+def _load_site_data(site: str) -> SiteData:
     import duckdb
 
     d = SiteData()
@@ -234,8 +244,10 @@ class SiteVerifier:
     def __init__(self, site: str, products: list[str] | None = None, months: list[str] | None = None, *,
                  session: Any | None = None, con: sqlite3.Connection | None = None, data: SiteData | None = None,
                  threads: int = DEFAULT_THREADS, sample: int = SAMPLE_FILES, ontology: bool = True,
-                 ols_terms: Callable[[list[str]], dict[str, Any]] | None = None) -> None:
+                 ols_terms: Callable[[list[str]], dict[str, Any]] | None = None,
+                 metadata_only: bool = False) -> None:
         self.site = site.upper()
+        self.metadata_only = metadata_only
         self.P = set(products) if products else None
         self.M = set(months) if months else None
         self.S = f"{env.IRODS_ROOT}/sites/{self.site}"
@@ -350,6 +362,8 @@ class SiteVerifier:
             if int(r.get("local_evicted") or 0) == 1:
                 evicted.append(r["name"])  # verified in iRODS and deleted locally (site evict)
                 continue
+            if self.metadata_only:
+                continue  # stream finalize: the raw files were checked per chunk and are gone by design
             local = env.ROOT / (r.get("local_path") or "")
             try:
                 if local.stat().st_size != int(r.get("dl_bytes") or -1):
@@ -362,7 +376,8 @@ class SiteVerifier:
         status = "fail" if (hard or missing or size_bad or lake_bad) else ("warn" if not_dl else "pass")
         n_match = len(ok) - len(hard) - len(soft) - len(stale) - len(no_md5)
         self.add("local files", status,
-                 f"{len(ok)}/{len(rows)} downloaded; md5 == NEON for {n_match}"
+                 ("metadata only (presence on disk not checked); " if self.metadata_only else "")
+                 + f"{len(ok)}/{len(rows)} downloaded; md5 == NEON for {n_match}"
                  f"; flagged soft (regenerated supporting files) {len(soft)}; NEON md5 stale (storage-verified)"
                  f" {len(stale)}; hard mismatches {len(hard)}; no NEON md5 {len(no_md5)}; evicted {len(evicted)};"
                  f" missing on disk {len(missing)}; size != journal {len(size_bad)}; not downloaded {len(not_dl)}",
@@ -436,7 +451,8 @@ class SiteVerifier:
                  f"extra iRODS objects {len(extra)}; Σsize iRODS {irods_bytes} vs local {local_bytes}",
                  bad=_sample(bad), unreadable=_sample(unreadable), not_uploaded=_sample(not_up),
                  journal_lost=_sample(lost), journal_lag=_sample(lag),
-                 extra=_sample(extra), n_objects=n, n_uploaded=up, n_good=good)
+                 extra=_sample(extra), n_objects=n, n_uploaded=up, n_good=good,
+                 incomplete=bool(unreadable) and not (bad or lost))
 
     # ------------------------------------------------------------ AVUs
     def desired_units(self) -> dict[str, bulk.Unit]:
@@ -487,6 +503,7 @@ class SiteVerifier:
         items = sorted(units)
         reads = pool.map(lambda s, u: (u, self.read_unit(s, units[u], colls_known)), items, self.threads)
         unreadable = [f"{r.item}: {r.error}" for r in reads if isinstance(r, ReadError)]
+        unread_units = {r.item for r in reads if isinstance(r, ReadError)}
         self.unit_reads = dict(r for r in reads if not isinstance(r, ReadError))
         for res in self.unit_reads.values():
             for (p, t), avus in res["current"].items():
@@ -516,16 +533,20 @@ class SiteVerifier:
                  f"missing {sum(gaps.values())} "
                  f"({dict(gaps)}); desired targets not in iRODS yet {sum(not_uploaded.values())} ({dict(not_uploaded)})",
                  gaps=gap_samples, not_uploaded=dict(not_uploaded), levels_with_gaps=dict(gaps),
-                 unreadable=_sample(unreadable))
+                 unreadable=_sample(unreadable), incomplete=bool(unreadable) and not gaps)
         # core attributes + fileKind counts on uploaded raw objects
         raw_objs: dict[str, set[tuple[str, str, str]]] = {}
         for res in self.unit_reads.values():
             for (p, t), avus in res["current"].items():
                 if t == "data_object" and p.startswith(f"{self.S}/raw/"):
                     raw_objs[p] = avus
+        unread_objs: set[str] = set()  # in a collection whose AVUs could not be read: not known to lack anything
         for key, reps in self.remote.items():  # uploaded objects that have no desired rows at all
             for nm in reps:
                 p = f"{self.S}/raw/{key[0]}/{key[1]}/{nm}"
+                if posixpath.dirname(p) in unread_units:
+                    unread_objs.add(nm)
+                    continue
                 raw_objs.setdefault(p, set())
         lacking = []
         for p, avus in sorted(raw_objs.items()):
@@ -533,28 +554,34 @@ class SiteVerifier:
             miss = [a for a in siteavus.CORE_ATTRS if a not in have]
             if miss:
                 lacking.append(f"{posixpath.basename(p)}: {', '.join(miss[:4])}{'…' if len(miss) > 4 else ''}")
-        self.add("avu core", "fail" if lacking else ("pass" if raw_objs else "skip"),
+        self.add("avu core", "fail" if (lacking or unread_objs) else ("pass" if raw_objs else "skip"),
                  f"{len(raw_objs)} uploaded raw objects; missing a core attribute: {len(lacking)}"
-                 + ("" if raw_objs else " (nothing uploaded yet)"), lacking=_sample(lacking), n_lacking=len(lacking))
+                 + (f"; unreadable {len(unread_objs)}" if unread_objs else "")
+                 + ("" if raw_objs or unread_objs else " (nothing uploaded yet)"), lacking=_sample(lacking),
+                 n_lacking=len(lacking), n_unreadable=len(unread_objs), incomplete=bool(unread_objs) and not lacking)
         kinds_avu = Counter(v for avus in raw_objs.values() for a, v, _u in avus if a == "neon.fileKind")
-        kinds_listing = Counter(r.get("kind") or "other" for r in self.files)
+        files = [r for r in self.files if r["name"] not in unread_objs]
+        kinds_listing = Counter(r.get("kind") or "other" for r in files)
         up_names = {nm for reps in self.remote.values() for nm in reps}
-        kinds_uploaded = Counter(r.get("kind") or "other" for r in self.files if r["name"] in up_names)
+        kinds_uploaded = Counter(r.get("kind") or "other" for r in files if r["name"] in up_names)
         if kinds_avu == kinds_listing:
             st = "pass"
         elif kinds_avu == kinds_uploaded:
             st = "warn"
         else:
             st = "fail"
-        self.add("avu file kinds", st, f"objects with neon.fileKind {sum(kinds_avu.values())} vs listing "
-                                       f"{sum(kinds_listing.values())} (uploaded {sum(kinds_uploaded.values())})",
+        incomplete = bool(unread_objs) and st != "fail"  # the kinds that were read agree; some were not read
+        self.add("avu file kinds", "fail" if incomplete else st,
+                 f"objects with neon.fileKind {sum(kinds_avu.values())} vs listing "
+                 f"{sum(kinds_listing.values())} (uploaded {sum(kinds_uploaded.values())})"
+                 + (f"; unreadable {len(unread_objs)}" if unread_objs else ""), incomplete=incomplete,
                  carrying=dict(sorted(kinds_avu.items())), listing=dict(sorted(kinds_listing.items())),
                  uploaded=dict(sorted(kinds_uploaded.items())))
         # every collection under the subtree has >= 1 neon.*/mesa.* AVU. Equality GenQueries only: a LIKE over
         # CollectionMeta runs into the iCAT's 120 s timeout at CyVerse; desired collections were read above.
         if colls_known is None:
             self.add("avu collections", "fail", "subtree collections unreadable (iRODS errors after retries)",
-                     error=str(known))
+                     error=str(known), incomplete=True)
             return
         in_scope = sorted(c for c in colls_known if self.coll_ok(c))
         coll_avus = dict(self.current_colls)
@@ -570,9 +597,14 @@ class SiteVerifier:
         self.add("avu collections", "fail" if (bare or failed) else ("pass" if in_scope else "skip"),
                  f"{len(in_scope)} collections under sites/{self.site} in scope; without neon.*/mesa.* AVU: "
                  f"{len(bare)}; unreadable {len(failed)}",
-                 bare=_sample(c[len(self.S):] or "/" for c in bare), n_bare=len(bare), unreadable=_sample(failed))
+                 bare=_sample(c[len(self.S):] or "/" for c in bare), n_bare=len(bare), unreadable=_sample(failed),
+                 incomplete=bool(failed) and not bare)
 
     def coll_ok(self, c: str) -> bool:
+        # dot collections (.mesa-journal/v/<push>, staged/, retired/) are the pipeline's own bookkeeping, not
+        # NEON data: they never carry neon.*/mesa.* AVUs
+        if any(part.startswith(".") for part in c[len(self.S):].split("/")):
+            return False
         raw = f"{self.S}/raw/"
         if not c.startswith(raw):
             return True
@@ -585,7 +617,7 @@ class SiteVerifier:
         files = self.files
         # rows: sampled local CSV record counts vs file_stats
         cands = [r for r in files if r.get("kind") == "data" and (r.get("ext") or "").lower() == "csv"
-                 and r["name"] in d.file_stats]
+                 and r["name"] in d.file_stats] if not self.metadata_only else []
         rng = random.Random(f"{self.site}-{len(cands)}")
         pick = rng.sample(cands, min(self.sample, len(cands)))
         bad, checked, lines_total = [], 0, 0
@@ -811,8 +843,16 @@ class SiteVerifier:
         counts = Counter(c.status for c in self.checks)
         return {"site": self.site, "generatedAt": env.utcnow().isoformat(),
                 "filters": {"products": sorted(self.P) if self.P else None, "months": sorted(self.M) if self.M else None},
+                "metadataOnly": self.metadata_only,
                 "irods": self.session is not None, "summary": dict(counts),
-                "ok": counts.get("fail", 0) == 0, "checks": [asdict(c) for c in self.checks]}
+                "ok": counts.get("fail", 0) == 0, "incomplete": self.incomplete(),
+                "checks": [asdict(c) for c in self.checks]}
+
+    def incomplete(self) -> bool:
+        """True when every failed check failed only because some iRODS reads were refused (after retries): the
+        site is not known to be wrong, so the verify should run again later rather than fail."""
+        failed = [c for c in self.checks if c.status == "fail"]
+        return bool(failed) and all(c.details.get("incomplete") for c in failed)
 
     def _has_desired(self) -> bool:
         try:
@@ -830,25 +870,31 @@ def render(report: dict[str, Any]) -> str:
         lines.append(f"{c['name']:18} {c['status'].upper():6} {c['summary']}")
     lines.append("-" * 100)
     lines.append("result: " + ", ".join(f"{k}={v}" for k, v in sorted(report["summary"].items()))
-                 + (" -> OK" if report["ok"] else " -> FAILED"))
+                 + (" -> OK" if report["ok"] else " -> INCOMPLETE (iRODS reads refused; retry later)"
+                    if report.get("incomplete") else " -> FAILED"))
     return "\n".join(lines)
 
 
 def main(site: str, products: list[str] | str | None = None, months: list[str] | str | None = None, *,
-         threads: int = DEFAULT_THREADS, session: Any | None = None, out: Path | None = None) -> int:
-    """Run every Phase-2 check for ``site``; write ``sites/<SITE>/reports/verify.json``; 1 on any failure."""
+         threads: int = DEFAULT_THREADS, session: Any | None = None, out: Path | None = None,
+         metadata_only: bool = False) -> int:
+    """Run every Phase-2 check for ``site``; write ``sites/<SITE>/reports/verify.json``; 1 on any failure, 4
+    (``RC_INCOMPLETE``: retry later) when the only failures are iRODS reads that were refused after retries.
+
+    ``metadata_only`` skips the local-file and sampled-CSV checks (a streamed site keeps no raw file)."""
     def split(v: list[str] | str | None) -> list[str] | None:
         items = v.split(",") if isinstance(v, str) else (v or [])
         return [s.strip() for s in items if s and s.strip()] or None
 
     site = site.upper()
-    v = SiteVerifier(site, split(products), split(months), session=session, threads=threads)
+    v = SiteVerifier(site, split(products), split(months), session=session, threads=threads,
+                     metadata_only=metadata_only)
     report = v.run()
     path = out or site_lake.site_paths(site).reports_dir / "verify.json"
     env.write_json(path, report)
     print(render(report))
     print(f"\nwrote {path}")
-    return 0 if report["ok"] else 1
+    return 0 if report["ok"] else (RC_INCOMPLETE if report["incomplete"] else 1)
 
 
 def _in_windows(key: tuple[str, str], windows: dict[str, list[tuple[str, str]]]) -> bool:
