@@ -373,6 +373,56 @@ harvest landings:
 `duckdb -init sql/attach_all.sql`. Then run
 `SELECT * FROM neon.v_site_inventory WHERE siteCode = 'SRER'`.
 
+## Reading the published lakes
+
+The project collection is public:
+<https://data.cyverse.org/dav-anon/iplant/home/tswetnam/neon-ducklake/>. You don't need an account,
+a copy, or this repository to read it. It holds two different kinds of "ducklake":
+
+| Path | What it is | How to read it |
+|---|---|---|
+| `ducklake/neon_catalog.ducklake` + `ducklake/data/` | The Phase-1 catalog lake: NEON Data API metadata in DuckDB's `ducklake` extension format (about 4.5 MB of catalog plus about 230 MB of Parquet) | `ATTACH 'ducklake:…' (READ_ONLY)` |
+| `sites/<SITE>/ducklake/neon_<site>.ducklake` + `data/` | A Phase-2 site lake (stacked data tables), also in extension format | the same way |
+| `.mesa/ducklake/snapshot_<id>.parquet` | The project's AVU **history**, written by [mesa-ducklake](https://github.com/idss-mesa/mesa-ducklake). Plain Parquet, **not** an extension lake. Its catalog lives with the MESA install that recorded it, not in iRODS | `read_parquet` |
+
+**The catalog lake, in place over HTTPS.** This was checked with DuckDB 1.5.5 and 2.0.0:
+
+```sql
+INSTALL httpfs; LOAD httpfs; INSTALL ducklake; LOAD ducklake;
+ATTACH 'ducklake:https://data.cyverse.org/dav-anon/iplant/home/tswetnam/neon-ducklake/ducklake/neon_catalog.ducklake'
+    AS neon (READ_ONLY,
+             DATA_PATH 'https://data.cyverse.org/dav-anon/iplant/home/tswetnam/neon-ducklake/ducklake/data/',
+             OVERRIDE_DATA_PATH true);
+SELECT count(*) FROM neon.products;
+```
+
+Site lakes attach the same way. They are much larger, so for repeated queries it is faster to copy the
+lake's folder first (`gocmd get` or `iget -r`) and attach the copy as `sql/attach_all.sql` does. A copy
+must keep the `.ducklake` file and its `data/` folder together.
+
+**The AVU history.** Each row carries its `project_id`, `snapshot_id`, `ts`, `actor`, `source` (here
+`neon-ducklake:*`) and `op`, so the files are readable without the MESA catalog. HTTP has no directory
+glob, so list the files you want:
+
+```sql
+SET VARIABLE base = 'https://data.cyverse.org/dav-anon/iplant/home/tswetnam/neon-ducklake/.mesa/ducklake/';
+SELECT snapshot_id, count(*) AS n, min(ts), max(ts)
+FROM read_parquet([getvariable('base') || 'snapshot_5.parquet',
+                   getvariable('base') || 'snapshot_10.parquet'])
+GROUP BY 1 ORDER BY 1;
+```
+
+Snapshot numbers have gaps because the MESA catalog allocates them across all of its projects. See
+mesa-ducklake's
+[Reading a project's history without the catalog](https://github.com/idss-mesa/mesa-ducklake/blob/main/docs/deploy/per-project-storage.md#reading-a-projects-history-without-the-catalog).
+
+**How the lakes get there.** Every lake is built on the local disk and then uploaded; nothing is written
+straight to the Data Store, because DuckDB can't write to iRODS. A build ends with `CHECKPOINT; DETACH`
+and fails if a `.wal` file is left. `mirror` then uploads `data/**`, verifying each checksum, and uploads
+the `.ducklake` file last, only when every other upload succeeded. A reader never sees a catalog that
+points at missing data files. The MESA history follows the same rule: mesa-ducklake writes each snapshot
+to a local cache, pushes it with a checksum check, and only then commits it in its catalog.
+
 ## AVU vocabulary
 
 The authoritative definition is the plan's AVU vocabulary ([`docs/PLAN.md`](docs/PLAN.md)) with its
