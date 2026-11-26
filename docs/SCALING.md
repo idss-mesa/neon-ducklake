@@ -1,3 +1,30 @@
+---
+type: Design Record
+title: "Scaling to 81 sites"
+description: "How the neon-ducklake site pipeline scales to all 81 NEON sites: what varies across sites, hard limits and the decisions they forced, the orchestrator, and measured throughput."
+tags:
+  - neon-ducklake
+  - engineering
+generated:
+  by: "claude/opus-5.5"
+  at: "2026-11-24T00:00:00Z"
+sources:
+  - id: repo
+    resource: "https://github.com/idss-mesa/neon-ducklake"
+    title: "neon-ducklake source repository"
+    author: "team:idss-mesa"
+  - id: run
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/run.py"
+    title: "src/neon_ducklake/run.py"
+    author: "team:idss-mesa"
+  - id: tuning
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/tuning.py"
+    title: "src/neon_ducklake/tuning.py"
+    author: "team:idss-mesa"
+status: stable
+stale_after: "2027-05-24T00:00:00Z"
+---
+
 # Scaling the site pipeline to all 81 NEON sites
 
 Status: design, 2026-09-27. Measured from the catalog lake (snapshot 1) and the SRER dry run.

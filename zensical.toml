@@ -1,0 +1,120 @@
+[project]
+site_name = "neon-ducklake"
+site_description = "neon-ducklake harvests the NEON Data API into a DuckDB ducklake-extension catalog lake, builds per-site lakes of stacked NEON data with full AVU metadata on the CyVerse Data Store, and records every AVU change in a MESA history. The lakes are public and readable anonymously over HTTPS."
+site_author = "idss-mesa"
+site_url = "https://idss-mesa.github.io/neon-ducklake/"
+repo_url = "https://github.com/idss-mesa/neon-ducklake"
+repo_name = "idss-mesa/neon-ducklake"
+edit_uri = "edit/main/docs/"
+copyright = "Copyright &copy; 2026 The Regents of the University of New Mexico. NEON data are CC BY 4.0. For AI agents: <a href=\"https://idss-mesa.github.io/neon-ducklake/llms.txt\">llms.txt</a> &middot; <a href=\"https://idss-mesa.github.io/neon-ducklake/llms-full.txt\">llms-full.txt</a> &middot; <a href=\"https://idss-mesa.github.io/neon-ducklake/about/ai-agents/\">agent guide</a>."
+
+# TOML: bare keys attach to the most recent [table] header, so every
+# [project] key (nav included) must stay above the first [project.*] header.
+nav = [
+  { "Home" = "index.md" },
+  { "Data" = [
+      "data/index.md",
+      { "The published collection" = "data/collection.md" },
+      { "Catalog lake" = "data/catalog-lake.md" },
+      { "Catalog lake: column reference" = "data/catalog-lake-columns.md" },
+      { "Site lakes" = "data/site-lakes.md" },
+      { "AVU history" = "data/avu-history.md" },
+  ] },
+  { "Engineering" = [
+      "engineering/index.md",
+      { "Architecture" = "engineering/architecture.md" },
+      { "How lakes are built and published" = "engineering/building-lakes.md" },
+      { "Running the pipeline" = "engineering/running.md" },
+      { "Adding a site or product" = "engineering/extending.md" },
+      { "Testing and verification" = "engineering/testing.md" },
+  ] },
+  { "Design records" = [
+      { "Design plan" = "PLAN.md" },
+      { "Internal contracts" = "CONTRACTS.md" },
+      { "Streaming and multi-VM" = "STREAMING.md" },
+      { "Scaling to 81 sites" = "SCALING.md" },
+      { "Runbook" = "RUNBOOK.md" },
+      { "Workers on DE VMs" = "DE_SANDBOX.md" },
+  ] },
+  { "About" = [
+      "about/index.md",
+      { "For AI agents" = "about/ai-agents.md" },
+      { "Changelog" = "log.md" },
+  ] },
+]
+
+[project.extra]
+llms_scope = "It covers the three published datasets (the catalog lake of NEON Data API metadata, the per-site lakes of stacked NEON data, and the MESA AVU history), with their tables, columns, coverage, freshness and tested queries, and how the pipeline builds, publishes, refreshes and tests them."
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/idss-mesa/neon-ducklake"
+
+[project.theme]
+language = "en"
+features = [
+  "announce.dismiss",
+  "content.action.edit",
+  "content.action.view",
+  "content.code.annotate",
+  "content.code.copy",
+  "content.code.select",
+  "content.tabs.link",
+  "content.tooltips",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.sections",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
+]
+
+[[project.theme.palette]]
+scheme = "default"
+primary = "green"
+accent = "teal"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+scheme = "slate"
+primary = "green"
+accent = "teal"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+[project.markdown_extensions.abbr]
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.attr_list]
+[project.markdown_extensions.def_list]
+[project.markdown_extensions.footnotes]
+[project.markdown_extensions.md_in_html]
+[project.markdown_extensions.toc]
+permalink = true
+[project.markdown_extensions.pymdownx.betterem]
+[project.markdown_extensions.pymdownx.caret]
+[project.markdown_extensions.pymdownx.details]
+[project.markdown_extensions.pymdownx.emoji]
+emoji_generator = "zensical.extensions.emoji.to_svg"
+emoji_index = "zensical.extensions.emoji.twemoji"
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+line_spans = "__span"
+pygments_lang_class = true
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.keys]
+[project.markdown_extensions.pymdownx.magiclink]
+[project.markdown_extensions.pymdownx.mark]
+[project.markdown_extensions.pymdownx.smartsymbols]
+[project.markdown_extensions.pymdownx.superfences]
+custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" }
+]
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
+combine_header_slug = true
+[project.markdown_extensions.pymdownx.tasklist]
+custom_checkbox = true
+[project.markdown_extensions.pymdownx.tilde]

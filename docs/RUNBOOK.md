@@ -1,3 +1,30 @@
+---
+type: Runbook
+title: "Runbook"
+description: "Operating the neon-ducklake site pipeline: prerequisites, the orchestrator, one site or all sites, monitoring, recovery, review, refreshing after a NEON release, eviction, streaming, workers and the recorder."
+tags:
+  - neon-ducklake
+  - engineering
+generated:
+  by: "claude/opus-5.5"
+  at: "2026-11-24T00:00:00Z"
+sources:
+  - id: repo
+    resource: "https://github.com/idss-mesa/neon-ducklake"
+    title: "neon-ducklake source repository"
+    author: "team:idss-mesa"
+  - id: run
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/run.py"
+    title: "src/neon_ducklake/run.py"
+    author: "team:idss-mesa"
+  - id: full-sweep
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/scripts/full_sweep.sh"
+    title: "scripts/full_sweep.sh"
+    author: "team:idss-mesa"
+status: stable
+stale_after: "2027-05-24T00:00:00Z"
+---
+
 # neon-ducklake runbook: building site subtrees
 
 This guide covers running the Phase-2 pipeline for one NEON site, a group of sites, or all 81 sites. It

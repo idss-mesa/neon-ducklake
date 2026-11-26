@@ -35,3 +35,6 @@ sites/*/curation/
 
 # re-downloadable public cache (OBO Foundry registry)
 ref/obofoundry_ontologies.jsonld
+
+# built documentation site (zensical build)
+site/

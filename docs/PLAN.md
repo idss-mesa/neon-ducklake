@@ -1,3 +1,30 @@
+---
+type: Design Record
+title: "Design plan"
+description: "The approved neon-ducklake design: phases, architecture, catalog tables, AVU vocabulary, bulk writer and history, and verification. Later decisions in SCALING, CONTRACTS, STREAMING and RUNBOOK take precedence."
+tags:
+  - neon-ducklake
+  - engineering
+generated:
+  by: "claude/opus-5.5"
+  at: "2026-11-24T00:00:00Z"
+sources:
+  - id: repo
+    resource: "https://github.com/idss-mesa/neon-ducklake"
+    title: "neon-ducklake source repository"
+    author: "team:idss-mesa"
+  - id: catalog-lake
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/catalog_lake.py"
+    title: "src/neon_ducklake/catalog_lake.py"
+    author: "team:idss-mesa"
+  - id: vocab
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/avu/vocab.py"
+    title: "src/neon_ducklake/avu/vocab.py"
+    author: "team:idss-mesa"
+status: stable
+stale_after: "2027-05-24T00:00:00Z"
+---
+
 # Design plan
 
 | | |
