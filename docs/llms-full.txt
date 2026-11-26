@@ -262,7 +262,7 @@ All numbers on this page come from queries run read-only over HTTPS on 2026-11-2
 | Location | `https://data.cyverse.org/dav-anon/iplant/home/tswetnam/neon-ducklake/ducklake/` (`neon_catalog.ducklake` plus `data/`) |
 | Format | DuckLake 1.0 (`ducklake` extension), Parquet with zstd, schema `main` |
 | Size | catalog file 4,468,736 bytes; README states about 230 MB of Parquet (not re-measured) |
-| Tables | 56 tables and 3 views: 40 tables from the NEON API, 16 spatial layers, and the views `v_site_inventory`, `v_pair_coverage`, `v_product_summary` |
+| Tables | 56 tables and 3 views: 38 tables built from the NEON API harvest (`table_catalog.source`; this includes the `harvest_runs` and `harvest_requests` ledgers), 2 build bookkeeping tables (`catalog_builds`, `table_catalog`), 16 spatial layers, and the views `v_site_inventory`, `v_pair_coverage`, `v_product_summary` |
 | Snapshots | One build: snapshot 1, `catalog build 20260927T143926Z`, 2026-09-27 15:30:49 UTC |
 | Source | NEON Data API (REST and GraphQL) through neon-mcp's client, harvest run `20260927T143926Z` (complete, 5,048 product x site pairs, 0 failures) |
 | NEON releases | RELEASE-2021 to RELEASE-2026, plus PROVISIONAL months |
@@ -552,9 +552,22 @@ runId | status | startedAt | finishedAt | pairs | failureCount
 20260927T143926Z | complete | 2026-09-27 14:40:11.442263+00:00 | 2026-09-27 15:22:34.437292+00:00 | 5048 | 0
 ```
 
+```sql
+SELECT min(month) FILTER (WHERE isProvisional) AS first_provisional,
+       max(month) FILTER (WHERE isProvisional) AS last_provisional,
+       max(month) FILTER (WHERE NOT isProvisional AND NOT isReleaseOnly) AS last_released
+FROM neon.availability_months;
+```
+
+```text
+first_provisional | last_provisional | last_released
+2013-06 | 2026-09 | 2025-06
+```
+
 - **Built:** 2026-09-27, from one harvest that ran 14:40 to 15:22 UTC that day.
 - **NEON state it reflects:** RELEASE-2026 (generated 2026-01-23) plus PROVISIONAL months up to
-  2026-09 as the API served them on 2026-09-27.
+  2026-09 as the API served them on 2026-09-27. The newest released (RELEASE-2026) month is
+  2025-06.
 - **How to tell from the data:** `snapshots()` (one build per snapshot), `catalog_builds.builtAt`,
   `harvest_runs`, `max(month)` in `availability_months`, and the newest row of `releases`.
   `catalog_builds.versions` and `.tools` record the code and tool versions of the build
@@ -562,8 +575,9 @@ runId | status | startedAt | finishedAt | pairs | failureCount
 - **Refresh:** a new build adds one snapshot (`catalog fetch --new`, `catalog seal`,
   `catalog build`, then `mirror --what api,lake`). See
   [Running the pipeline](https://idss-mesa.github.io/neon-ducklake/engineering/running/#refresh-after-a-new-neon-release).
-  NEON publishes a release each January (the `generationDate` values above), so after
-  January 2027 this lake no longer reflects the latest release until it is rebuilt.
+  Every release in the lake was generated in late January (2021 to 2026, the `generationDate`
+  values above). If NEON keeps that pattern, a RELEASE-2027 would not be in this lake until it is
+  rebuilt.
 
 ## Known limitations
 
@@ -635,11 +649,17 @@ WHERE table_catalog = 'neon' AND table_name = 'releases'
 ORDER BY ordinal_position;
 ```
 
+The output below is an excerpt (`...` marks omitted rows); the full list is in the
+[`releases`](#releases) section.
+
 ```text
 column_name | data_type
 release | VARCHAR
+...
 generationDate | TIMESTAMP WITH TIME ZONE
+...
 manifestCellCount | BIGINT
+...
 ```
 
 ## Products
@@ -2689,7 +2709,32 @@ neon.release | RELEASE-2026 | doi:10.48443/p69b-5e50
 neon.siteMonths | 5 | count
 ```
 
-Add `AND ts <= TIMESTAMPTZ '...'` to the `WHERE` of `events` for the set at an earlier time.
+For the set at an earlier time, add a `ts <=` filter. Snapshot 9 replaced `neon.fileCount` 40
+with 50 at 2026-09-28 04:29:38 UTC, so the set as of 02:00 UTC that day still shows 40:
+
+```sql
+WITH h AS (
+    SELECT * FROM read_parquet(list_transform([5, 6, 7, 8, 9, 10],
+                                              i -> getvariable('base') || 'snapshot_' || i || '.parquet'))
+), events AS (
+    SELECT attribute, value, unit, op,
+           row_number() OVER (PARTITION BY attribute, value, unit ORDER BY ts DESC, snapshot_id DESC) AS rn
+    FROM h
+    WHERE irods_path = '/iplant/home/tswetnam/neon-ducklake/sites/SRER/raw/DP1.00002.001'
+      AND ts <= TIMESTAMPTZ '2026-09-28 02:00:00+00'
+)
+SELECT attribute, value, unit
+FROM events
+WHERE rn = 1 AND op = 'add' AND attribute IN ('neon.release', 'neon.fileCount', 'neon.siteMonths')
+ORDER BY attribute;
+```
+
+```text
+attribute | value | unit
+neon.fileCount | 40 | count
+neon.release | RELEASE-2026 | doi:10.48443/p69b-5e50
+neon.siteMonths | 4 | count
+```
 
 ### Who wrote what
 
@@ -5979,9 +6024,9 @@ Every rendered page also has a visible "View this page as Markdown" button and a
   published collection itself and the code that writes it.
 - **How much should I trust it?** The `verified` key. Its absence means nobody but the generator
   has confirmed the page. Every page here starts unverified.
-- **Is it still true?** `status` and `stale_after`. Dataset cards go stale on 2027-02-15, after
-  NEON's annual January release, because the catalog lake then no longer reflects the latest
-  release until it is rebuilt.
+- **Is it still true?** `status` and `stale_after`. Dataset cards go stale on 2027-02-15. Every NEON release
+  in the lake was generated in late January (2021 to 2026), so a new release may exist by then
+  that the catalog lake does not reflect until it is rebuilt.
 
 ## Answering questions
 
@@ -6010,7 +6055,8 @@ When a page and the data disagree, the data wins. Report gaps on the
 * **Creation**: Dataset cards for the [catalog lake](data/catalog-lake.md) (with a
   [column reference](data/catalog-lake-columns.md)), the [site lakes](data/site-lakes.md) and the
   [AVU history](data/avu-history.md), plus [the published collection](data/collection.md). Every
-  count and every SQL example was run read-only against the public collection on 2026-11-24.
+  count and every SQL example was run read-only against the public collection on 2026-11-24, and
+  all 29 SQL blocks were re-run with matching output on 2026-11-26.
 * **Creation**: Engineering pages: [architecture](engineering/architecture.md),
   [how lakes are built and published](engineering/building-lakes.md),
   [running the pipeline](engineering/running.md),

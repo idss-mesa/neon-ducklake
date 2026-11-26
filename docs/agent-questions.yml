@@ -7,7 +7,8 @@ questions:
     kind: data
     q: "Which tables are in the neon-ducklake catalog lake, and what does one row of the main ones represent?"
     answer: >
-      The catalog lake has 56 tables (40 harvested from the NEON API, 16 spatial layers) and 3 views;
+      The catalog lake has 56 tables (38 built from the NEON API harvest, 2 build bookkeeping tables,
+      16 spatial layers) and 3 views;
       its own table_catalog table describes every one. availability_months has one row per product x
       site x month, files one row per non-AOP basic-package file, products one row per product, sites
       one row per site, and the view v_site_inventory one row per non-AOP product x site x month with
@@ -43,7 +44,7 @@ questions:
       and also covers AOP products.
     must_find:
       - ['v_site_inventory']
-      - ['productCode = ']
+      - ['productCode\s*=']
       - ['isProvisional']
       - ['READ_ONLY']
     where: docs/data/catalog-lake.md
@@ -92,7 +93,7 @@ questions:
       (attribute, value, unit) when that event is an add.
     must_find:
       - ['read_parquet']
-      - ['snapshot_<id>\.parquet']
+      - ['snapshot_\S*\.parquet']
       - ['rule_invocation']
       - ['attribute, value, unit']
     where: docs/data/avu-history.md
@@ -186,6 +187,6 @@ questions:
     must_find:
       - ['site_universe']
       - ['site plan']
-      - ['nd run HARV']
+      - ['(nd|neon-ducklake) run']
       - ['attach_all']
     where: docs/engineering/extending.md

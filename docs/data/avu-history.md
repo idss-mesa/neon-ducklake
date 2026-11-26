@@ -190,7 +190,32 @@ neon.release | RELEASE-2026 | doi:10.48443/p69b-5e50
 neon.siteMonths | 5 | count
 ```
 
-Add `AND ts <= TIMESTAMPTZ '...'` to the `WHERE` of `events` for the set at an earlier time.
+For the set at an earlier time, add a `ts <=` filter. Snapshot 9 replaced `neon.fileCount` 40
+with 50 at 2026-09-28 04:29:38 UTC, so the set as of 02:00 UTC that day still shows 40:
+
+```sql
+WITH h AS (
+    SELECT * FROM read_parquet(list_transform([5, 6, 7, 8, 9, 10],
+                                              i -> getvariable('base') || 'snapshot_' || i || '.parquet'))
+), events AS (
+    SELECT attribute, value, unit, op,
+           row_number() OVER (PARTITION BY attribute, value, unit ORDER BY ts DESC, snapshot_id DESC) AS rn
+    FROM h
+    WHERE irods_path = '/iplant/home/tswetnam/neon-ducklake/sites/SRER/raw/DP1.00002.001'
+      AND ts <= TIMESTAMPTZ '2026-09-28 02:00:00+00'
+)
+SELECT attribute, value, unit
+FROM events
+WHERE rn = 1 AND op = 'add' AND attribute IN ('neon.release', 'neon.fileCount', 'neon.siteMonths')
+ORDER BY attribute;
+```
+
+```text
+attribute | value | unit
+neon.fileCount | 40 | count
+neon.release | RELEASE-2026 | doi:10.48443/p69b-5e50
+neon.siteMonths | 4 | count
+```
 
 ### Who wrote what
 

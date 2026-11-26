@@ -54,7 +54,7 @@ All numbers on this page come from queries run read-only over HTTPS on 2026-11-2
 | Location | `https://data.cyverse.org/dav-anon/iplant/home/tswetnam/neon-ducklake/ducklake/` (`neon_catalog.ducklake` plus `data/`) |
 | Format | DuckLake 1.0 (`ducklake` extension), Parquet with zstd, schema `main` |
 | Size | catalog file 4,468,736 bytes; README states about 230 MB of Parquet (not re-measured) |
-| Tables | 56 tables and 3 views: 40 tables from the NEON API, 16 spatial layers, and the views `v_site_inventory`, `v_pair_coverage`, `v_product_summary` |
+| Tables | 56 tables and 3 views: 38 tables built from the NEON API harvest (`table_catalog.source`; this includes the `harvest_runs` and `harvest_requests` ledgers), 2 build bookkeeping tables (`catalog_builds`, `table_catalog`), 16 spatial layers, and the views `v_site_inventory`, `v_pair_coverage`, `v_product_summary` |
 | Snapshots | One build: snapshot 1, `catalog build 20260927T143926Z`, 2026-09-27 15:30:49 UTC |
 | Source | NEON Data API (REST and GraphQL) through neon-mcp's client, harvest run `20260927T143926Z` (complete, 5,048 product x site pairs, 0 failures) |
 | NEON releases | RELEASE-2021 to RELEASE-2026, plus PROVISIONAL months |
@@ -344,9 +344,22 @@ runId | status | startedAt | finishedAt | pairs | failureCount
 20260927T143926Z | complete | 2026-09-27 14:40:11.442263+00:00 | 2026-09-27 15:22:34.437292+00:00 | 5048 | 0
 ```
 
+```sql
+SELECT min(month) FILTER (WHERE isProvisional) AS first_provisional,
+       max(month) FILTER (WHERE isProvisional) AS last_provisional,
+       max(month) FILTER (WHERE NOT isProvisional AND NOT isReleaseOnly) AS last_released
+FROM neon.availability_months;
+```
+
+```text
+first_provisional | last_provisional | last_released
+2013-06 | 2026-09 | 2025-06
+```
+
 - **Built:** 2026-09-27, from one harvest that ran 14:40 to 15:22 UTC that day.
 - **NEON state it reflects:** RELEASE-2026 (generated 2026-01-23) plus PROVISIONAL months up to
-  2026-09 as the API served them on 2026-09-27.
+  2026-09 as the API served them on 2026-09-27. The newest released (RELEASE-2026) month is
+  2025-06.
 - **How to tell from the data:** `snapshots()` (one build per snapshot), `catalog_builds.builtAt`,
   `harvest_runs`, `max(month)` in `availability_months`, and the newest row of `releases`.
   `catalog_builds.versions` and `.tools` record the code and tool versions of the build
@@ -354,8 +367,9 @@ runId | status | startedAt | finishedAt | pairs | failureCount
 - **Refresh:** a new build adds one snapshot (`catalog fetch --new`, `catalog seal`,
   `catalog build`, then `mirror --what api,lake`). See
   [Running the pipeline](../engineering/running.md#refresh-after-a-new-neon-release).
-  NEON publishes a release each January (the `generationDate` values above), so after
-  January 2027 this lake no longer reflects the latest release until it is rebuilt.
+  Every release in the lake was generated in late January (2021 to 2026, the `generationDate`
+  values above). If NEON keeps that pattern, a RELEASE-2027 would not be in this lake until it is
+  rebuilt.
 
 ## Known limitations
 

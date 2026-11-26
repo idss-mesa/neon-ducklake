@@ -85,9 +85,9 @@ Every rendered page also has a visible "View this page as Markdown" button and a
   published collection itself and the code that writes it.
 - **How much should I trust it?** The `verified` key. Its absence means nobody but the generator
   has confirmed the page. Every page here starts unverified.
-- **Is it still true?** `status` and `stale_after`. Dataset cards go stale on 2027-02-15, after
-  NEON's annual January release, because the catalog lake then no longer reflects the latest
-  release until it is rebuilt.
+- **Is it still true?** `status` and `stale_after`. Dataset cards go stale on 2027-02-15. Every NEON release
+  in the lake was generated in late January (2021 to 2026), so a new release may exist by then
+  that the catalog lake does not reflect until it is rebuilt.
 
 ## Answering questions
 

@@ -7,7 +7,8 @@
 * **Creation**: Dataset cards for the [catalog lake](data/catalog-lake.md) (with a
   [column reference](data/catalog-lake-columns.md)), the [site lakes](data/site-lakes.md) and the
   [AVU history](data/avu-history.md), plus [the published collection](data/collection.md). Every
-  count and every SQL example was run read-only against the public collection on 2026-11-24.
+  count and every SQL example was run read-only against the public collection on 2026-11-24, and
+  all 29 SQL blocks were re-run with matching output on 2026-11-26.
 * **Creation**: Engineering pages: [architecture](engineering/architecture.md),
   [how lakes are built and published](engineering/building-lakes.md),
   [running the pipeline](engineering/running.md),

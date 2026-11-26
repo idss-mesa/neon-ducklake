@@ -48,11 +48,17 @@ WHERE table_catalog = 'neon' AND table_name = 'releases'
 ORDER BY ordinal_position;
 ```
 
+The output below is an excerpt (`...` marks omitted rows); the full list is in the
+[`releases`](#releases) section.
+
 ```text
 column_name | data_type
 release | VARCHAR
+...
 generationDate | TIMESTAMP WITH TIME ZONE
+...
 manifestCellCount | BIGINT
+...
 ```
 
 ## Products
