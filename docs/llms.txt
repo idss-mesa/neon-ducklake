@@ -56,4 +56,4 @@ The legacy form https://idss-mesa.github.io/neon-ducklake/<path>.md also still r
 - [MESA project site](https://idss-mesa.github.io/llms.txt): origin-level llms.txt indexing the MESA site, this documentation, and the MESA software repositories.
 - [Source repository](https://github.com/idss-mesa/neon-ducklake): the bundle itself; `docs/` mirrors the site paths one to one.
 
-If you want CyVerse data rather than documentation, install the MESA MCP servers (or connect to a hosted endpoint) and call their tools; the agent guide explains how.
+For the data itself, no server is needed: attach the lakes read-only with DuckDB's ducklake extension, or read the AVU history with read_parquet; the Data section has tested queries. For live NEON data, use neon-mcp (https://idss-mesa.github.io/neon-mcp/).

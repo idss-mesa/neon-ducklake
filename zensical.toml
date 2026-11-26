@@ -45,6 +45,7 @@ nav = [
 
 [project.extra]
 llms_scope = "It covers the three published datasets (the catalog lake of NEON Data API metadata, the per-site lakes of stacked NEON data, and the MESA AVU history), with their tables, columns, coverage, freshness and tested queries, and how the pipeline builds, publishes, refreshes and tests them."
+llms_footer = "For the data itself, no server is needed: attach the lakes read-only with DuckDB's ducklake extension, or read the AVU history with read_parquet; the Data section has tested queries. For live NEON data, use neon-mcp (https://idss-mesa.github.io/neon-mcp/)."
 
 [[project.extra.social]]
 icon = "fontawesome/brands/github"

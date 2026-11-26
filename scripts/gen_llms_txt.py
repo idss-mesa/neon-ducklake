@@ -166,10 +166,13 @@ def main() -> int:
     if raw_root:
         lines.append(f"- [Source repository]({cfg.get('repo_url')}): the bundle itself; "
                      "`docs/` mirrors the site paths one to one.")
-    lines += ["",
-              "If you want CyVerse data rather than documentation, install the MESA MCP "
-              "servers (or connect to a hosted endpoint) and call their tools; the agent "
-              "guide explains how.", ""]
+    # Closing pointer from documentation to the thing itself; override with
+    # [project.extra] llms_footer in zensical.toml.
+    footer = str(cfg.get("extra", {}).get("llms_footer", "")).strip() or (
+        "If you want CyVerse data rather than documentation, install the MESA MCP "
+        "servers (or connect to a hosted endpoint) and call their tools; the agent "
+        "guide explains how.")
+    lines += ["", footer, ""]
 
     (DOCS / "llms.txt").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     (DOCS / "llms-full.txt").write_text(full_text, encoding="utf-8")
