@@ -1,0 +1,192 @@
+# Questions an AI agent should be able to answer from the published neon-ducklake documentation,
+# starting from https://idss-mesa.github.io/llms.txt and following links. Format:
+# idss-mesa/idss-mesa.github.io agent-questions spec (pilot). Numbers were measured on 2026-11-24.
+repo: idss-mesa/neon-ducklake
+questions:
+  - id: catalog-lake-tables-and-grain
+    kind: data
+    q: "Which tables are in the neon-ducklake catalog lake, and what does one row of the main ones represent?"
+    answer: >
+      The catalog lake has 56 tables (38 built from the NEON API harvest, 2 build bookkeeping tables,
+      16 spatial layers) and 3 views;
+      its own table_catalog table describes every one. availability_months has one row per product x
+      site x month, files one row per non-AOP basic-package file, products one row per product, sites
+      one row per site, and the view v_site_inventory one row per non-AOP product x site x month with
+      file counts and bytes.
+    must_find:
+      - ['table_catalog']
+      - ['availability_months']
+      - ['v_site_inventory']
+      - ['product x site x month']
+    where: docs/data/catalog-lake.md
+
+  - id: catalog-lake-coverage
+    kind: data
+    q: "How many NEON data products, sites and data files does the neon-ducklake catalog lake cover?"
+    answer: >
+      202 products (161 non-AOP, 41 AOP), 81 sites and 20 domains, months 2010-12 to 2026-09. Its file
+      inventory lists 3,215,813 non-AOP basic-package files (4,034.1 GB) from 121 products at all 81
+      sites.
+    must_find:
+      - ['3,215,813']
+      - ['\b202\b']
+      - ['\b81\b']
+      - ['4,034\.1']
+    where: docs/data/catalog-lake.md
+
+  - id: months-for-product-at-site
+    kind: data
+    q: "How do I list the months of data available for one NEON product at one site in neon-ducklake?"
+    answer: >
+      Attach the catalog lake read-only over HTTPS and query the v_site_inventory view filtered on
+      productCode and siteCode; each row is one month with its release (RELEASE-YYYY or PROVISIONAL),
+      isProvisional, isReleaseOnly, fileCount and totalBytes. availability_months gives the same months
+      and also covers AOP products.
+    must_find:
+      - ['v_site_inventory']
+      - ['productCode\s*=']
+      - ['isProvisional']
+      - ['READ_ONLY']
+    where: docs/data/catalog-lake.md
+
+  - id: product-to-data-files
+    kind: data
+    q: "Starting from a NEON product code, how do I get to its actual data files with neon-ducklake?"
+    answer: >
+      The catalog lake's files table lists every file by productCode, siteCode and month. Its objectUrl
+      is NEON's storage URL with the signature removed and returns HTTP 403, so it is not a download
+      link. For SRER and KONZ months that a site lake holds, the Data Store copy is public at
+      https://data.cyverse.org/dav-anon plus the site lake's files.irodsPath; otherwise get a signed URL
+      from the NEON API, for example with neon-mcp's neon_list_files and a NEON API token.
+    must_find:
+      - ['objectUrl']
+      - ['403']
+      - ['irodsPath']
+      - ['neon_list_files']
+    where: docs/data/catalog-lake.md
+
+  - id: site-lakes-contents-and-sites
+    kind: data
+    q: "What is in a neon-ducklake site lake, and which sites have one?"
+    answer: >
+      A site lake holds one site's NEON data stacked into typed tables named
+      <product>__<table> (for example dp1_00002_001__saat_30min), plus files, site_months, variables,
+      sensor_positions, file_stats, file_taxa, table_catalog and other supporting tables. Only SRER and
+      KONZ are published, and both are partial sample runs: SRER holds 1,274 of the 49,885 files the
+      catalog lists for it, KONZ 1,241 of 54,157.
+    must_find:
+      - ['SRER']
+      - ['KONZ']
+      - ['sample run']
+      - ['site_months']
+    where: docs/data/site-lakes.md
+
+  - id: avu-history-read-and-columns
+    kind: data
+    q: "How do I read the neon-ducklake AVU history, and what do its columns mean?"
+    answer: >
+      The history is plain Parquet, one snapshot_<id>.parquet per MESA snapshot in the project's
+      .mesa/ducklake/ collection; it is not a ducklake-extension lake, so read it with read_parquet
+      over HTTPS, listing the files by name because HTTP has no glob. Each row is one add or delete of
+      an AVU: project_id, snapshot_id, irods_path, target_type, attribute, value, unit, op, actor, ts,
+      source, via_ticket and rule_invocation. The current set of a path is the latest event per
+      (attribute, value, unit) when that event is an add.
+    must_find:
+      - ['read_parquet']
+      - ['snapshot_\S*\.parquet']
+      - ['rule_invocation']
+      - ['attribute, value, unit']
+    where: docs/data/avu-history.md
+
+  - id: spool-and-spool-done
+    kind: data
+    q: "What are .mesa/spool and .mesa/spool-done in the neon-ducklake collection?"
+    answer: >
+      .mesa/spool/<vm>/ holds AVU history batches (<batch>.parquet plus a <batch>.json manifest) that
+      streaming runs and worker VMs upload instead of opening the MESA catalog. The recorder
+      (neon-ducklake recorder --watch, on the host that owns the MESA catalog) checks each batch against
+      its manifest, coalesces batches into snapshots of up to 250,000 rows that mesa-ducklake writes to
+      .mesa/ducklake/, then moves the recorded batches to .mesa/spool-done/<vm>/, where they are kept and
+      never deleted. On 2026-11-24 the spool was empty and spool-done held 57 KONZ batches whose
+      63,682 rows equal snapshot 10.
+    must_find:
+      - ['spool-done']
+      - ['recorder']
+      - ['250,000']
+      - ['manifest']
+    where: docs/data/avu-history.md
+
+  - id: which-neon-release
+    kind: data
+    q: "Which NEON release does the neon-ducklake catalog lake reflect, and how can I tell from the data?"
+    answer: >
+      It was harvested on 2026-09-27 (run 20260927T143926Z, one snapshot) and reflects RELEASE-2026
+      (generated 2026-01-23) plus PROVISIONAL months up to 2026-09. The snapshots() function,
+      catalog_builds, harvest_runs, the releases table and max(month) in availability_months show this.
+    must_find:
+      - ['RELEASE-2026']
+      - ['2026-09-27']
+      - ['PROVISIONAL']
+      - ['snapshots\(\)']
+    where: docs/data/catalog-lake.md
+
+  - id: built-locally-not-in-place
+    kind: engineering
+    q: "Does neon-ducklake write its lakes directly on the CyVerse Data Store, or build them locally?"
+    answer: >
+      Locally. DuckDB cannot write to iRODS, so every lake is built on local disk, ends with CHECKPOINT
+      and DETACH (a leftover .wal fails the build), and is then uploaded with checksum-verified puts. The
+      .ducklake catalog file is uploaded last, only when every data file succeeded, so a reader never
+      sees a catalog pointing at missing Parquet. Streamed site lakes publish versioned catalogs behind a
+      CURRENT pointer.
+    must_find:
+      - ['CHECKPOINT']
+      - ['\.wal']
+      - ['catalog files go last|uploaded last|last object']
+      - ['checksum']
+    where: docs/engineering/building-lakes.md
+
+  - id: mesa-ducklake-not-extension-lake
+    kind: engineering
+    q: "Why is the .mesa/ducklake folder in neon-ducklake not an ATTACH-able DuckLake extension lake like the catalog lake?"
+    answer: >
+      It is written by mesa-ducklake, which implements the DuckLake pattern itself (its own catalog plus
+      one plain Parquet file per snapshot) instead of using DuckDB's ducklake extension, so there is no
+      .ducklake catalog file to attach; read the files with read_parquet. mesa-ducklake's docs say the
+      extension writes data files through DuckDB file systems and the iRODS Data Store has none.
+    must_find:
+      - ['pattern']
+      - ['read_parquet']
+      - ['file systems']
+      - ['mesa-ducklake']
+    where: docs/engineering/building-lakes.md
+
+  - id: refresh-after-neon-release
+    kind: engineering
+    q: "How do I rebuild or refresh the neon-ducklake lakes after NEON publishes a new release?"
+    answer: >
+      Run catalog fetch --new, catalog seal and catalog build (one new snapshot through the hash-keyed
+      upsert), verify catalog, diff, and mirror --what api,lake to publish the catalog lake. Then re-run
+      the sites with neon-ducklake run SITE --from-stage list, which re-downloads changed files and
+      re-stacks only changed tables. scripts/full_sweep.sh --refresh-catalog --from-stage list does both.
+    must_find:
+      - ['fetch --new']
+      - ['--from-stage list']
+      - ['mirror --what api,lake']
+      - ['--refresh-catalog']
+    where: docs/engineering/running.md
+
+  - id: add-a-site
+    kind: engineering
+    q: "How do I add another NEON site to neon-ducklake?"
+    answer: >
+      Sites are not a hand-kept list: run.site_universe reads all 81 from the catalog lake's sites table.
+      Preview with neon-ducklake site plan SITE, build and publish with neon-ducklake run SITE (or let a
+      worker VM claim it), record the spooled history with recorder --flush, and check it with verify
+      SITE. For local readers add a block to sql/attach_all.sql.
+    must_find:
+      - ['site_universe']
+      - ['site plan']
+      - ['(nd|neon-ducklake) run']
+      - ['attach_all']
+    where: docs/engineering/extending.md

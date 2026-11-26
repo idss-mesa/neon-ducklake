@@ -1,3 +1,30 @@
+---
+type: Runbook
+title: "Workers on CyVerse DE VMs"
+description: "Running neon-ducklake workers on several CyVerse Discovery Environment VMs: roles, VM setup, secrets without a keyring, the worker, the history recorder, stale claims, curation across VMs, and troubleshooting."
+tags:
+  - neon-ducklake
+  - engineering
+generated:
+  by: "claude/opus-5.5"
+  at: "2026-11-24T00:00:00Z"
+sources:
+  - id: repo
+    resource: "https://github.com/idss-mesa/neon-ducklake"
+    title: "neon-ducklake source repository"
+    author: "team:idss-mesa"
+  - id: worker
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/worker.py"
+    title: "src/neon_ducklake/worker.py"
+    author: "team:idss-mesa"
+  - id: recorder
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/avu/recorder.py"
+    title: "src/neon_ducklake/avu/recorder.py"
+    author: "team:idss-mesa"
+status: stable
+stale_after: "2027-05-24T00:00:00Z"
+---
+
 # Running workers on CyVerse DE VMs ("AI Sandboxes")
 
 This guide covers running neon-ducklake on several CyVerse Discovery Environment VMs at once, each one

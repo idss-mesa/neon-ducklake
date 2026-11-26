@@ -4,6 +4,9 @@
 [![Python 3.11](https://img.shields.io/badge/python-3.11-3776ab)](pyproject.toml)
 [![DuckDB 2.0.0 + DuckLake](https://img.shields.io/badge/DuckDB-2.0.0%20%2B%20DuckLake-fff000)](https://ducklake.select/)
 
+Documentation: <https://idss-mesa.github.io/neon-ducklake/> (dataset cards with tables, columns,
+coverage and tested queries; agent index at [`llms.txt`](https://idss-mesa.github.io/neon-ducklake/llms.txt)).
+
 A metadata lakehouse of the [NEON Data API](https://data.neonscience.org/data-api/) together with fully
 annotated copies of NEON's field-site data on [CyVerse](https://cyverse.org/) iRODS. Everything is managed
 as a single [MESA](https://github.com/idss-mesa/mesa-mcp) DuckLake project.
@@ -586,6 +589,8 @@ Before changing a module interface, read [`docs/CONTRACTS.md`](docs/CONTRACTS.md
 
 ## Documentation
 
+- <https://idss-mesa.github.io/neon-ducklake/>: the documentation site, with dataset cards in
+  [`docs/data/`](docs/data/) and engineering pages in [`docs/engineering/`](docs/engineering/).
 - [`docs/index.md`](docs/index.md): a map of the documentation.
 - [`docs/PLAN.md`](docs/PLAN.md): the approved design.
 - [`docs/SCALING.md`](docs/SCALING.md): scaling to 81 sites and the measured throughput.

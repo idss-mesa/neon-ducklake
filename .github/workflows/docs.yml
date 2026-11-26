@@ -1,0 +1,63 @@
+name: Documentation
+
+# Validates the OKF bundle and the llms.txt drift on every PR; builds and deploys the
+# Zensical site to GitHub Pages (https://idss-mesa.github.io/neon-ducklake/) on main.
+
+on:
+  push:
+    branches: [main]
+  # Validation (incl. the llms.txt drift check) on PRs, so problems surface
+  # before merge rather than after.
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; cancel in-progress runs for the same ref.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  # Validate that every docs page conforms to the Open Knowledge Format (OKF v0.2)
+  okf-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: python scripts/okf_validate.py docs
+      # Fail if the llms.txt machine-readable indexes drifted from the pages.
+      - run: |
+          python scripts/gen_llms_txt.py
+          git diff --exit-code docs/llms.txt docs/llms-full.txt
+
+  deploy:
+    needs: okf-conformance
+    if: github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/configure-pages@v6
+        with:
+          enablement: true
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install zensical pyyaml
+      - run: zensical build --clean --strict
+      # Agent surface: markdown mirror, OKF meta injection, robots.txt
+      - run: python scripts/postbuild_agent_surface.py site
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - uses: actions/deploy-pages@v5
+        id: deployment

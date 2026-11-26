@@ -1,3 +1,34 @@
+---
+type: Reference
+title: "Internal contracts"
+description: "The interfaces every neon-ducklake module codes against: shared modules, catalog-lake and site-lake tables and columns, desired AVUs, uploads, and the ontology stores, with their amendment rounds."
+tags:
+  - neon-ducklake
+  - engineering
+generated:
+  by: "claude/opus-5.5"
+  at: "2026-11-24T00:00:00Z"
+sources:
+  - id: repo
+    resource: "https://github.com/idss-mesa/neon-ducklake"
+    title: "neon-ducklake source repository"
+    author: "team:idss-mesa"
+  - id: flatten
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/flatten.py"
+    title: "src/neon_ducklake/flatten.py"
+    author: "team:idss-mesa"
+  - id: site-lake
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/site/site_lake.py"
+    title: "src/neon_ducklake/site/site_lake.py"
+    author: "team:idss-mesa"
+  - id: mirror
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/mirror.py"
+    title: "src/neon_ducklake/mirror.py"
+    author: "team:idss-mesa"
+status: stable
+stale_after: "2027-05-24T00:00:00Z"
+---
+
 # neon-ducklake internal contracts
 
 Every module codes against these contracts. Changing one means updating this file first.

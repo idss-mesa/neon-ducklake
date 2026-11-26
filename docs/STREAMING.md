@@ -1,3 +1,38 @@
+---
+type: Design Record
+title: "Streaming and multi-VM execution"
+description: "The contract of the streaming pipeline and of workers on several VMs: chunks, per-chunk stages and return codes, the versioned site lake on the Data Store, history backends and the recorder, claims, journal backups, and the orchestrator."
+tags:
+  - neon-ducklake
+  - engineering
+generated:
+  by: "claude/opus-5.5"
+  at: "2026-11-24T00:00:00Z"
+sources:
+  - id: repo
+    resource: "https://github.com/idss-mesa/neon-ducklake"
+    title: "neon-ducklake source repository"
+    author: "team:idss-mesa"
+  - id: stream
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/site/stream.py"
+    title: "src/neon_ducklake/site/stream.py"
+    author: "team:idss-mesa"
+  - id: upload
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/site/upload.py"
+    title: "src/neon_ducklake/site/upload.py"
+    author: "team:idss-mesa"
+  - id: recorder
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/avu/recorder.py"
+    title: "src/neon_ducklake/avu/recorder.py"
+    author: "team:idss-mesa"
+  - id: coord
+    resource: "https://github.com/idss-mesa/neon-ducklake/blob/main/src/neon_ducklake/coord.py"
+    title: "src/neon_ducklake/coord.py"
+    author: "team:idss-mesa"
+status: stable
+stale_after: "2027-05-24T00:00:00Z"
+---
+
 # Streaming and multi-VM execution
 
 This is the contract of the streaming pipeline and of workers on several VMs, as implemented (review round 3,
